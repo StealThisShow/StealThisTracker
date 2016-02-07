@@ -62,6 +62,13 @@ class PHPTracker_Torrent
     protected $info_hash;
 
     /**
+     * Webseed(s) url-list (GetRight implementation)
+     *
+     * @var null|string|array
+     */
+    protected $url_list;
+
+    /**
      * Initializing object witht he piece size and file object, optionally setting attributes from the database.
      *
      * @param PHPTracker_File_File $file To intialize 'file' attribute.
@@ -71,9 +78,10 @@ class PHPTracker_Torrent
      * @param integer $length Optional. To set 'length' attribute. If not set, will be loaded automatically.
      * @param string $pieces Optional. To set 'pieces' attribute. If not set, will be loaded automatically.
      * @param string $info_hash Optional. To set 'info_hash' attribute. If not set, will be loaded automatically.
+     * @param null|string|array $url_list Optional. To set 'url_list' attribute.
      * @throws PHPTracker_Error When the piece size is invalid.
      */
-    public function __construct( PHPTracker_File_File $file, $size_piece, $file_path = null, $name = null, $length = null, $pieces = null, $info_hash = null )
+    public function __construct( PHPTracker_File_File $file, $size_piece, $file_path = null, $name = null, $length = null, $pieces = null, $info_hash = null, $url_list = null )
     {
         if ( 0 >= $size_piece = intval( $size_piece ) )
         {
@@ -89,6 +97,7 @@ class PHPTracker_Torrent
         $this->file_path    = $file_path;
         $this->pieces       = $pieces;
         $this->info_hash    = $info_hash;
+        $this->url_list     = $url_list;
     }
 
     /**
@@ -143,6 +152,9 @@ class PHPTracker_Torrent
             case 'size_piece':
                 return $this->size_piece;
                 break;
+            case 'url_list':
+                return $this->url_list;
+                break;
             default:
                 throw new PHPTracker_Error( "Can't access attribute $attribute of " . __CLASS__ );
         }
@@ -166,6 +178,7 @@ class PHPTracker_Torrent
             case 'size_piece':
             case 'info_hash':
             case 'file_path':
+            case 'url_list':
                 return true;
                 break;
         }
@@ -221,6 +234,9 @@ class PHPTracker_Torrent
             'announce-list'     => $announce_list,
         );
 
+        if ( ( $url_list = $this->__get( 'url_list' ) ) !== null )
+            $torrent_data['url-list' ] = $url_list;
+
         return PHPTracker_Bencode_Builder::build( $torrent_data );
     }
 
@@ -231,6 +247,8 @@ class PHPTracker_Torrent
      * @param integer $block_begin Beginning of the block relative to the piece in byets.
      * @param integer $length Length of the block in bytes.
      * @return string
+     * @throws PHPTracker_Error
+     * @throws PHPTracker_File_Error_Unreadable
      */
     public function readBlock( $piece_index, $block_begin, $length )
     {

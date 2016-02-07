@@ -26,7 +26,7 @@ class PHPTracker_TorrentTest extends PHPUnit_Framework_TestCase
 
         $file = new PHPTracker_File_File( $this->file_path );
 
-        $this->object = new PHPTracker_Torrent( $file, 2 );
+        $this->object = new PHPTracker_Torrent( $file, 2 , null, null, null, null, null, 'http://example.com/test.ext');
     }
 
     /**
@@ -55,6 +55,7 @@ class PHPTracker_TorrentTest extends PHPUnit_Framework_TestCase
         $this->assertTrue( isset( $this->object->size_piece ) );
         $this->assertTrue( isset( $this->object->info_hash ) );
         $this->assertTrue( isset( $this->object->file_path ) );
+        $this->assertTrue( isset( $this->object->url_list ) );
 
         $this->assertEquals( $this->createPiecesHash( self::TEST_DATA, 2 ), $this->object->pieces );
         $this->assertEquals( strlen( self::TEST_DATA ), $this->object->length );
@@ -86,6 +87,7 @@ class PHPTracker_TorrentTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals( $decoded_torrent['announce'], 'http://announce' );
         $this->assertContains( array( 'http://announce' ), $decoded_torrent['announce-list'] );
+        $this->assertEquals( $decoded_torrent['url-list'], 'http://example.com/test.ext' );
     }
 
     /**
