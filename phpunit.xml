@@ -12,14 +12,14 @@
          bootstrap="test/bootstrap.php"
 >
   <testsuites>
-    <testsuite name="All tests of PHPTracker">
-      <directory>./test/PHPTracker/</directory>
+    <testsuite name="All tests of StealThisTracker">
+      <directory>./test/StealThisTracker/</directory>
     </testsuite>
   </testsuites>
 
   <filter>
     <whitelist>
-      <directory suffix=".php">./lib/PHPTracker/</directory>
+      <directory suffix=".php">./src/StealThisTracker/</directory>
     </whitelist>
   </filter>
 </phpunit>

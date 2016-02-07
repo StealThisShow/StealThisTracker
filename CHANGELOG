@@ -1,10 +1,1 @@
-* 0.3.1
-  * Changelog hasn't been updated for v0.3.0
-  * Readme updated to mention changes to project
-
-* 0.2.1
-  * basic memory leak protection for seed server
-
-* 0.2
-  * added ability to start as daemon (see PHPTracker_Seeder_Server::startDetached)
-  * added logging to seed server (see 'logger' config parameter, and Logger subpackage)
+* 0.1

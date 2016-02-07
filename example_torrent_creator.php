@@ -5,16 +5,16 @@
 // -----------------------------------------------------------
 
 // Registering autoloader, essential to use the library.
-require( dirname(__FILE__).'/lib/PHPTracker/Autoloader.php' );
-PHPTracker_Autoloader::register();
+require( dirname(__FILE__).'/src/StealThisTracker/Autoloader.php' );
+StealThisTracker_Autoloader::register();
 
 // Creating a simple config object. You can replace this with your object
-// implementing PHPTracker_Config_Interface.
-$config = new PHPTracker_Config_Simple( array(
-    // Persistense object implementing PHPTracker_Persistence_Interface.
+// implementing StealThisTracker_Config_Interface.
+$config = new StealThisTracker_Config_Simple( array(
+    // Persistense object implementing StealThisTracker_Persistence_Interface.
     // We use MySQL here. The object is initialized with its own config.
-    'persistence' => new PHPTracker_Persistence_Mysql(
-        new PHPTracker_Config_Simple( array(
+    'persistence' => new StealThisTracker_Persistence_Mysql(
+        new StealThisTracker_Config_Simple( array(
             'db_host'       => 'localhost',
             'db_user'       => 'misc',
             'db_password'   => 'misc',
@@ -28,7 +28,7 @@ $config = new PHPTracker_Config_Simple( array(
 ) );
 
 // Core class managing creating the file.
-$core = new PHPTracker_Core( $config );
+$core = new StealThisTracker_Core( $config );
 
 // Setting appropiate HTTP header and sending back the .torrrent file.
 // This is VERY inefficient to do! SAVE the .torrent file on your server and

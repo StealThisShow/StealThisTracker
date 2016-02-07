@@ -8,8 +8,8 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-# Dumping structure for table phptracker_peers
-CREATE TABLE IF NOT EXISTS `phptracker_peers` (
+# Dumping structure for table stealthistracker_peers
+CREATE TABLE IF NOT EXISTS `stealthistracker_peers` (
   `peer_id` binary(20) NOT NULL COMMENT 'Peer unique ID.',
   `ip_address` int(10) unsigned NOT NULL COMMENT 'IP address of the client.',
   `port` smallint(20) unsigned NOT NULL COMMENT 'Listening port of the peer.',
@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS `phptracker_peers` (
   KEY `Index 3` (`bytes_left`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Current peers for torrents.';
 
-# Dumping structure for table phptracker_torrents
-CREATE TABLE IF NOT EXISTS `phptracker_torrents` (
+# Dumping structure for table stealthistracker_torrents
+CREATE TABLE IF NOT EXISTS `stealthistracker_torrents` (
   `info_hash` binary(20) NOT NULL COMMENT 'Info hash.',
   `length` int(11) unsigned NOT NULL COMMENT 'Size of the contained file in bytes.',
   `pieces_length` int(11) unsigned NOT NULL COMMENT 'Size of one piece in bytes.',
