@@ -1,20 +1,21 @@
 <?php
 
+use \StealThisShow\StealThisTracker as STT;
+
 // ---------------------------------------
 // This is how to set up an announce URL.
 // ---------------------------------------
 
-// Registering autoloader, essential to use the library.
-require( dirname(__FILE__).'/src/StealThisTracker/Autoloader.php' );
-StealThisTracker_Autoloader::register();
+// Composer autoloader
+require( dirname(__FILE__).'/vendor/autoload.php' );
 
 // Creating a simple config object. You can replace this with your object
 // implementing StealThisTracker_Config_Interface.
-$config = new StealThisTracker_Config_Simple( array(
+$config = new STT\Config\Simple( array(
     // Persistense object implementing StealThisTracker_Persistence_Interface.
     // We use MySQL here. The object is initialized with its own config.
-    'persistence' => new StealThisTracker_Persistence_Mysql(
-        new StealThisTracker_Config_Simple( array(
+    'persistence' => new STT\Persistence\Mysql(
+        new STT\Config\Simple( array(
             'db_host'       => 'localhost',
             'db_user'       => 'misc',
             'db_password'   => 'misc',
@@ -28,11 +29,11 @@ $config = new StealThisTracker_Config_Simple( array(
 ) );
 
 // Core class managing the announcements.
-$core = new StealThisTracker_Core( $config );
+$core = new STT\Core( $config );
 
 // We take the parameters the client is sending and initialize a config
 // object with them. Again, you can implement your own Config class to do this.
-$get = new StealThisTracker_Config_Simple( $_GET );
+$get = new STT\Config\Simple( $_GET );
 
 // We simply send back the results of the announce method to the client.
 echo $core->announce( $get );

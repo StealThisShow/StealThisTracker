@@ -1,20 +1,21 @@
 <?php
 
+use \StealThisShow\StealThisTracker as STT;
+
 // -----------------------------------------------------------
 // This is how to create a .torrent file from a physical file.
 // -----------------------------------------------------------
 
-// Registering autoloader, essential to use the library.
-require( dirname(__FILE__).'/src/StealThisTracker/Autoloader.php' );
-StealThisTracker_Autoloader::register();
+// Composer autoloader
+require( dirname(__FILE__).'/vendor/autoload.php' );
 
 // Creating a simple config object. You can replace this with your object
 // implementing StealThisTracker_Config_Interface.
-$config = new StealThisTracker_Config_Simple( array(
+$config = new STT\Config\Simple( array(
     // Persistense object implementing StealThisTracker_Persistence_Interface.
     // We use MySQL here. The object is initialized with its own config.
-    'persistence' => new StealThisTracker_Persistence_Mysql(
-        new StealThisTracker_Config_Simple( array(
+    'persistence' => new STT\Persistence\Mysql(
+        new STT\Config\Simple( array(
             'db_host'       => 'localhost',
             'db_user'       => 'misc',
             'db_password'   => 'misc',
@@ -28,7 +29,7 @@ $config = new StealThisTracker_Config_Simple( array(
 ) );
 
 // Core class managing creating the file.
-$core = new StealThisTracker_Core( $config );
+$core = new STT\Core( $config );
 
 // Setting appropiate HTTP header and sending back the .torrrent file.
 // This is VERY inefficient to do! SAVE the .torrent file on your server and
