@@ -259,7 +259,8 @@ class Torrent
             'announce-list'     => $announce_list,
         );
 
-        if ( !empty( $url_list = $this->__get( 'url_list' ) ) )
+        $url_list = $this->__get( 'url_list' );
+        if ( !empty( $url_list ) )
             $torrent_data['url-list' ] = $url_list;
 
         return Builder::build( $torrent_data );
