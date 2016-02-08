@@ -51,14 +51,18 @@ SET
     `pieces_length` = :pieces_length,
     `pieces`        = :pieces,
     `name`          = :name,
-    `path`          = :path
+    `path`          = :path,
+    `announce_list` = :announce_list,
+    `url_list`      = :url_list
 ON DUPLICATE KEY UPDATE
     `info_hash`     = VALUES( `info_hash` ),
     `length`        = VALUES( `length` ),
     `pieces_length` = VALUES( `pieces_length` ),
     `pieces`        = VALUES( `pieces` ),
     `name`          = VALUES( `name` ),
-    `path`          = VALUES( `path` )
+    `path`          = VALUES( `path` ),
+    `announce_list` = VALUES( `announce_list` ),
+    `url_list`      = VALUES( `url_list` )
 SQL;
 
         $this->query( $sql, array(
@@ -68,6 +72,8 @@ SQL;
             ':pieces'            => $torrent->pieces,
             ':name'              => $torrent->name,
             ':path'              => $torrent->file_path,
+            ':announce_list'     => serialize($torrent->announce_list),
+            ':url_list'          => serialize($torrent->url_list)
         ) );
     }
 
@@ -88,7 +94,9 @@ SELECT
     `pieces_length`,
     `pieces`,
     `name`,
-    `path`
+    `path`,
+    `announce_list`,
+    `url_list`
 FROM
     `stealthistracker_torrents`
 WHERE
@@ -110,7 +118,9 @@ SQL;
                 $results[0]['name'],
                 $results[0]['length'],
                 $results[0]['pieces'],
-                $results[0]['info_hash']
+                $results[0]['info_hash'],
+                unserialize($results[0]['announce_list']),
+                unserialize($results[0]['url_list'])
             );
         }
         return null;

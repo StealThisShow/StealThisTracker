@@ -62,9 +62,16 @@ class StealThisTracker_Torrent
     protected $info_hash;
 
     /**
-     * Webseed(s) url-list (GetRight implementation)
+     * The announce list of this torrent.
      *
-     * @var null|string|array
+     * @var array
+     */
+    protected $announce_list;
+
+    /**
+     * Webseed(s) url-list (GetRight implementation).
+     *
+     * @var array
      */
     protected $url_list;
 
@@ -78,10 +85,11 @@ class StealThisTracker_Torrent
      * @param integer $length Optional. To set 'length' attribute. If not set, will be loaded automatically.
      * @param string $pieces Optional. To set 'pieces' attribute. If not set, will be loaded automatically.
      * @param string $info_hash Optional. To set 'info_hash' attribute. If not set, will be loaded automatically.
-     * @param null|string|array $url_list Optional. To set 'url_list' attribute.
+     * @param array $announce_list Optional. To set 'announce-list' attribute.
+     * @param array $url_list Optional. To set 'url_list' attribute.
      * @throws StealThisTracker_Error When the piece size is invalid.
      */
-    public function __construct( StealThisTracker_File_File $file, $size_piece, $file_path = null, $name = null, $length = null, $pieces = null, $info_hash = null, $url_list = null )
+    public function __construct( StealThisTracker_File_File $file, $size_piece, $file_path = null, $name = null, $length = null, $pieces = null, $info_hash = null, array $announce_list = array(), array $url_list = array() )
     {
         if ( 0 >= $size_piece = intval( $size_piece ) )
         {
@@ -92,12 +100,13 @@ class StealThisTracker_Torrent
         $this->file         = $file;
 
         // Optional parameters. If we set them here, they will not be lazy-loaded.
-        $this->length       = $length;
-        $this->name         = $name;
-        $this->file_path    = $file_path;
-        $this->pieces       = $pieces;
-        $this->info_hash    = $info_hash;
-        $this->url_list     = $url_list;
+        $this->length           = $length;
+        $this->name             = $name;
+        $this->file_path        = $file_path;
+        $this->pieces           = $pieces;
+        $this->info_hash        = $info_hash;
+        $this->announce_list    = $announce_list;
+        $this->url_list         = $url_list;
     }
 
     /**
@@ -152,6 +161,12 @@ class StealThisTracker_Torrent
             case 'size_piece':
                 return $this->size_piece;
                 break;
+            case 'announce_list':
+                return $this->announce_list;
+                break;
+            case 'announce':
+                return reset($this->announce_list);
+                break;
             case 'url_list':
                 return $this->url_list;
                 break;
@@ -178,6 +193,8 @@ class StealThisTracker_Torrent
             case 'size_piece':
             case 'info_hash':
             case 'file_path':
+            case 'announce_list':
+            case 'announce':
             case 'url_list':
                 return true;
                 break;
@@ -215,6 +232,9 @@ class StealThisTracker_Torrent
      */
     public function createTorrentFile( array $announce_list )
     {
+        if ( !empty( $this->announce_list ) )
+            $announce_list = array_unique( array_merge( $this->announce_list, $announce_list ) );
+
         // Announce-list is a list of lists of strings.
         foreach ( $announce_list as &$announce_item )
         {
@@ -234,7 +254,7 @@ class StealThisTracker_Torrent
             'announce-list'     => $announce_list,
         );
 
-        if ( ( $url_list = $this->__get( 'url_list' ) ) !== null )
+        if ( !empty( $url_list = $this->__get( 'url_list' ) ) )
             $torrent_data['url-list' ] = $url_list;
 
         return StealThisTracker_Bencode_Builder::build( $torrent_data );
