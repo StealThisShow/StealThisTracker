@@ -1,4 +1,5 @@
 # StealThisTracker 0.1
+[![Build Status](https://api.travis-ci.org/StealThisShow/StealThisTracker.svg?branch=dev)](https://travis-ci.org/StealThisShow/StealThisTracker)
 
 StealThisTracker is a fork of PHPTracker which makes it easy to create your own private file distribution system using the BitTorrent protocol. There are libraries here which can provide a simple tracker, seed a torrent and download a torrent as well.
 
