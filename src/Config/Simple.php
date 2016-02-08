@@ -31,7 +31,7 @@ class Simple implements ConfigInterface
      * Gets one config value for a config key.
      *
      * @param string $config_name The name (key) of the config value to return.
-     * @param boolean $needed If the config key is missing and $needed is true, this MUST throw StealThisTracker_Config_Error_Missing.
+     * @param boolean $needed If the config key is missing and $needed is true, this MUST throw Error\Missing.
      * @param mixed $default If the config key is missing and $needed is false, this MUST return $default.
      * @throws Error\Missing When the config value is required and missing.
      * @return mixed The config value for the key requested (of its default).
