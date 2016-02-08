@@ -28,7 +28,7 @@ class Builder
         }
         if ( is_string( $input ) )
         {
-            return new Value\String( $input );
+            return new Value\StringValue( $input );
         }
         if ( is_array( $input ) )
         {

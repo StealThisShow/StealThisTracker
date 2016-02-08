@@ -10,7 +10,7 @@ use StealThisShow\StealThisTracker\Bencode\Error;
  * @package StealThisTracker
  * @subpackage Bencode
  */
-class String extends AbstractValue
+class StringValue extends AbstractValue
 {
     /**
      * Intializing the object with its parsed value.

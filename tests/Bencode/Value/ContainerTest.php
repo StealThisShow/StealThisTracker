@@ -46,13 +46,13 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
             ->method( 'contain' )
             ->with(
                 $this->equalTo( $test_array['key1'] ),
-                $this->isInstanceOf( '\StealThisShow\StealThisTracker\Bencode\Value\String' )
+                $this->isInstanceOf( '\StealThisShow\StealThisTracker\Bencode\Value\StringValue' )
             );
         $this->object->expects( $this->at( 1 ) )
             ->method( 'contain' )
             ->with(
                 $this->equalTo( $test_array['key2'] ),
-                $this->isInstanceOf( '\StealThisShow\StealThisTracker\Bencode\Value\String' )
+                $this->isInstanceOf( '\StealThisShow\StealThisTracker\Bencode\Value\StringValue' )
             );
 
         $this->object->__construct( $test_array );

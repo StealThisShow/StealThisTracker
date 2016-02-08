@@ -32,7 +32,7 @@ abstract class Container extends AbstractValue
         {
             foreach( $value as $key => $sub_value )
             {
-                $this->contain( $sub_value, new String( $key ) );
+                $this->contain( $sub_value, new StringValue( $key ) );
             }
         }
         else
@@ -61,8 +61,8 @@ abstract class Container extends AbstractValue
      * Adds an item to the list/dictionary.
      *
      * @param AbstractValue $sub_value
-     * @param String $key Only used for dictionaries.
+     * @param StringValue $key Only used for dictionaries.
      * @return
      */
-    abstract public function contain( AbstractValue $sub_value, String $key = null );
+    abstract public function contain( AbstractValue $sub_value, StringValue $key = null );
 }

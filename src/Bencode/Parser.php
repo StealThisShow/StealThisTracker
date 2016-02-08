@@ -153,7 +153,7 @@ class Parser
      * Parses a string type at the current cursor position and proceeds the cursor.
      *
      * @throws Error\Parse In case of parse error.
-     * @return Value\String
+     * @return Value\StringValue
      */
     protected function parseValueString()
     {
@@ -169,7 +169,7 @@ class Parser
             throw new Error\Parse( "Bencode parse error at pointer {$this->pointer}. Invalid length definition in string.", $this->pointer );
         }
 
-        $value = new Value\String( substr( $this->string, ( $colon_pointer + 1 ), $length ) );
+        $value = new Value\StringValue( substr( $this->string, ( $colon_pointer + 1 ), $length ) );
         $this->pointer = $colon_pointer + $length + 1;
 
         return $value;

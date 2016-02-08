@@ -21,7 +21,7 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase
     {
         $this->object = new Dictionary( array(
             'b' => new Integer( 12 ),
-            'a' => new String( 'abc' ),
+            'a' => new StringValue( 'abc' ),
         ) );
     }
 
@@ -47,7 +47,7 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase
      */
     public function testDuplicate()
     {
-        $this->object->contain( new String( 'xxx' ), new String( 'a' ) );
+        $this->object->contain( new StringValue( 'xxx' ), new StringValue( 'a' ) );
     }
 
     /**
@@ -55,7 +55,7 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase
      */
     public function testNoKey()
     {
-        $this->object->contain( new String( 'xxx' ) );
+        $this->object->contain( new StringValue( 'xxx' ) );
     }
 
 }

@@ -21,7 +21,7 @@ class ListValueTest extends \PHPUnit_Framework_TestCase
     {
         $this->object = new ListValue( array(
             new Integer( 12 ),
-            new String( 'abc' ),
+            new StringValue( 'abc' ),
         ) );
     }
 

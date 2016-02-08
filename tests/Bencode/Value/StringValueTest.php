@@ -5,7 +5,7 @@ namespace StealThisShow\StealThisTracker\Bencode\Value;
 /**
  * Test class for StringTest.
  */
-class StringTest extends \PHPUnit_Framework_TestCase
+class StringValueTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
@@ -19,7 +19,7 @@ class StringTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new String( 'abcdef' );
+        $this->object = new StringValue( 'abcdef' );
     }
 
     /**
@@ -43,6 +43,6 @@ class StringTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidValue()
     {
-        new String( array() );
+        new StringValue( array() );
     }
 }

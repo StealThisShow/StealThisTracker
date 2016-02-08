@@ -14,9 +14,9 @@ class ListValue extends Container
      * Adds an item to the list.
      *
      * @param AbstractValue $sub_value
-     * @param String $key Not used here.
+     * @param StringValue $key Not used here.
      */
-    public function contain( AbstractValue $sub_value, String $key = null )
+    public function contain( AbstractValue $sub_value, StringValue $key = null )
     {
         $this->value[] = $sub_value;
     }

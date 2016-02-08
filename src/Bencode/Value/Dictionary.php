@@ -16,11 +16,11 @@ class Dictionary extends Container
      * Adds an item to the dictionary.
      *
      * @param AbstractValue $sub_value
-     * @param String $key
+     * @param StringValue $key
      * @throws Error\InvalidType
      * @throws Error\InvalidValue
      */
-    public function contain( AbstractValue $sub_value, String $key = null )
+    public function contain( AbstractValue $sub_value, StringValue $key = null )
     {
         if ( !isset( $key ) )
         {
@@ -44,7 +44,7 @@ class Dictionary extends Container
         $string_represent = "d";
         foreach ( $this->value as $key => $sub_value )
         {
-            $key = new String( $key );
+            $key = new StringValue( $key );
             $string_represent .=  $key . $sub_value;
         }
         return $string_represent . "e";
