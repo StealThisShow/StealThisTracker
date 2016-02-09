@@ -11,7 +11,7 @@
 # Dumping structure for table stealthistracker_peers
 CREATE TABLE IF NOT EXISTS `stealthistracker_peers` (
   `peer_id` binary(20) NOT NULL COMMENT 'Peer unique ID.',
-  `ip_address` int(10) unsigned NOT NULL COMMENT 'IP address of the client.',
+  `ip_address` varbinary(16) NOT NULL COMMENT 'IP address of the client.',
   `port` smallint(20) unsigned NOT NULL COMMENT 'Listening port of the peer.',
   `info_hash` binary(20) NOT NULL COMMENT 'Info hash of the torrent.',
   `bytes_uploaded` int(10) unsigned DEFAULT NULL COMMENT 'Uploaded bytes since started.',

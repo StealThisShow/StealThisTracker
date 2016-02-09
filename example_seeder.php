@@ -12,14 +12,14 @@ use \StealThisShow\StealThisTracker as STT;
 // Composer autoloader
 require( dirname(__FILE__).'/vendor/autoload.php' );
 
-// Persistense object implementing StealThisTracker_Persistence_Interface.
-// We use MySQL here. The object is initialized with its own config.
-$persistence = new STT\Persistence\Mysql(
+// Persistense object implementing PersistenceInterface.
+// We use Pdo here. The object is initialized with its own config.
+$persistence = new STT\Persistence\Pdo(
     new STT\Config\Simple( array(
-        'db_host'       => 'localhost',
-        'db_user'       => 'misc',
-        'db_password'   => 'misc',
-        'db_name'       => 'misc',
+        'dsn'           => 'localhost',
+        'username'      => 'misc',
+        'password'      => 'misc',
+        'options'       => 'misc',
     ) )
 );
 

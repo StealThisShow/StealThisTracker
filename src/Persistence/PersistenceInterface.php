@@ -15,12 +15,6 @@ use StealThisShow\StealThisTracker\Torrent;
  */
 interface PersistenceInterface
 {
-    /**
-     * Setting up object instance with the config.
-     *
-     * @param Config\ConfigInterface $config
-     */
-    public function __construct( Config\ConfigInterface $config );
 
     /**
      * Save all accessible keys of a StealThisTracker_Torrent object to be able to recreate it.
@@ -87,11 +81,9 @@ interface PersistenceInterface
      *
      * @param string $info_hash Info hash of the torrent.
      * @param string $peer_id Peer ID to exclude (peer ID of the client announcing).
-     * @param boolean $compact If true, compact peer list format is used.
-     * @param boolean $no_peer_id If true, peer is is ommitted from non-compact peer list.
      * @return mixed
      */
-    public function getPeers( $info_hash, $peer_id, $compact = false, $no_peer_id = false );
+    public function getPeers( $info_hash, $peer_id );
 
     /**
      * Returns statistics of seeders and leechers of a torrent.
