@@ -18,7 +18,7 @@ class PdoTest extends \PHPUnit_Framework_TestCase
 
     protected $db_path;
 
-    protected $sql_path =  __DIR__ . '/../../sqlite.sql';
+    protected $sql_path;
 
     protected $torrent_path;
 
@@ -27,6 +27,7 @@ class PdoTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->db_path = sys_get_temp_dir() . '/sqlite_test.db';
+        $this->sql_path = dirname( __FILE__ ) . '/../../sqlite.sql';
         touch( $this->db_path );
         $this->setupDatabaseFixture( $this->db_path, $this->sql_path );
 
