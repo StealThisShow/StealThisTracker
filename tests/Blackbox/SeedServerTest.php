@@ -46,11 +46,6 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
             shell_exec( 'rm -rf ' . escapeshellarg( $this->download_destination ) );
         }
 
-        if ( isset( $this->announce_server_pid ) )
-        {
-            posix_kill( $this->announce_server_pid, SIGTERM );
-        }
-
         if ( isset( $this->seed_server_pid ) )
         {
             posix_kill( $this->seed_server_pid, SIGTERM );
@@ -72,7 +67,6 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
     {
         $this->torrent_file           = $this->createTorrentFile();
         $this->download_destination   = $this->createDownloadDestination();
-        //$this->announce_server_pid    = $this->startAnnounceServer();
         $this->seed_server_pid        = $this->startSeedServer();
         $this->torrent_client_pid     = $this->startTorrentClient();
 
@@ -90,10 +84,6 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
         {
             case -1:
                 $this->fail( 'Error in child processes.' );
-                break;
-            case $this->announce_server_pid:
-                unset( $this->announce_server_pid );
-                $this->fail( 'Announce server exited.' );
                 break;
             case $this->seed_server_pid:
                 unset( $this->seed_server_pid );
@@ -129,23 +119,6 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
                 dirname( __FILE__ ) . "/../Fixtures/seed.php",
                 self::SEED_SERVER_IP,
                 self::SEED_SERVER_PORT
-            )
-        );
-    }
-
-    /**
-     * Starts tracker server.
-     *
-     * It uses PHP's built-in web server available from 5.4.
-     * Needs PHP in your path.
-     */
-    private function startAnnounceServer()
-    {
-        return $this->spawn(
-            self::findExecutable( 'php' ),
-            array(
-                "-S" . self::ANNOUNCE_SERVER_IP . ":" . self::ANNOUNCE_SERVER_PORT,
-                "-t" . dirname( __FILE__ ) . "/../Fixtures/",
             )
         );
     }
