@@ -72,7 +72,7 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
     {
         $this->torrent_file           = $this->createTorrentFile();
         $this->download_destination   = $this->createDownloadDestination();
-        $this->announce_server_pid    = $this->startAnnounceServer();
+        //$this->announce_server_pid    = $this->startAnnounceServer();
         $this->seed_server_pid        = $this->startSeedServer();
         $this->torrent_client_pid     = $this->startTorrentClient();
 
