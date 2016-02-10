@@ -5,7 +5,7 @@ namespace StealThisShow\StealThisTracker\Seeder;
 use StealThisShow\StealThisTracker\Torrent;
 
 /**
- * Objectolding information of a client connecting to the seeder server.
+ * Object holding information of a client connecting to the seeder server.
  *
  * @package StealThisTracker
  * @subpackage Seeder

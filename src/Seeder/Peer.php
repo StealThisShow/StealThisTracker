@@ -108,13 +108,13 @@ class Peer extends Concurrency\Forker
     }
 
     /**
-     * Called before forking children, intializes the object and sets up listening socket.
+     * Called before forking children, initializes the object and sets up listening socket.
      * @return Number of forks to create. If negative, forks are recreated when exiting and absolute values is used.
      * @throws Error
      */
     public function startParentProcess()
     {
-        // Opening socket - file dscriptor will be shared among the child processes.
+        // Opening socket - file descriptor will be shared among the child processes.
         $this->startListening();
 
         // We want this many forks for connections, permanently recreated when failing (-1).

@@ -81,10 +81,10 @@ class Torrent
     protected $url_list;
 
     /**
-     * Initializing object witht he piece size and file object, optionally setting attributes from the database.
+     * Initializing object with he piece size and file object, optionally setting attributes from the database.
      *
-     * @param File $file To intialize 'file' attribute.
-     * @param integer $size_piece To intialize 'size_piece' attribute.
+     * @param File $file To initialize 'file' attribute.
+     * @param integer $size_piece To initialize 'size_piece' attribute.
      * @param string $file_path Optional. To set 'file_path' attribute. If not set, will be loaded automatically.
      * @param string $name Optional. To set 'name' attribute. If not set, will be loaded automatically.
      * @param integer $length Optional. To set 'length' attribute. If not set, will be loaded automatically.
@@ -232,7 +232,7 @@ class Torrent
      * the .torrent file, which is compatible with the Bittorrent specification
      * ('announce-list' is an unofficial extension).
      *
-     * @param array $announce_list List of URLs to make announcemenets to.
+     * @param array $announce_list List of URLs to make announcements to.
      * @return string
      */
     public function createTorrentFile( array $announce_list )
