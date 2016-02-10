@@ -17,7 +17,7 @@ before_script:
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
   # Apache virtual hosts
   - sudo cp -f tests/Fixtures/travis-ci-apache /etc/apache2/sites-available/default
-  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)/tests/Fixtures/travis-ci-apache?g" --in-place /etc/apache2/sites-available/default
+  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)/tests/Fixtures/?g" --in-place /etc/apache2/sites-available/default
   - sudo service apache2 restart
   # Composer
   - composer self-update
