@@ -48,17 +48,17 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
 
         if ( isset( $this->announce_server_pid ) )
         {
-            fwrite(STDERR, "Killing $this->announce_server_pid\n");
+            posix_kill( $this->announce_server_pid, SIGTERM );
         }
 
         if ( isset( $this->seed_server_pid ) )
         {
-            fwrite(STDERR, "Killing $this->seed_server_pid\n");
+            posix_kill( $this->seed_server_pid, SIGTERM );
         }
 
         if ( isset( $this->torrent_client_pid ) )
         {
-            fwrite(STDERR, "Killing $this->torrent_client_pid\n");
+            posix_kill( $this->torrent_client_pid, SIGTERM );
         }
     }
 
