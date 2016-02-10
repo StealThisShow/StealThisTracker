@@ -13,7 +13,7 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
     const SEED_SERVER_IP        = '127.0.0.1';
     const SEED_SERVER_PORT      = 1988;
     const ANNOUNCE_SERVER_IP    = '127.0.0.1';
-    const ANNOUNCE_SERVER_PORT  = 1989;
+    const ANNOUNCE_SERVER_PORT  = 80;
     const FILE_TO_DOWNLOAD      = 'cookie_monster.gif';
     const PIECE_LENGTH          = 524288;
     const TEST_TIMEOUT          = 120;
