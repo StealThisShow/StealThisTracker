@@ -37,7 +37,7 @@ class Core
     /**
      * Creates a string representing a .torrent file.
      *
-     * @param string $file_path Full path of the file to use to generate torrent file (will be opeend and hashed).
+     * @param string $file_path Full path of the file to use to generate torrent file (will be opened and hashed).
      * @param integer $size_piece Size of one piece in bytes. Normally a power of 2, defaults to 256KB.
      * @param string $basename
      * @return string When the announce-list is empty.
@@ -96,8 +96,10 @@ class Core
             }
 
             // IP address might be set explicitly in the GET.
-            $ip     = $get->get( 'ip', false, $this->config->get( 'ip' ) );
-            $event  = $get->get( 'event', false, '' );
+            $ip         = $get->get( 'ip', false, $this->config->get( 'ip' ) );
+            $compact    = $get->get( 'compact', false, 0 );
+            $no_peer_id = $get->get( 'no_peer_id', false, 0 );
+            $event      = $get->get( 'event', false, '' );
 
             if ( 20 != strlen( $info_hash ) )
             {
@@ -141,6 +143,15 @@ class Core
             $peers          = $this->persistence->getPeers( $info_hash, $peer_id );
             $peer_stats     = $this->persistence->getPeerStats( $info_hash, $peer_id );
 
+            if ( $compact )
+            {
+                $peers = $this->compactPeers( $peers );
+            }
+            elseif ( $no_peer_id )
+            {
+                $peers = $this->removePeerId( $peers );
+            }
+
             if ( true === $this->config->get( 'load_balancing', false, true ) )
             {
                 // Load balancing for tracker announcements.
@@ -161,6 +172,45 @@ class Core
             trigger_error( 'Failure while announcing: ' . $e->getMessage(), E_USER_WARNING );
             return $this->announceFailure( "Failed to announce because of internal server error." );
         }
+    }
+
+    /**
+     * As per request of the announcing client we might need to compact peers.
+     *
+     * Compacting means representing the IP in a big-endian long and the port
+     * as a big-endian short and concatenating all of them in a string.
+     *
+     * @see http://wiki.theory.org/BitTorrentSpecification#Tracker_Response
+     * @param array $peers List of peers with their IP address and port.
+     * @return string
+     */
+    private function compactPeers( array $peers )
+    {
+        $compact_peers = "";
+        foreach ( $peers as $peer )
+        {
+            if ( !filter_var( $peer['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) )
+                continue;
+            $compact_peers .=
+                pack( 'N', ip2long( $peer['ip'] ) ) .
+                pack( 'n', $peer['port'] );
+        }
+        return $compact_peers;
+    }
+    /**
+     * As per request of the announcing client we might need to remove peer IDs.
+     *
+     * @see http://wiki.theory.org/BitTorrentSpecification#Tracker_Response
+     * @param array $peers List of peers with their IP address and port.
+     * @return string
+     */
+    private function removePeerId( array $peers )
+    {
+        foreach ( $peers as $peer_index => $peer )
+        {
+            unset( $peers[$peer_index]['peer id'] );
+        }
+        return $peers;
     }
 
     /**

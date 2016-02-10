@@ -38,7 +38,7 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->db_path = sys_get_temp_dir() . '/sqlite_test.db';
-        $this->sql_path = dirname( __FILE__ ) . '/../../sqlite.sql';
+        $this->sql_path = dirname( __FILE__ ) . '/../Fixtures/sqlite.sql';
         touch( $this->db_path );
         $this->setupDatabaseFixture( $this->db_path, $this->sql_path );
 
