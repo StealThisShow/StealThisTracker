@@ -16,18 +16,36 @@ class PdoTest extends \PHPUnit_Framework_TestCase
      */
     protected $object;
 
+    /**
+     * The database path
+     *
+     * @var string
+     */
     protected $db_path;
 
+    /**
+     * The SQL path
+     *
+     * @var string
+     */
     protected $sql_path;
 
+    /**
+     * The torrent path
+     *
+     * @var string
+     */
     protected $torrent_path;
 
     const TEST_DATA = 'abcdefghijklmnopqrstuvwxyz';
 
+    /**
+     * Setup
+     */
     protected function setUp()
     {
         $this->db_path = sys_get_temp_dir() . '/sqlite_test.db';
-        $this->sql_path = dirname( __FILE__ ) . '/../../sqlite.sql';
+        $this->sql_path = dirname( __FILE__ ) . '/../../../sqlite.sql';
         touch( $this->db_path );
         $this->setupDatabaseFixture( $this->db_path, $this->sql_path );
 
@@ -36,6 +54,12 @@ class PdoTest extends \PHPUnit_Framework_TestCase
         ) ) );
     }
 
+    /**
+     * Creates the SQLite database tables
+     *
+     * @param string $db_file
+     * @param string $sql_file
+     */
     protected function setupDatabaseFixture( $db_file, $sql_file )
     {
         $table_definitions = file_get_contents( $sql_file );
@@ -53,6 +77,9 @@ class PdoTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * TearDown
+     */
     protected function tearDown()
     {
         // Closing file handles.
@@ -68,6 +95,11 @@ class PdoTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * Creates a torrent object
+     *
+     * @return Torrent
+     */
     protected function getTorrentObject()
     {
         $this->torrent_path = sys_get_temp_dir() . '/test_torrent';
@@ -78,10 +110,15 @@ class PdoTest extends \PHPUnit_Framework_TestCase
         return new Torrent( $file, 2 , null, null, null, null, null, array( 'http://announce' ), array( 'http://example.com/test.ext' ) );
     }
 
+    /**
+     * Save Torrent Test
+     */
     public function testSaveTorrent()
     {
         $torrent = $this->getTorrentObject();
+        // Store torrent in DB
         $this->object->saveTorrent( $torrent );
+        // Retrieve torrent from DB
         $db_torrent = $this->object->getTorrent( $torrent->info_hash );
 
         $info_hash_readable = current( unpack( 'H*', $db_torrent->info_hash ) );

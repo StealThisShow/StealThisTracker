@@ -258,7 +258,7 @@ SQL;
         $this->query( $sql, array(
             ':info_hash'    => $info_hash,
             ':peer_id'      => $peer_id,
-            ':ip'           => sprintf( "%u", inet_pton( $ip ) ),
+            ':ip'           => inet_pton( $ip ),
             ':port'         => $port,
             ':downloaded'   => $uploaded,
             ':uploaded'     => $downloaded,

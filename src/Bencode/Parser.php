@@ -21,7 +21,7 @@ class Parser
      */
     public function __construct( $string )
     {
-        $this->string = $string;
+        $this->string = (string) $string;
     }
 
     /**

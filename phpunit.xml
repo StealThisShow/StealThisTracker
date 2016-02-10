@@ -12,8 +12,11 @@
          bootstrap="./vendor/autoload.php"
 >
   <testsuites>
-    <testsuite name="All tests of StealThisTracker">
-      <directory>./tests/</directory>
+    <testsuite name="Whitebox tests of StealThisTracker">
+      <directory>./tests/Whitebox/</directory>
+    </testsuite>
+    <testsuite name="Blackbox tests of StealThisTracker">
+      <directory>./tests/Blackbox/</directory>
     </testsuite>
   </testsuites>
 

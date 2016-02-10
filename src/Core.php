@@ -138,7 +138,7 @@ class Core
                 ( 'stopped' == $event ) ? 0 : $interval * 2 // If the client gracefully exists, we set its ttl to 0, double-interval otherwise.
             );
 
-            $peers          = $this->persistence->getPeers( $info_hash, $peer_id, $get->get( 'compact', false, false ), $get->get( 'no_peer_id', false, false ) );
+            $peers          = $this->persistence->getPeers( $info_hash, $peer_id );
             $peer_stats     = $this->persistence->getPeerStats( $info_hash, $peer_id );
 
             if ( true === $this->config->get( 'load_balancing', false, true ) )

@@ -64,9 +64,8 @@ interface PersistenceInterface
      * Gets all the active peers for a torrent.
      *
      * Only considers peers which are not expired (see TTL).
-     * Depending on the $compact flag, returns:
+     * Returns:
      *
-     * A.
      * array(
      *  array(
      *      'peer_id' => ... // ID of the peer, if $no_peer_id is false.
@@ -74,10 +73,6 @@ interface PersistenceInterface
      *      'port' => ... // Port number of the peer.
      *  )
      * )
-     *
-     * B.
-     * Nx6 bytes, where each first 4 bytes represent IP address in big-endian long
-     * and each last 2 bytes represent port number in big-endian short.
      *
      * @param string $info_hash Info hash of the torrent.
      * @param string $peer_id Peer ID to exclude (peer ID of the client announcing).
