@@ -18,6 +18,16 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
     const PIECE_LENGTH          = 524288;
     const TEST_TIMEOUT          = 120;
 
+    protected $parent_pid;
+
+    protected $seed_server_pid;
+
+    protected $torrent_client_pid;
+
+    protected $torrent_file;
+
+    protected $download_destination;
+
     public function setUp()
     {
         $this->parent_pid = posix_getpid();
