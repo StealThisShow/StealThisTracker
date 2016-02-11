@@ -46,6 +46,11 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
+        if ( file_exists($this->db_path) )
+        {
+            unlink($this->db_path);
+        }
+
         if ( file_exists( $this->torrent_file ) )
         {
             unlink( $this->torrent_file );

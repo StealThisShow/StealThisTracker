@@ -71,7 +71,8 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        if (file_exists($this->db_path)) {
+        if ( file_exists($this->db_path) )
+        {
             unlink($this->db_path);
         }
     }

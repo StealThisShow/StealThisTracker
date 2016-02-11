@@ -140,7 +140,7 @@ class Torrent
                 {
                     $this->length = $this->file->size();
                 }
-                return $this->length;
+                return (int) $this->length;
                 break;
             case 'name':
                 if ( !isset( $this->name ) )
@@ -164,7 +164,7 @@ class Torrent
                 return $this->info_hash;
                 break;
             case 'size_piece':
-                return $this->size_piece;
+                return (int) $this->size_piece;
                 break;
             case 'announce_list':
                 return $this->announce_list;
