@@ -4,8 +4,9 @@ php:
   - 5.4
   - 5.5
   - 5.6
+  # Tests cannot run on HHVM and PHP nightly with current config
   #- hhvm
-  - nightly
+  #- nightly
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y ctorrent apache2 libapache2-mod-fastcgi
