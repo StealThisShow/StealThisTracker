@@ -1,4 +1,4 @@
-<VirtualHost *:1989>
+<VirtualHost *:80>
 
   DocumentRoot %TRAVIS_BUILD_DIR%
 
