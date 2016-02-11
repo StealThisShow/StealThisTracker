@@ -10,10 +10,10 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
 
     protected $sql_path;
 
-    const SEED_SERVER_IP        = '127.0.0.1';
+    const SEED_SERVER_IP        = '0.0.0.0';
     const SEED_SERVER_PORT      = 1988;
-    const ANNOUNCE_SERVER_IP    = '127.0.0.1';
-    const ANNOUNCE_SERVER_PORT  = 80;
+    const ANNOUNCE_SERVER_IP    = '0.0.0.0';
+    const ANNOUNCE_SERVER_PORT  = 1989;
     const FILE_TO_DOWNLOAD      = 'cookie_monster.gif';
     const PIECE_LENGTH          = 524288;
     const TEST_TIMEOUT          = 120;
@@ -55,6 +55,14 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
         {
             posix_kill( $this->torrent_client_pid, SIGTERM );
         }
+    }
+
+    public function testPingAnnounceServer()
+    {
+        $this->assertEquals(
+            "pong",
+            file_get_contents( "http://" . self::ANNOUNCE_SERVER_IP . ":" . self::ANNOUNCE_SERVER_PORT . "/ping.php" )
+        );
     }
 
     /**
