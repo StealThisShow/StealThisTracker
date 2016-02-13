@@ -62,7 +62,7 @@ class Server extends Concurrency\Forker
      * @param Persistence\PersistenceInterface $persistence
      * @param Logger\LoggerInterface $logger
      */
-    public function  __construct( Peer $peer, Persistence\PersistenceInterface $persistence, Logger\LoggerInterface $logger = false)
+    public function  __construct( Peer $peer, Persistence\PersistenceInterface $persistence, Logger\LoggerInterface $logger = null)
     {
         // It's a daemon, right?
         set_time_limit( 0 );
