@@ -2,7 +2,6 @@
 
 namespace StealThisShow\StealThisTracker\Seeder;
 
-use StealThisShow\StealThisTracker\Config;
 use StealThisShow\StealThisTracker\Concurrency;
 use StealThisShow\StealThisTracker\Logger;
 use StealThisShow\StealThisTracker\Persistence;
@@ -18,12 +17,13 @@ use StealThisShow\StealThisTracker\Persistence;
  */
 class Server extends Concurrency\Forker
 {
+
     /**
-     * Configuration of this class.
+     * Holds persistence
      *
-     * @var Config\ConfigInterface
+     * @var Persistence\PersistenceInterface
      */
-    protected $config;
+    protected $persistence;
 
     /**
      * Peer object instance to use in this server.
@@ -56,28 +56,34 @@ class Server extends Concurrency\Forker
     const STOP_AFTER_ITERATIONS = 20;
 
     /**
-     * Initializes the object with the config class.
+     * Initializes the object
      *
-     * @param Config\ConfigInterface $config
+     * @param Peer $peer
+     * @param Persistence\PersistenceInterface $persistence
+     * @param Logger\LoggerInterface $logger
      */
-    public function  __construct( Config\ConfigInterface $config )
+    public function  __construct( Peer $peer, Persistence\PersistenceInterface $persistence, Logger\LoggerInterface $logger = false)
     {
         // It's a daemon, right?
         set_time_limit( 0 );
 
-        $this->config    = $config;
-        $this->peer      = $this->config->get( 'peer' );
-        $this->logger    = $this->config->get( 'logger', false, new Logger\Blackhole() );
+        $this->peer         = $peer;
+        $this->persistence  = $persistence;
+
+        if ( !$logger )
+            $logger = new Logger\Blackhole();
+
+        $this->logger = $logger;
     }
 
     /**
-     * Called before forking children, intializes the object and sets up listening socket.
+     * Called before forking children, initializes the object and sets up listening socket.
      *
      * @return Number of forks to create. If negative, forks are recreated when exiting and absolute values is used.
      */
     public function startParentProcess()
     {
-        return -2; // We need 2 processes to run permanenty (minus means permanently recreated).
+        return -2; // We need 2 processes to run permanently (minus means permanently recreated).
     }
 
     /**
@@ -91,11 +97,8 @@ class Server extends Concurrency\Forker
      */
     public function startChildProcess( $slot )
     {
-        $persistence = $this->config->get( 'persistence' );
-        if ( $persistence instanceof Persistence\ResetWhenForking )
-        {
-            $persistence->resetAfterForking(); // By reference, we don't need to "save" it to the config.
-        }
+        if ( $this->persistence instanceof Persistence\ResetWhenForking )
+            $this->persistence->resetAfterForking();
 
         switch( $slot )
         {
@@ -117,7 +120,7 @@ class Server extends Concurrency\Forker
      */
     protected function announce()
     {
-        $persistence    = $this->config->get( 'persistence' );
+        $persistence    = $this->persistence;
         $iterations     = 0;
 
         do
@@ -125,9 +128,7 @@ class Server extends Concurrency\Forker
             $all_torrents = $persistence->getAllInfoHash();
 
             foreach ( $all_torrents as $torrent_info )
-            {
                 $persistence->saveAnnounce( $torrent_info['info_hash'], $this->peer->peer_id, $this->peer->external_address, $this->peer->port, $torrent_info['length'], 0, 0, 'complete', self::ANNOUNCE_INTERVAL );
-            }
 
             $this->logger->logMessage( 'Seeder server announced itself for ' . count( $all_torrents ) . " torrents at address {$this->peer->external_address}:{$this->peer->port} (announces every " . self::ANNOUNCE_INTERVAL . 's).' );
 
@@ -136,5 +137,15 @@ class Server extends Concurrency\Forker
 
         $this->logger->logMessage( 'Announce process restarts to prevent memory leaks.' );
         exit( 0 );
+    }
+
+    /**
+     * @param Logger\LoggerInterface $logger
+     * @return Server
+     */
+    public function setLogger($logger)
+    {
+        $this->logger = $logger;
+        return $this;
     }
 }

@@ -32,8 +32,10 @@ CREATE TABLE IF NOT EXISTS `stealthistracker_torrents` (
   `name` varchar(255) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL COMMENT 'Basename of the contained file.',
   `pieces` mediumblob NOT NULL COMMENT 'Concatenated hashes of all pieces.',
   `path` varchar(1024) NOT NULL COMMENT 'Full path of the physical file.',
-  `url_list` blob NOT NULL COMMENT 'URL list of the torrent (BEP19).',
-  `announce_list` blob NOT NULL COMMENT 'Announce list of the torrent.',
+  `private` tinyint(1) NOT NULL COMMENT 'Private flag of the torrent (BEP 27).',
+  `url_list` blob NOT NULL COMMENT 'URL list of the torrent (BEP 19).',
+  `announce_list` blob NOT NULL COMMENT 'Announce list of the torrent (BEP 12).',
+  `nodes` blob NOT NULL COMMENT 'DHT Nodes of the torrent (BEP 5).',
   `status` enum('active','inactive') NOT NULL DEFAULT 'active' COMMENT 'Activity status of the torrent.',
   PRIMARY KEY (`info_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Table to store basic torrent file information upon creation.';

@@ -48,6 +48,13 @@ class Client
     protected $communication_socket;
 
     /**
+     * The listening socket
+     *
+     * @var resource
+     */
+    protected $listening_socket;
+
+    /**
      * Flag to tell if the client is 'choked' by the seed server.
      *
      * @var boolean
@@ -93,11 +100,11 @@ class Client
     /**
      * Start accepting incoming connections on the listening socket.
      *
-     * @param resource $listening_scket
+     * @param resource $listening_socket
      */
-    public function __construct( $listening_scket )
+    public function __construct( $listening_socket )
     {
-        $this->socketAccept( $listening_scket );
+        $this->socketAccept( $listening_socket );
     }
 
     /**
@@ -117,9 +124,9 @@ class Client
      * @throws Error\Socket If the accepting is unsuccessful.
      * @param resource $listening_socket
      */
-    public function socketAccept( $listening_scket )
+    public function socketAccept( $listening_socket )
     {
-        if ( false === ( $this->communication_socket = socket_accept( $listening_scket ) ) )
+        if ( false === ( $this->communication_socket = socket_accept( $listening_socket ) ) )
         {
             $this->communication_socket = null;
             throw new Error\Socket( 'Socket accept failed: ' . socket_strerror( socket_last_error( $this->listening_socket ) ) );

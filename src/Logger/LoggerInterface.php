@@ -2,8 +2,6 @@
 
 namespace StealThisShow\StealThisTracker\Logger;
 
-use StealThisShow\StealThisTracker\Config;
-
 /**
  * Interface used to log events in different classes of the library.
  *
@@ -15,13 +13,6 @@ use StealThisShow\StealThisTracker\Config;
 interface LoggerInterface
 {
     /**
-     * Initializes the object with the config class.
-     *
-     * @param Config\ConfigInterface $config
-     */
-    public function  __construct( Config\ConfigInterface $config = null );
-
-    /**
      * Method to save non-error text message.
      *
      * @param string $message
@@ -29,7 +20,7 @@ interface LoggerInterface
     public function logMessage( $message );
 
     /**
-     * Method to save text message represening error.
+     * Method to save text message representing error.
      *
      * @param string $message
      */

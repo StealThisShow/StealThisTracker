@@ -14,7 +14,6 @@ set_error_handler( function ( $errno, $errstr, $errfile = null, $errline = null 
 require( dirname(__FILE__) . '/../../vendor/autoload.php' );
 
 use StealThisShow\StealThisTracker\Persistence\Pdo;
-use StealThisShow\StealThisTracker\Config\Simple;
 use StealThisShow\StealThisTracker\Seeder\Peer;
 use StealThisShow\StealThisTracker\Seeder\Server;
 
@@ -23,26 +22,15 @@ $port   = $argv[2];
 
 fwrite( STDERR, "Starting seed server at $ip:$port" );
 
-$config = new Simple( array(
-    'persistence' => new Pdo(new Simple( array(
-        'dsn' => 'sqlite:' . sys_get_temp_dir() . '/sqlite_test.db'
-    ) ) ),
-    'seeder_address' => $ip,
-    'seeder_internal_address' => $ip,
-    'seeder_port' => $port,
-    'peer_forks' => 5,
-    'seeders_stop_seeding' => 5,
-) );
+$persistence = new Pdo( 'sqlite:' . sys_get_temp_dir() . '/sqlite_test.db' );
 
-$peer = new Peer( $config );
+$peer = ( new Peer( $persistence ) )
+    ->setExternalAddress( $ip )
+    ->setInternalAddress( $ip )
+    ->setPort( $port )
+    ->setPeerForks( 5 )
+    ->setSeedersStopSeeding( 5 );
 
-$config = new Simple( array(
-    'peer' => $peer,
-    'persistence' => new Pdo(new Simple( array(
-        'dsn' => 'sqlite:' . sys_get_temp_dir() . '/sqlite_test.db'
-    ) ) )
-) );
-
-$server = new Server( $config );
+$server = new Server( $peer, $persistence );
 
 $server->start();

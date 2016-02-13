@@ -192,16 +192,16 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
 
     private function createTorrentFile()
     {
-        $config = new Config\Simple( array(
-            'persistence'   => new Persistence\Pdo(new Config\Simple( array( 'dsn' => 'sqlite:' . $this->db_path ) ) ),
-            'announce'      => array( 'http://' . self::ANNOUNCE_SERVER_IP . ':' . self::ANNOUNCE_SERVER_PORT . '/announce.php' )
-        ) );
-        $core = new Core( $config );
+        $persistence = new Persistence\Pdo( 'sqlite:' . $this->db_path );
 
-        $contents = $core->createTorrent(
-            dirname( __FILE__ ) . '/../Fixtures/' . self::FILE_TO_DOWNLOAD,
-            self::PIECE_LENGTH
-        );
+        $core = new Core( $persistence );
+
+        $file = new File\File( dirname( __FILE__ ) . '/../Fixtures/' . self::FILE_TO_DOWNLOAD );
+
+        $torrent = ( new Torrent( $file, self::PIECE_LENGTH ) )
+            ->setAnnounceList( array( 'http://' . self::ANNOUNCE_SERVER_IP . ':' . self::ANNOUNCE_SERVER_PORT . '/announce.php' ) );
+
+        $contents = $core->addTorrent( $torrent );
 
         $file_name = sys_get_temp_dir() . "/phptracker_torrent" . uniqid() . '.torrent';
         file_put_contents( $file_name, $contents );
@@ -215,15 +215,11 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
         $driver = new \PDO( 'sqlite:' . $db_file );
         $statements = preg_split( '/;[ \t]*\n/', $table_definitions, -1, PREG_SPLIT_NO_EMPTY );
         foreach ( $statements as $statement )
-        {
             if ( !$driver->query( $statement ) )
-            {
                 $this->fail(
                     'Could not set up database fixture: ' .
                     var_export( $driver->errorInfo(), true )
                 );
-            }
-        }
     }
 
     private function createDownloadDestination()

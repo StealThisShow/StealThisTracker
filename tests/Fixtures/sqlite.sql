@@ -27,8 +27,10 @@ CREATE TABLE `stealthistracker_torrents` (
   `name` TEXT, -- Basename of the contained file.
   `pieces` BLOB NOT NULL, -- Concatenated hashes of all pieces.
   `path` TEXT NOT NULL, -- Full path of the physical file.
-  `url_list` BLOB NOT NULL, -- URL list of the torrent (BEP19).,
-  `announce_list` BLOB NOT NULL, -- Announce list of the torrent.,
+  `private` UNSIGNED INT NOT NULL, -- Private flag of the torrent (BEP 27).
+  `url_list` BLOB NOT NULL, -- URL list of the torrent (BEP 19).
+  `announce_list` BLOB NOT NULL, -- Announce list of the torrent (BEP 12).
+  `nodes` BLOB NOT NULL, -- DHT nodes of the torrent (BEP 5).
   `status` NOT NULL DEFAULT 'active', -- Activity status of the torrent.
   PRIMARY KEY (`info_hash`)
 );

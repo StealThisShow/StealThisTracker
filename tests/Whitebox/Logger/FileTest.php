@@ -2,8 +2,6 @@
 
 namespace StealThisShow\StealThisTracker\Logger;
 
-use StealThisShow\StealThisTracker\Config;
-
 /**
  * Test class for File.
  */
@@ -25,12 +23,9 @@ class FileTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->log_path_messages    = sys_get_temp_dir() . '/test_' . md5( uniqid() );
-        $this->log_path_errors     = sys_get_temp_dir() . '/test_' . md5( uniqid() );
+        $this->log_path_errors      = sys_get_temp_dir() . '/test_' . md5( uniqid() );
 
-        $this->object = new File( new Config\Simple( array(
-            'file_path_messages'    => $this->log_path_messages,
-            'file_path_errors'      => $this->log_path_errors,
-        ) ) );
+        $this->object = new File( $this->log_path_messages, $this->log_path_errors );
     }
 
     /**
@@ -41,13 +36,9 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         // Delete the test file.
         if ( file_exists( $this->log_path_messages ) )
-        {
             unlink( $this->log_path_messages );
-        }
         if ( file_exists( $this->log_path_errors ) )
-        {
             unlink( $this->log_path_errors );
-        }
     }
 
     /**

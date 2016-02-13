@@ -4,12 +4,6 @@ namespace StealThisShow\StealThisTracker;
 
 class AnnounceTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * The config object
-     *
-     * @var Config\Simple
-     */
-    protected $config;
 
     /**
      * The database path
@@ -41,15 +35,6 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
         $this->sql_path = dirname( __FILE__ ) . '/../Fixtures/sqlite.sql';
         touch( $this->db_path );
         $this->setupDatabaseFixture( $this->db_path, $this->sql_path );
-
-        $this->config = new Config\Simple( array(
-            'persistence' => new Persistence\Pdo(new Config\Simple( array(
-                'dsn' => 'sqlite:' . $this->db_path
-            ) ) ),
-            'ip'        => self::CLIENT_IP,
-            'interval'  => self::ANNOUNCE_INTERVAL,
-            'load_balancing' => false
-        ) );
     }
 
     protected function setupDatabaseFixture( $db_file, $sql_file )
@@ -58,23 +43,17 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
         $driver = new \PDO( 'sqlite:' . $db_file );
         $statements = preg_split( '/;[ \t]*\n/', $table_definitions, -1, PREG_SPLIT_NO_EMPTY );
         foreach ( $statements as $statement )
-        {
             if ( !$driver->query( $statement ) )
-            {
                 $this->fail(
                     'Could not set up database fixture: ' .
                     var_export( $driver->errorInfo(), true )
                 );
-            }
-        }
     }
 
     public function tearDown()
     {
-        if ( file_exists($this->db_path) )
-        {
-            unlink($this->db_path);
-        }
+        if ( file_exists( $this->db_path ) )
+            unlink( $this->db_path );
     }
 
     /**
@@ -82,15 +61,20 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
      */
     public function testFirstAnnounce()
     {
-        $core = new Core( $this->config );
-        $get = new Config\Simple( array(
+        $persistence = new Persistence\Pdo('sqlite:' . $this->db_path);
+
+        $core = ( new Core( $persistence ) )
+            ->setIp( self::CLIENT_IP )
+            ->setInterval( self::ANNOUNCE_INTERVAL );
+
+        $get = array(
             'info_hash'     => self::INFO_HASH,
             'peer_id'       => self::PEER_ID,
             'port'          => self::CLIENT_PORT,
             'uploaded'      => 1024,
             'downloaded'    => 2048,
             'left'          => 4096,
-        ) );
+        );
 
         $response = $core->announce( $get );
         $parsed_response = $this->parseResponse( $response );
@@ -109,18 +93,22 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
      */
     public function testAnnounceWithPeers()
     {
-        $core = new Core( $this->config );
+        $persistence = new Persistence\Pdo('sqlite:' . $this->db_path);
+
+        $core = ( new Core( $persistence ) )
+            ->setIp( self::CLIENT_IP )
+            ->setInterval( self::ANNOUNCE_INTERVAL );
 
         $this->announceOtherPeers( $core );
 
-        $get = new Config\Simple( array(
+        $get = array(
             'info_hash'     => self::INFO_HASH,
             'peer_id'       => self::PEER_ID,
             'port'          => self::CLIENT_PORT,
             'uploaded'      => 1024,
             'downloaded'    => 2048,
             'left'          => 4096,
-        ) );
+        );
 
         $response = $core->announce( $get );
         $parsed_response = $this->parseResponse( $response );
@@ -154,7 +142,7 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
     private function announceOtherPeers( Core $core )
     {
         // Announcing a seeder (testing update of peer as well).
-        $core->announce( new Config\Simple( array(
+        $core->announce( array(
             'info_hash'     => self::INFO_HASH,
             'peer_id'       => self::SEED_PEER_ID,
             'port'          => self::CLIENT_PORT,
@@ -162,9 +150,9 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
             'downloaded'    => 1024,
             'left'          => 0,
             'ip'            => self::SEED_IP
-        ) ) );
+        ) );
 
-        $core->announce( new Config\Simple( array(
+        $core->announce( array(
             'info_hash'     => self::INFO_HASH,
             'peer_id'       => self::SEED_PEER_ID,
             'port'          => self::CLIENT_PORT,
@@ -173,10 +161,10 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
             'left'          => 6144,
             'event'         => 'completed',
             'ip'            => self::SEED_IP
-        ) ) );
+        ) );
 
         // Announcing a leecher.
-        $core->announce( new Config\Simple( array(
+        $core->announce( array(
             'info_hash'     => self::INFO_HASH,
             'peer_id'       => self::LEECH_PEER_ID,
             'port'          => self::CLIENT_PORT,
@@ -184,6 +172,6 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
             'downloaded'    => 2048,
             'left'          => 4096,
             'ip'            => self::LEECH_IP
-        ) ) );
+        ) );
     }
 }

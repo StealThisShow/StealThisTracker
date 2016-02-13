@@ -2,8 +2,6 @@
 
 namespace StealThisShow\StealThisTracker\Logger;
 
-use StealThisShow\StealThisTracker\Config;
-
 /**
  * Logger class appending messages to a file or files.
  *
@@ -12,12 +10,6 @@ use StealThisShow\StealThisTracker\Config;
  */
 class File implements LoggerInterface
 {
-    /**
-     * Configuration of this class.
-     *
-     * @var Config\ConfigInterface
-     */
-    protected $config;
 
     /**
      * Path of the log file for normal messages.
@@ -39,24 +31,22 @@ class File implements LoggerInterface
     const DEFAULT_LOG_PATH = '/var/log/stealthistracker.log';
 
     /**
-     * Initializes the object with the config class.
+     * Initializes the object.
      *
      * File logging can use 'file_path_messages' and file_path_errors params,
      * or logs to self::DEFAULT_LOG_PATH by default (both errors and messages).
      *
-     * @param Config\ConfigInterface $config
+     * @param string $file_path_messages
+     * @param bool $file_path_errors
      */
-    public function  __construct( Config\ConfigInterface $config = null )
+    public function  __construct( $file_path_messages = self::DEFAULT_LOG_PATH, $file_path_errors = false )
     {
-        if ( !isset( $config ) )
-        {
-            // If no config set, we create empty config to get the default values.
-            $config = new Config\Simple( array() );
-        }
+        $this->file_path_messages = $file_path_messages;
+        $this->file_path_errors = $file_path_errors;
 
-        $this->config                = $config;
-        $this->file_path_messages    = $this->config->get( 'file_path_messages', false, self::DEFAULT_LOG_PATH );
-        $this->file_path_errors      = $this->config->get( 'file_path_errors', false, $this->file_path_messages );
+        if ( !$file_path_errors )
+            $this->file_path_errors = $file_path_messages;
+
     }
 
     /**
@@ -101,5 +91,25 @@ class File implements LoggerInterface
     protected function formatMessage( $message, $error )
     {
         return date( "[Y-m-d H:i:s] " ) . ( $error ? '[ERROR] ' : '' ) . addcslashes( $message, "\n\r" ) . PHP_EOL;
+    }
+
+    /**
+     * @param string $file_path_messages
+     * @return File
+     */
+    public function setFilePathMessages($file_path_messages)
+    {
+        $this->file_path_messages = $file_path_messages;
+        return $this;
+    }
+
+    /**
+     * @param string $file_path_errors
+     * @return File
+     */
+    public function setFilePathErrors($file_path_errors)
+    {
+        $this->file_path_errors = $file_path_errors;
+        return $this;
     }
 }

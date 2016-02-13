@@ -1,6 +1,7 @@
 <?php
 
-use \StealThisShow\StealThisTracker as STT;
+use \StealThisShow\StealThisTracker\Core;
+use \StealThisShow\StealThisTracker\Persistence\Pdo;
 
 // ---------------------------------------
 // This is how to set up an announce URL.
@@ -9,31 +10,16 @@ use \StealThisShow\StealThisTracker as STT;
 // Composer autoloader
 require( dirname(__FILE__).'/vendor/autoload.php' );
 
-// Creating a simple config object. You can replace this with your object
-// implementing ConfigInterface.
-$config = new STT\Config\Simple( array(
-    // Persistense object implementing PersistenceInterface.
-    // We use Pdo here. The object is initialized with its own config.
-    'persistence' => new STT\Persistence\Pdo(
-        new STT\Config\Simple( array(
-            'dsn'           => 'localhost',
-            'username'      => 'misc',
-            'password'      => 'misc',
-            'options'       => 'misc',
-        ) )
-    ),
-    // The IP address of the connecting client.
-    'ip'        => $_SERVER['REMOTE_ADDR'],
-    // Interval of the next announcement in seconds - sent back to the client.
-    'interval'  => 60,
-) );
+// Persistence object implementing PersistenceInterface.
+// We use Pdo here.
+$persistence = new Pdo( 'sqlite:sqlite_example.db' );
 
 // Core class managing the announcements.
-$core = new STT\Core( $config );
-
-// We take the parameters the client is sending and initialize a config
-// object with them. Again, you can implement your own Config class to do this.
-$get = new STT\Config\Simple( $_GET );
+$core = ( new Core( $persistence ) )
+    // Interval of the next announcement in seconds - sent back to the client.
+    ->setInterval( 60 )
+    // The IP-address of the connecting client.
+    ->setIp( $_SERVER['REMOTE_ADDR'] );
 
 // We simply send back the results of the announce method to the client.
-echo $core->announce( $get );
+echo $core->announce( $_GET );

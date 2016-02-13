@@ -5,7 +5,6 @@ namespace StealThisShow\StealThisTracker\Seeder;
 use StealThisShow\StealThisTracker\Concurrency;
 use StealThisShow\StealThisTracker\Persistence;
 use StealThisShow\StealThisTracker\Logger;
-use StealThisShow\StealThisTracker\Config;
 
 /**
  * Daemon seeding all active torrent files on this server.
@@ -15,35 +14,20 @@ use StealThisShow\StealThisTracker\Config;
  */
 class Peer extends Concurrency\Forker
 {
-    /**
-     * String representation of the address to bind the socket to. Defaults to 127.0.0.1.
-     *
-     * Used for announcing, ie. clients will try to connect here - should be public.
-     *
-     * @var string
-     */
-    public $address;
 
     /**
      * Port number to bind the socket to. Defaults to 6881.
      *
      * @var integer
      */
-    public $port;
+    protected $port;
 
     /**
      * Azureus-style peer ID generated from the address and port.
      *
      * @var string
      */
-    public $peer_id;
-
-    /**
-     * Configuration of this class.
-     *
-     * @var Config\ConfigInterface
-     */
-    protected $config;
+    protected $peer_id;
 
     /**
      * Persistence class to save/retrieve data.
@@ -58,6 +42,34 @@ class Peer extends Concurrency\Forker
      * @var Logger\LoggerInterface
      */
     protected $logger;
+
+    /**
+     * @var string
+     */
+    protected $external_address;
+
+    /**
+     * @var string
+     */
+    protected $internal_address;
+
+    /**
+     * Number of connection accepting processes to fork to encure concurrent downloads.
+     *
+     * Default: 5
+     *
+     * @var integer
+     */
+    protected $peer_forks = 5;
+    /**
+     * Number of active external seeders (fully downloaded files) after
+     * which the seed server stops seeding. This is to save bandwidth costs.
+     *
+     * Default: 0 - don't stop.
+     *
+     * @var integer
+     */
+    protected $seeders_stop_seeding = 0;
 
     /**
      * Open socket that accepts incoming connections. Child processes share this.
@@ -90,21 +102,35 @@ class Peer extends Concurrency\Forker
     const STOP_AFTER_ITERATIONS = 20;
 
     /**
-     * Setting up class from config.
      *
-     * @param Config\ConfigInterface $config
+     * @param Persistence\PersistenceInterface $persistence
+     * @param bool $logger
+     * @param string $internal_address
+     * @param string $external_address
+     * @param int $port
+     * @param int $peer_forks
+     * @param int $seeders_stop_seeding
      */
-    public function  __construct( Config\ConfigInterface $config )
+    public function  __construct(
+        Persistence\PersistenceInterface $persistence,
+        $logger = false,
+        $internal_address = self::DEFAULT_ADDRESS,
+        $external_address = self::DEFAULT_ADDRESS,
+        $port = self::DEFAULT_PORT,
+        $peer_forks = 5,
+        $seeders_stop_seeding = 0
+    )
     {
-        $this->config       = $config;
+        $this->persistence          = $persistence;
+        $this->external_address     = $external_address;
+        $this->internal_address     = $internal_address;
+        $this->port                 = $port;
+        $this->peer_forks           = $peer_forks;
+        $this->seeders_stop_seeding = $seeders_stop_seeding;
+        $this->peer_id              = $this->generatePeerId();
 
-        $this->persistence           = $this->config->get( 'persistence' );
-        $this->logger                = $this->config->get( 'logger', false, new Logger\Blackhole() );
-        $this->external_address      = $this->config->get( 'seeder_address', false, self::DEFAULT_ADDRESS );
-        $this->internal_address      = $this->config->get( 'seeder_internal_address', false, $this->external_address );
-        $this->port                  = $this->config->get( 'seeder_port', false, self::DEFAULT_PORT );
-
-        $this->peer_id      = $this->generatePeerId();
+        if ( !$logger )
+            $this->logger = new Logger\Blackhole();
     }
 
     /**
@@ -118,7 +144,7 @@ class Peer extends Concurrency\Forker
         $this->startListening();
 
         // We want this many forks for connections, permanently recreated when failing (-1).
-        $peer_forks = $this->config->get( 'peer_forks' );
+        $peer_forks = $this->peer_forks;
 
         if ( $peer_forks < 1 )
         {
@@ -139,9 +165,7 @@ class Peer extends Concurrency\Forker
     {
         // Some persistence providers (eg. MySQL) should create a new connection when the process is forked.
         if ( $this->persistence instanceof Persistence\ResetWhenForking )
-        {
             $this->persistence->resetAfterForking();
-        }
 
         $this->logger->logMessage( "Forked process on slot $slot starts accepting connections." );
 
@@ -234,11 +258,11 @@ class Peer extends Concurrency\Forker
     /**
      * Manages handshaking with the client.
      *
-     * If seeders_stop_seeding config key is set to a number greater than 0,
+     * If seeders_stop_seeding is set to a number greater than 0,
      * we check if we have at least N seeders beyond ourselves for the requested
-     * torrent and if so, stop seeding (to spare bandwith).
+     * torrent and if so, stop seeding (to spare bandwidth).
      *
-     * @throws Error\CloseConnection In case when the reqeust is invalid or we don't want or cannot serve the requested torrent.
+     * @throws Error\CloseConnection In case when the request is invalid or we don't want or cannot serve the requested torrent.
      * @param Client $client
      */
     protected function shakeHand( Client $client )
@@ -263,14 +287,12 @@ class Peer extends Concurrency\Forker
 
         $torrent = $this->persistence->getTorrent( $info_hash );
         if ( !isset( $torrent ) )
-        {
             throw new Error\CloseConnection( 'Unknown info hash.' );
-        }
 
         $client->torrent = $torrent;
 
         // If we have X other seeders already, we stop seeding on our own.
-        if ( 0 < ( $seeders_stop_seeding = $this->config->get( 'seeders_stop_seeding', false, 0 ) ) )
+        if ( 0 < ( $seeders_stop_seeding = $this->seeders_stop_seeding ) )
         {
             $stats = $this->persistence->getPeerStats( $info_hash, $this->peer_id );
             if ( $stats['complete'] >= $seeders_stop_seeding )
@@ -380,9 +402,9 @@ class Peer extends Concurrency\Forker
     }
 
     /**
-     * Sending intial bitfield tot he clint letting it know that we have to entire file.
+     * Sending initial bitfield tot he clint letting it know that we have to entire file.
      *
-     * The bitfeild looks like:
+     * The bitfield looks like:
      * [11111111-11111111-11100000]
      * Meaning that we have all the 19 pieces (padding bits must be 0).
      *
@@ -410,5 +432,93 @@ class Peer extends Concurrency\Forker
         }
 
         $client->socketWrite( pack( 'N', strlen( $message ) ) . $message );
+    }
+
+    /**
+     * @param Logger\LoggerInterface $logger
+     * @return $this
+     */
+    public function setLogger( Logger\LoggerInterface $logger )
+    {
+        $this->logger = $logger;
+        return $this;
+    }
+
+    /**
+     * Sets "public" IP address of the sverver that is sent to peers from the tracker.
+     *
+     * Default: 127.0.0.1
+     *
+     * @param string $external_address Annotated IP address.
+     * @return self For fluent interface.
+     */
+    public function setExternalAddress( $external_address )
+    {
+        $this->external_address = $external_address;
+        return $this;
+    }
+
+    /**
+     * Sets "listen" IP address of the server, the one to bind socket to.
+     *
+     * Default: 127.0.0.1
+     *
+     * @param string $internal_address Annotated IP address.
+     * @return self For fluent interface.
+     */
+    public function setInternalAddress( $internal_address )
+    {
+        $this->internal_address = $internal_address;
+        return $this;
+    }
+
+    /**
+     * Sets port number to bind listening socket to.
+     *
+     * Default: 6881
+     *
+     * @param integer $port
+     * @return self For fluent interface.
+     */
+    public function setPort( $port )
+    {
+        $this->port = $port;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPeerId()
+    {
+        return $this->peer_id;
+    }
+
+    /**
+     * @param int $peer_forks
+     * @return Peer
+     */
+    public function setPeerForks($peer_forks)
+    {
+        $this->peer_forks = $peer_forks;
+        return $this;
+    }
+
+    /**
+     * @param int $seeders_stop_seeding
+     * @return Peer
+     */
+    public function setSeedersStopSeeding($seeders_stop_seeding)
+    {
+        $this->seeders_stop_seeding = $seeders_stop_seeding;
+        return $this;
     }
 }

@@ -4,7 +4,6 @@ namespace StealThisShow\StealThisTracker\Persistence;
 
 use StealThisShow\StealThisTracker\File\File;
 use StealThisShow\StealThisTracker\Torrent;
-use StealThisShow\StealThisTracker\Config;
 
 /**
  * Persistence class implementation using PDO and so supporting many database drivers.
@@ -20,18 +19,57 @@ class Pdo implements PersistenceInterface, ResetWhenForking
     protected $driver;
 
     /**
-     * @var Config\ConfigInterface
+     * @var string
      */
-    protected $config;
+    protected $dsn;
 
     /**
-     * Setting up object instance with the config.
-     *
-     * @param Config\ConfigInterface $config
+     * @var string
      */
-    public function __construct( Config\ConfigInterface $config )
+    protected $username;
+
+    /**
+     * @var string
+     */
+    protected $password;
+
+    /**
+     * @var string
+     */
+    protected $options;
+
+    /**
+     * Setting up object instance.
+     *
+     * @param string $dsn
+     * @param null $username
+     * @param null $password
+     * @param array $options
+     */
+    public function __construct( $dsn, $username = null, $password = null, array $options = array() )
     {
-        $this->config = $config;
+        $this->dsn      = $dsn;
+        $this->username = $username;
+        $this->password = $password;
+        $this->options  = $options;
+    }
+
+    public function setUsername( $username )
+    {
+        $this->username = $username;
+        return $this;
+    }
+
+    public function setPassword( $password )
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    public function setOptions( array $options )
+    {
+        $this->options = $options;
+        return $this;
     }
 
     /**
@@ -67,7 +105,9 @@ SET
     `pieces`        = :pieces,
     `name`          = :name,
     `path`          = :path,
+    `private`       = :private,
     `announce_list` = :announce_list,
+    `nodes`         = :nodes,
     `url_list`      = :url_list
 WHERE
     `info_hash` = :info_hash
@@ -85,7 +125,9 @@ INSERT INTO
     `pieces`,
     `name`,
     `path`,
+    `private`,
     `announce_list`,
+    `nodes`,
     `url_list`
 )
 VALUES
@@ -96,7 +138,9 @@ VALUES
     :pieces,
     :name,
     :path,
+    :private,
     :announce_list,
+    :nodes,
     :url_list
 )
 SQL;
@@ -109,13 +153,15 @@ SQL;
             ':pieces'            => $torrent->pieces,
             ':name'              => $torrent->name,
             ':path'              => $torrent->file_path,
+            ':private'           => $torrent->private,
             ':announce_list'     => serialize( $torrent->announce_list ),
-            ':url_list'          => serialize( $torrent->url_list ),
+            ':nodes'             => serialize( $torrent->nodes ),
+            ':url_list'          => serialize( $torrent->url_list )
         ) );
     }
 
     /**
-     * Given a 20 bytes info hash, returns an intialized Torrent object.
+     * Given a 20 bytes info hash, returns an initialized Torrent object.
      *
      * Must return null if the info hash is not found.
      *
@@ -132,7 +178,9 @@ SELECT
     `pieces`,
     `name`,
     `path`,
+    `private`,
     `announce_list`,
+    `nodes`,
     `url_list`
 FROM
     `stealthistracker_torrents`
@@ -150,17 +198,16 @@ SQL;
 
         if ( $row )
         {
-            return new Torrent(
-                new File( $row['path'] ),
-                $row['pieces_length'],
-                $row['path'],
-                $row['name'],
-                $row['length'],
-                $row['pieces'],
-                $row['info_hash'],
-                unserialize( $row['announce_list'] ),
-                unserialize( $row['url_list'] )
-            );
+            return ( new Torrent( new File( $row['path'] ), $row['pieces_length'] ) )
+                ->setFilePath( $row['path'] )
+                ->setName( $row['name'] )
+                ->setLength( $row['length'] )
+                ->setPieces( $row['pieces'] )
+                ->setPrivate( $row['private'] )
+                ->setAnnounceList( unserialize( $row['announce_list'] ) )
+                ->setNodes( unserialize( $row['nodes'] ) )
+                ->setUrlList( unserialize( $row['url_list'] ) )
+                ->setInfoHash( $row['info_hash'] );
         }
         return null;
     }
@@ -444,10 +491,10 @@ SQL;
     protected function connect()
     {
         $this->driver = new \PDO(
-            $this->config->get( 'dsn', true ),
-            $this->config->get( 'username', false, null ),
-            $this->config->get( 'password', false, null ),
-            $this->config->get( 'options', false, array() )
+            $this->dsn,
+            $this->username,
+            $this->password,
+            $this->options
         );
         $this->driver->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
 

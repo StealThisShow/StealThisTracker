@@ -14,15 +14,11 @@ require( dirname(__FILE__) . '/../../vendor/autoload.php' );
 
 use StealThisShow\StealThisTracker\Persistence\Pdo;
 use StealThisShow\StealThisTracker\Core;
-use StealThisShow\StealThisTracker\Config\Simple;
 
-$config = new Simple( array(
-    'persistence' => new Pdo(new Simple( array(
-        'dsn' => 'sqlite:' . sys_get_temp_dir() . '/sqlite_test.db'
-    ) ) ),
-    'ip'        => $_SERVER['REMOTE_ADDR'],
-    'interval'  => 60,
-    'load_balancing' => false
-) );
-$core = new Core( $config );
-echo $core->announce( new Simple($_GET) );
+$persistence = new Pdo( 'sqlite:' . sys_get_temp_dir() . '/sqlite_test.db' );
+
+$core = ( new Core( $persistence ) )
+    ->setInterval( 60 )
+    ->setIp( $_SERVER['REMOTE_ADDR'] );
+
+echo $core->announce( $_GET );

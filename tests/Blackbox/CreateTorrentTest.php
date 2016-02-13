@@ -5,10 +5,6 @@ namespace StealThisShow\StealThisTracker;
 class CreateTorrentTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Config\Simple
-     */
-    protected $config;
-    /**
      * @var Persistence\Pdo
      */
     protected $persistence;
@@ -27,25 +23,13 @@ class CreateTorrentTest extends \PHPUnit_Framework_TestCase
         touch( $this->db_path );
         $this->setupDatabaseFixture( $this->db_path, $this->sql_path );
 
-        $this->persistence = new Persistence\Pdo(new Config\Simple( array(
-            'dsn' => 'sqlite:' . $this->db_path
-        ) ) );
-
-        $this->config = new Config\Simple( array(
-            'persistence' => $this->persistence,
-            'ip'        => '127.0.0.1',
-            'interval'  => 60,
-            'load_balancing' => false,
-            'announce' => array ( self::ANNOUNCE_URL )
-        ) );
+        $this->persistence = new Persistence\Pdo( 'sqlite:' . $this->db_path );
     }
 
     public function tearDown()
     {
-        if ( file_exists($this->db_path) )
-        {
-            unlink($this->db_path);
-        }
+        if ( file_exists( $this->db_path ) )
+            unlink( $this->db_path );
     }
 
     public function testTorrentFileContents()
@@ -86,9 +70,7 @@ class CreateTorrentTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             (string) $torrent_file,
-            (string) $saved_torrent->createTorrentFile( array(
-                self::ANNOUNCE_URL,
-            ) )
+            (string) $saved_torrent->createTorrentFile()
         );
     }
 
@@ -98,25 +80,24 @@ class CreateTorrentTest extends \PHPUnit_Framework_TestCase
         $driver = new \PDO( 'sqlite:' . $db_file );
         $statements = preg_split( '/;[ \t]*\n/', $table_definitions, -1, PREG_SPLIT_NO_EMPTY );
         foreach ( $statements as $statement )
-        {
             if ( !$driver->query( $statement ) )
-            {
                 $this->fail(
                     'Could not set up database fixture: ' .
                     var_export( $driver->errorInfo(), true )
                 );
-            }
-        }
     }
 
     private function createTorrent()
     {
-        $core = new Core( $this->config );
+        $core = ( new Core( $this->persistence ) )
+            ->setIp( '127.0.0.1' )
+            ->setInterval( 60 );
 
-        return $core->createTorrent(
-            dirname( __FILE__ ) . '/../Fixtures/' . self::FILE_TO_DOWNLOAD,
-            self::PIECE_LENGTH
-        );
+        $file = new File\File( dirname( __FILE__ ) . '/../Fixtures/' . self::FILE_TO_DOWNLOAD );
+        $torrent = ( new Torrent( $file, self::PIECE_LENGTH ) )
+            ->setAnnounceList(array(self::ANNOUNCE_URL));
+
+        return $core->addTorrent( $torrent );
     }
 
     private function getInfoHash( $torrent )
@@ -126,7 +107,8 @@ class CreateTorrentTest extends \PHPUnit_Framework_TestCase
             'piece length'  => $parsed_torrent['info']['piece length'],
             'pieces'        => $parsed_torrent['info']['pieces'],
             'name'          => $parsed_torrent['info']['name'],
-            'length'        => $parsed_torrent['info']['length']
+            'length'        => $parsed_torrent['info']['length'],
+            'private'       => $parsed_torrent['info']['private']
         ) ), true );
     }
 

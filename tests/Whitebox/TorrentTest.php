@@ -28,7 +28,11 @@ class TorrentTest extends \PHPUnit_Framework_TestCase
 
         $file = new File\File( $this->file_path );
 
-        $this->object = new Torrent( $file, 2 , null, null, null, null, null, array(), array( 'http://example.com/test.ext' ) );
+        $this->object = new Torrent( $file, 2);
+        $this->object
+            ->setPrivate( false )
+            ->setAnnounceList( array( 'http://announce' ) )
+            ->setUrlList( array( 'http://example.com/test.ext' ) );
     }
 
     /**
@@ -57,7 +61,9 @@ class TorrentTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue( isset( $this->object->size_piece ) );
         $this->assertTrue( isset( $this->object->info_hash ) );
         $this->assertTrue( isset( $this->object->file_path ) );
+        $this->assertTrue( isset( $this->object->private ) );
         $this->assertTrue( isset( $this->object->announce_list ) );
+        $this->assertTrue( isset( $this->object->nodes ) );
         $this->assertTrue( isset( $this->object->url_list ) );
 
         $this->assertEquals( $this->createPiecesHash( self::TEST_DATA, 2 ), $this->object->pieces );
@@ -70,7 +76,7 @@ class TorrentTest extends \PHPUnit_Framework_TestCase
         $info_hash_readable = current( $info_hash_readable );
 
         // We have to hardcode this to the test.
-        $this->assertEquals( 'ce604353af13707d499e376cd8672e32a3260e01', $info_hash_readable );
+        $this->assertEquals( '0a144b67246d58f90ab22c22646952dd1465bf2c', $info_hash_readable );
     }
 
     /**
@@ -78,7 +84,7 @@ class TorrentTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateTorrentFile()
     {
-        $bencoded_torrent = $this->object->createTorrentFile( array( 'http://announce' ) ) . '';
+        $bencoded_torrent = (string) $this->object->createTorrentFile();
 
         $parser = new Bencode\Parser( $bencoded_torrent );
         $decoded_torrent = $parser->parse()->represent();
@@ -87,6 +93,7 @@ class TorrentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals( $decoded_torrent['info']['name'], $this->object->name );
         $this->assertEquals( $decoded_torrent['info']['length'], $this->object->length );
         $this->assertEquals( $decoded_torrent['info']['pieces'], $this->object->pieces );
+        $this->assertEquals( $decoded_torrent['info']['private'], $this->object->private );
 
         $this->assertEquals( $decoded_torrent['announce'], 'http://announce' );
         $this->assertContains( array( 'http://announce' ), $decoded_torrent['announce-list'] );

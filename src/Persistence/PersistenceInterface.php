@@ -2,7 +2,6 @@
 
 namespace StealThisShow\StealThisTracker\Persistence;
 
-use StealThisShow\StealThisTracker\Config;
 use StealThisShow\StealThisTracker\Torrent;
 
 /**

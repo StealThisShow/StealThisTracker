@@ -1,6 +1,8 @@
 <?php
 
-use \StealThisShow\StealThisTracker as STT;
+use \StealThisShow\StealThisTracker\Core;
+use \StealThisShow\StealThisTracker\Torrent;
+use \StealThisShow\StealThisTracker\Persistence\Pdo;
 
 // -----------------------------------------------------------
 // This is how to create a .torrent file from a physical file.
@@ -9,37 +11,26 @@ use \StealThisShow\StealThisTracker as STT;
 // Composer autoloader
 require( dirname(__FILE__).'/vendor/autoload.php' );
 
-// Creating a simple config object. You can replace this with your object
-// implementing StealThisTracker_Config_Interface.
-$config = new STT\Config\Simple( array(
-    // Persistense object implementing PersistenceInterface.
-    // We use Pdo here. The object is initialized with its own config.
-    'persistence' => new STT\Persistence\Pdo(
-        new STT\Config\Simple( array(
-            'dsn'           => 'localhost',
-            'username'      => 'misc',
-            'password'      => 'misc',
-            'options'       => 'misc',
-        ) )
-    ),
-    // List of public announce URLs on your server.
-    'announce'  => array(
-        'http://php-tracker.dev/example_announce.php',
-    ),
-) );
+// Persistence object implementing PersistenceInterface.
+// We use Pdo here.
+$persistence = new Pdo( 'sqlite:sqlite_example.db' );
 
 // Core class managing creating the file.
-$core = new STT\Core( $config );
+$core = ( new Core( $persistence ) );
 
-// Setting appropiate HTTP header and sending back the .torrrent file.
+// The first parameters is a path (can be absolute) of the file,
+// the second is the piece size in bytes.
+$torrent = ( new Torrent(  '/path/to/file.ext', 524288 ) )
+    // List of public announce URLs on your server.
+    ->setAnnounceList( array(
+        'http://announce',
+    ) );
+
+// Setting appropriate HTTP header and sending back the .torrrent file.
 // This is VERY inefficient to do! SAVE the .torrent file on your server and
 // serve the saved copy!
 header( 'Content-Type: application/x-bittorrent' );
 header( 'Content-Disposition: attachment; filename="test.torrent"' );
 
-// The first parameters is a path (can be absolute) of the file,
-// the second is the piece size in bytes.
-echo $core->createTorrent( '../test.avi', 524288 );
-
-// You can also specify basename for the file in the torrent (if different from physical):
-// echo $core->createTorrent( '../test.avi', 524288, 'puderzucker.avi' );
+// Outputs torrent content
+echo $core->addTorrent( $torrent );
