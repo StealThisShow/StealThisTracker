@@ -409,7 +409,8 @@ class Torrent
             // Announce-list is a list of lists of strings.
             $announce_list = Utils::listToListOfLists( $this->announce_list );
             // Reset twice because list of lists
-            $torrent_data['announce'] = reset ( reset( $announce_list ) );
+            $first = reset( $announce_list );
+            $torrent_data['announce'] = reset( $first );
             $torrent_data['announce-list'] = $announce_list;
         }
         // DHT nodes
