@@ -17,7 +17,8 @@ use StealThisShow\StealThisTracker\Core;
 
 $persistence = new Pdo( 'sqlite:' . sys_get_temp_dir() . '/sqlite_test.db' );
 
-$core = ( new Core( $persistence ) )
+$core = new Core( $persistence );
+$core
     ->setInterval( 60 )
     ->setIp( $_SERVER['REMOTE_ADDR'] );
 

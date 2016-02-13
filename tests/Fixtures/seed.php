@@ -24,7 +24,8 @@ fwrite( STDERR, "Starting seed server at $ip:$port" );
 
 $persistence = new Pdo( 'sqlite:' . sys_get_temp_dir() . '/sqlite_test.db' );
 
-$peer = ( new Peer( $persistence ) )
+$peer = new Peer( $persistence );
+$peer
     ->setExternalAddress( $ip )
     ->setInternalAddress( $ip )
     ->setPort( $port )
