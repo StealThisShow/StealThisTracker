@@ -174,7 +174,7 @@ class Peer extends Concurrency\Forker
     }
 
     /**
-     * Generates unique Azuerus style peer ID from the address and port.
+     * Generates unique Azureus style peer ID from the address and port.
      *
      * @return string
      */

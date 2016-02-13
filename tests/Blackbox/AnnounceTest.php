@@ -63,9 +63,9 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
     {
         $persistence = new Persistence\Pdo('sqlite:' . $this->db_path);
 
-        $core = ( new Core( $persistence ) )
-            ->setIp( self::CLIENT_IP )
-            ->setInterval( self::ANNOUNCE_INTERVAL );
+        $core = new Core( $persistence );
+        $core->setIp( self::CLIENT_IP );
+        $core->setInterval( self::ANNOUNCE_INTERVAL );
 
         $get = array(
             'info_hash'     => self::INFO_HASH,
@@ -95,9 +95,9 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
     {
         $persistence = new Persistence\Pdo('sqlite:' . $this->db_path);
 
-        $core = ( new Core( $persistence ) )
-            ->setIp( self::CLIENT_IP )
-            ->setInterval( self::ANNOUNCE_INTERVAL );
+        $core = new Core( $persistence );
+        $core->setIp( self::CLIENT_IP );
+        $core->setInterval( self::ANNOUNCE_INTERVAL );
 
         $this->announceOtherPeers( $core );
 

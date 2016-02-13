@@ -198,8 +198,8 @@ class SeedServerTest extends \PHPUnit_Framework_TestCase
 
         $file = new File\File( dirname( __FILE__ ) . '/../Fixtures/' . self::FILE_TO_DOWNLOAD );
 
-        $torrent = ( new Torrent( $file, self::PIECE_LENGTH ) )
-            ->setAnnounceList( array( 'http://' . self::ANNOUNCE_SERVER_IP . ':' . self::ANNOUNCE_SERVER_PORT . '/announce.php' ) );
+        $torrent = new Torrent( $file, self::PIECE_LENGTH );
+        $torrent->setAnnounceList( array( 'http://' . self::ANNOUNCE_SERVER_IP . ':' . self::ANNOUNCE_SERVER_PORT . '/announce.php' ) );
 
         $contents = $core->addTorrent( $torrent );
 

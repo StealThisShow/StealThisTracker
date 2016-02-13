@@ -16,15 +16,15 @@ require( dirname(__FILE__).'/vendor/autoload.php' );
 $persistence = new Pdo( 'sqlite:sqlite_example.db' );
 
 // Core class managing creating the file.
-$core = ( new Core( $persistence ) );
+$core = new Core( $persistence );
 
 // The first parameters is a path (can be absolute) of the file,
 // the second is the piece size in bytes.
-$torrent = ( new Torrent(  '/path/to/file.ext', 524288 ) )
-    // List of public announce URLs on your server.
-    ->setAnnounceList( array(
-        'http://announce',
-    ) );
+$torrent = new Torrent(  '/path/to/file.ext', 524288 );
+// List of public announce URLs on your server.
+$torrent->setAnnounceList( array(
+    'http://announce'
+) );
 
 // Setting appropriate HTTP header and sending back the .torrrent file.
 // This is VERY inefficient to do! SAVE the .torrent file on your server and

@@ -89,13 +89,14 @@ class CreateTorrentTest extends \PHPUnit_Framework_TestCase
 
     private function createTorrent()
     {
-        $core = ( new Core( $this->persistence ) )
+        $core = new Core( $this->persistence );
+        $core
             ->setIp( '127.0.0.1' )
             ->setInterval( 60 );
 
         $file = new File\File( dirname( __FILE__ ) . '/../Fixtures/' . self::FILE_TO_DOWNLOAD );
-        $torrent = ( new Torrent( $file, self::PIECE_LENGTH ) )
-            ->setAnnounceList(array(self::ANNOUNCE_URL));
+        $torrent = new Torrent( $file, self::PIECE_LENGTH );
+        $torrent->setAnnounceList( array( self::ANNOUNCE_URL ) );
 
         return $core->addTorrent( $torrent );
     }

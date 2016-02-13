@@ -21,7 +21,8 @@ $persistence = new Pdo( 'sqlite:sqlite_example.db' );
 
 
 // Setting up seeder peer. This will listen to connections and serve files.
-$peer = ( new Peer( $persistence ) )
+$peer = new Peer( $persistence );
+$peer
     // Private address of the seeder server. (Optional parameter for IP to open socket on if differs from external.)
     ->setInternalAddress( '192.168.2.123' )
     // Public address of the seeder server. This will be used for announcements (ie. sent to the clients).
@@ -40,9 +41,9 @@ $peer = ( new Peer( $persistence ) )
 // We set up a seeding server which starts the seeding peer, and makes regular
 // announcements to the database adding itself to the peer list for all
 // active torrents.
-$server = ( new Server( $peer, $persistence ) )
-    // Intializing file logger with default file path (/var/log/stealthistracker.log).
-    ->setLogger( new File() );
+$server = new Server( $peer, $persistence );
+// Initializing file logger with default file path (/var/log/stealthistracker.log).
+$server->setLogger( new File() );
 
 // Starting "detached" means that process will unrelate from terminal and run as deamon.
 // To run in terminal, you can use start().

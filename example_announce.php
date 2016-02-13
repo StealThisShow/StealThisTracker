@@ -15,7 +15,8 @@ require( dirname(__FILE__).'/vendor/autoload.php' );
 $persistence = new Pdo( 'sqlite:sqlite_example.db' );
 
 // Core class managing the announcements.
-$core = ( new Core( $persistence ) )
+$core = new Core( $persistence );
+$core
     // Interval of the next announcement in seconds - sent back to the client.
     ->setInterval( 60 )
     // The IP-address of the connecting client.

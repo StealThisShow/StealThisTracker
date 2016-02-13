@@ -198,7 +198,8 @@ SQL;
 
         if ( $row )
         {
-            return ( new Torrent( new File( $row['path'] ), $row['pieces_length'] ) )
+            $torrent = new Torrent( new File( $row['path'] ), $row['pieces_length'] );
+            $torrent
                 ->setFilePath( $row['path'] )
                 ->setName( $row['name'] )
                 ->setLength( $row['length'] )
@@ -208,6 +209,8 @@ SQL;
                 ->setNodes( unserialize( $row['nodes'] ) )
                 ->setUrlList( unserialize( $row['url_list'] ) )
                 ->setInfoHash( $row['info_hash'] );
+
+            return $torrent;
         }
         return null;
     }

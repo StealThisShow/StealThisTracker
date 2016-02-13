@@ -45,9 +45,7 @@ class TorrentTest extends \PHPUnit_Framework_TestCase
         unset( $this->object );
         // Remove temporary file.
         if ( file_exists( $this->file_path ) )
-        {
             unlink( $this->file_path );
-        }
     }
 
     /**
