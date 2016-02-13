@@ -3,6 +3,7 @@
 use \StealThisShow\StealThisTracker\Core;
 use \StealThisShow\StealThisTracker\Torrent;
 use \StealThisShow\StealThisTracker\Persistence\Pdo;
+use \StealThisShow\StealThisTracker\File\File;
 
 // -----------------------------------------------------------
 // This is how to create a .torrent file from a physical file.
@@ -18,9 +19,12 @@ $persistence = new Pdo( 'sqlite:sqlite_example.db' );
 // Core class managing creating the file.
 $core = new Core( $persistence );
 
-// The first parameters is a path (can be absolute) of the file,
+// The torrent file
+$file = new File( '/path/to/file.ext' );
+
+// The first parameters is the file,
 // the second is the piece size in bytes.
-$torrent = new Torrent(  '/path/to/file.ext', 524288 );
+$torrent = new Torrent(  $file, 524288 );
 // List of public announce URLs on your server.
 $torrent->setAnnounceList( array(
     'http://announce'
