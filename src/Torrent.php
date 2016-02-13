@@ -118,10 +118,10 @@ class Torrent
         $length = null,
         $pieces = null,
         $info_hash = null,
-        $private = false,
-        $announce_list = array(),
-        $nodes = array(),
-        $url_list = array()
+        $private = null,
+        array $announce_list = null,
+        array $nodes = null,
+        array $url_list = null
     )
     {
         if ( 0 >= $size_piece = intval( $size_piece ) )

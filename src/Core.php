@@ -43,16 +43,26 @@ class Core
     {
         $this->persistence  = $persistence;
         $this->interval     = $interval;
-        if ( isset($_SERVER['REMOTE_ADDR']) )
+        $this->ip           = $ip;
+
+        if ( !$ip && isset($_SERVER['REMOTE_ADDR']) )
             $this->ip = $_SERVER['REMOTE_ADDR'];
     }
 
+    /**
+     * @param $ip
+     * @return $this
+     */
     public function setIp( $ip )
     {
         $this->ip = $ip;
         return $this;
     }
 
+    /**
+     * @param $interval
+     * @return $this
+     */
     public function setInterval( $interval )
     {
         $this->interval = $interval;
