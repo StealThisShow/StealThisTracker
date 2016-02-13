@@ -225,7 +225,7 @@ class Peer extends Concurrency\Forker
             {
                 try
                 {
-                    if ( !isset( $client->peer_id ) )
+                    if ( $client->getPeerId() == null )
                     {
                         $this->shakeHand( $client );
 
@@ -242,7 +242,7 @@ class Peer extends Concurrency\Forker
                 }
                 catch ( Error\CloseConnection $e )
                 {
-                    $this->logger->logMessage( "Closing connection with peer {$client->peer_id} with address {$client->address}:{$client->port}, reason: \"{$e->getMessage()}\". Stats: " . $client->getStats() );
+                    $this->logger->logMessage( "Closing connection with peer {$client->getPeerId()} with address {$client->getAddress()}:{$client->getPort()}, reason: \"{$e->getMessage()}\". Stats: " . $client->getStats() );
                     unset( $client );
 
                     // We might wait for another client.
@@ -280,7 +280,7 @@ class Peer extends Concurrency\Forker
         $client->socketRead( 8 );
 
         $info_hash          = $client->socketRead( 20 );
-        $client->peer_id    = $client->socketRead( 20 );
+        $client->setPeerId( $client->socketRead( 20 ) );
 
         $info_hash_readable = unpack( 'H*', $info_hash );
         $info_hash_readable = reset( $info_hash_readable );
@@ -289,7 +289,7 @@ class Peer extends Concurrency\Forker
         if ( !isset( $torrent ) )
             throw new Error\CloseConnection( 'Unknown info hash.' );
 
-        $client->torrent = $torrent;
+        $client->setTorrent( $torrent );
 
         // If we have X other seeders already, we stop seeding on our own.
         if ( 0 < ( $seeders_stop_seeding = $this->seeders_stop_seeding ) )
@@ -311,7 +311,7 @@ class Peer extends Concurrency\Forker
             pack( 'a20', $this->peer_id )                   // Our peer id.
          );
 
-        $this->logger->logMessage( "Handshake completed with peer {$client->peer_id} with address {$client->address}:{$client->port}, info hash: $info_hash_readable." );
+        $this->logger->logMessage( "Handshake completed with peer {$client->getPeerId()} with address {$client->getAddress()}:{$client->getPort()}, info hash: $info_hash_readable." );
     }
 
     /**
@@ -394,7 +394,7 @@ class Peer extends Concurrency\Forker
      */
     protected function sendBlock( Client $client, $piece_index, $block_begin, $length )
     {
-        $message = pack( 'CNN', 7, $piece_index, $block_begin ) . $client->torrent->readBlock( $piece_index, $block_begin, $length );
+        $message = pack( 'CNN', 7, $piece_index, $block_begin ) . $client->getTorrent()->readBlock( $piece_index, $block_begin, $length );
         $client->socketWrite( pack( 'N', strlen( $message ) ) . $message );
 
         // Saving statistics.
@@ -412,7 +412,7 @@ class Peer extends Concurrency\Forker
      */
     protected function sendBitField( Client $client )
     {
-        $n_pieces = ceil( $client->torrent->length / $client->torrent->size_piece );
+        $n_pieces = ceil( $client->getTorrent()->length / $client->getTorrent()->size_piece );
 
         $message = pack( 'C', 5 );
 
@@ -520,5 +520,21 @@ class Peer extends Concurrency\Forker
     {
         $this->seeders_stop_seeding = $seeders_stop_seeding;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExternalAddress()
+    {
+        return $this->external_address;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInternalAddress()
+    {
+        return $this->internal_address;
     }
 }

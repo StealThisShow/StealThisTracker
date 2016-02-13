@@ -17,28 +17,28 @@ class Client
      *
      * @var string
      */
-    public $peer_id;
+    protected $peer_id;
 
     /**
      * Address of the connecting client.
      *
      * @var string
      */
-    public $address;
+    protected $address;
 
     /**
      * Port where client listens.
      *
      * @var integer
      */
-    public $port;
+    protected $port;
 
     /**
      * The torrent the the client intends to download.
      *
      * @var Torrent
      */
-    public $torrent;
+    protected $torrent;
 
     /**
      * Socket established for the incoming connection (not the one listening!).
@@ -233,5 +233,69 @@ Bytes sent: $this->bytes_sent,
 Bytes received: $this->bytes_received,
 Data sent: $this->data_sent
 STATS;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPeerId()
+    {
+        return $this->peer_id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * @return Torrent
+     */
+    public function getTorrent()
+    {
+        return $this->torrent;
+    }
+
+    /**
+     * @param string $peer_id
+     */
+    public function setPeerId($peer_id)
+    {
+        $this->peer_id = $peer_id;
+    }
+
+    /**
+     * @param string $address
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
+    }
+
+    /**
+     * @param int $port
+     */
+    public function setPort($port)
+    {
+        $this->port = $port;
+    }
+
+    /**
+     * @param Torrent $torrent
+     */
+    public function setTorrent($torrent)
+    {
+        $this->torrent = $torrent;
     }
 }

@@ -128,9 +128,9 @@ class Server extends Concurrency\Forker
             $all_torrents = $persistence->getAllInfoHash();
 
             foreach ( $all_torrents as $torrent_info )
-                $persistence->saveAnnounce( $torrent_info['info_hash'], $this->peer->peer_id, $this->peer->external_address, $this->peer->port, $torrent_info['length'], 0, 0, 'complete', self::ANNOUNCE_INTERVAL );
+                $persistence->saveAnnounce( $torrent_info['info_hash'], $this->peer->getPeerId(), $this->peer->getExternalAddress(), $this->peer->getPort(), $torrent_info['length'], 0, 0, 'complete', self::ANNOUNCE_INTERVAL );
 
-            $this->logger->logMessage( 'Seeder server announced itself for ' . count( $all_torrents ) . " torrents at address {$this->peer->external_address}:{$this->peer->port} (announces every " . self::ANNOUNCE_INTERVAL . 's).' );
+            $this->logger->logMessage( 'Seeder server announced itself for ' . count( $all_torrents ) . " torrents at address {$this->peer->getExternalAddress()}:{$this->peer->getPort()} (announces every " . self::ANNOUNCE_INTERVAL . 's).' );
 
             sleep( self::ANNOUNCE_INTERVAL );
         } while ( ++$iterations < self::STOP_AFTER_ITERATIONS ); // Memory leak prevention, see self::STOP_AFTER_ITERATIONS.
