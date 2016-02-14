@@ -4,21 +4,33 @@ namespace StealThisShow\StealThisTracker\Bencode;
 
 /**
  * Test class for Builder.
+ *
+ * @package StealThisTracker
  */
 class BuilderTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * Test build
+     *
+     * @param mixed $input Input
+     *
      * @dataProvider buildableInputs
-     * @param $input
+     *
      * @throws Error\Build
+     * @return void
      */
-    public function testBuild( $input )
+    public function testBuild($input)
     {
-       // Parse method returns StealThisTracker_Bencode_Value_Abstract objects, and they
-       // should return PHP representation of themselves when calling represent.
-       $this->assertSame( $input, Builder::build( $input )->represent() );
+        // Parse method returns AbstractValue objects, and they
+        // should return PHP representation of themselves when calling represent.
+        $this->assertSame($input, Builder::build($input)->represent());
     }
 
+    /**
+     * Returns an array
+     *
+     * @return array
+     */
     public static function buildableInputs()
     {
         return array(
@@ -26,24 +38,46 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             array( 'foobar' ), // String.
             array( array( 'foo', 'bar', 'baz' ) ), // List.
             array( array( 'foo' => 'bar', 'baz' => 'bat' ) ), // Dictionary.
-            array( array( 'foo' => array( 'baz', 'bat' ), 'baz' => 123 ) ), // Complex.
+            array(
+                array( 'foo' => array( 'baz', 'bat' ), 'baz' => 123 )
+            ), // Complex.
         );
     }
 
     /**
+     * Test build error float
+     *
      * @expectedException \StealThisShow\StealThisTracker\Bencode\Error\Build
+     *
+     * @return void
      */
     public function testBuildErrorFloat()
     {
-        Builder::build( 1.1111 );
+        Builder::build(1.1111);
     }
 
     /**
+     * Test build error boolean
+     *
      * @expectedException \StealThisShow\StealThisTracker\Bencode\Error\Build
+     *
+     * @return void
+     */
+    public function testBuildErrorBoolean()
+    {
+        Builder::build(true);
+    }
+
+    /**
+     * Test build error object
+     *
+     * @expectedException \StealThisShow\StealThisTracker\Bencode\Error\Build
+     *
+     * @return void
      */
     public function testBuildErrorObject()
     {
-        Builder::build( (object) array( 'attribute' => 'something' ) );
+        Builder::build((object) array('attribute' => 'something'));
     }
 
 }

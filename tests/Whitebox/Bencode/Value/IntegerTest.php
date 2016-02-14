@@ -4,11 +4,15 @@ namespace StealThisShow\StealThisTracker\Bencode\Value;
 
 /**
  * Test class for Integer.
+ *
+ * @package StealThisTracker
  */
 class IntegerTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
+     * The integer object
+     *
      * @var Integer
      */
     protected $object;
@@ -16,34 +20,44 @@ class IntegerTest extends \PHPUnit_Framework_TestCase
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
+     *
+     * @return void
      */
     protected function setUp()
     {
-        $this->object = new Integer( 111 );
+        $this->object = new Integer(111);
     }
 
     /**
      * Running testcase test__toString().
+     *
+     * @return void
      */
-    public function test__toString()
+    public function testToString()
     {
-        $this->assertSame( 'i111e', $this->object . '' );
+        $this->assertSame('i111e', $this->object . '');
     }
 
     /**
      * Running testcase testRepresent().
+     *
+     * @return void
      */
     public function testRepresent()
     {
-        $this->assertSame( 111, $this->object->represent() );
+        $this->assertSame(111, $this->object->represent());
     }
 
     /**
+     * Test invalid value
+     *
      * @expectedException \StealThisShow\StealThisTracker\Bencode\Error\InvalidType
+     *
+     * @return void
      */
     public function testInvalidValue()
     {
-         new Integer( 'abcdef' );
+        new Integer('abcdef');
     }
 
 }
