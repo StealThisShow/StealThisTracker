@@ -1,1 +1,7 @@
-* 0.1
+* 0.1-alpha
+  * Forked PHPTracker v0.3 and renamed it to StealThisTracker
+  * Added PHP 5.3+ Namespacing and PSR-4 autoloading
+  * Applied PEAR coding standards
+  * Removed config and added fluent setters
+  * Added webseeds, private flag and DHT nodes to Torrent
+  * Added basic IPv6 support

@@ -6,6 +6,8 @@ namespace StealThisShow\StealThisTracker\Bencode\Value;
  * Test class for Integer.
  *
  * @package StealThisTracker
+ * @author  StealThisShow <info@stealthisshow.com>
+ * @licence https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 class IntegerTest extends \PHPUnit_Framework_TestCase
 {

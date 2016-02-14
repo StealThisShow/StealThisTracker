@@ -6,6 +6,8 @@ namespace StealThisShow\StealThisTracker\Bencode;
  * Test class for Builder.
  *
  * @package StealThisTracker
+ * @author  StealThisShow <info@stealthisshow.com>
+ * @licence https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 class BuilderTest extends \PHPUnit_Framework_TestCase
 {

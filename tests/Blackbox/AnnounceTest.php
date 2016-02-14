@@ -6,6 +6,8 @@ namespace StealThisShow\StealThisTracker;
  * Announce Test
  *
  * @package StealThisTracker
+ * @author  StealThisShow <info@stealthisshow.com>
+ * @licence https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 class AnnounceTest extends \PHPUnit_Framework_TestCase
 {

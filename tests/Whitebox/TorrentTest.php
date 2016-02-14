@@ -6,6 +6,8 @@ namespace StealThisShow\StealThisTracker;
  * Test class for Torrent.
  *
  * @package StealThisTracker
+ * @author  StealThisShow <info@stealthisshow.com>
+ * @licence https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 class TorrentTest extends \PHPUnit_Framework_TestCase
 {

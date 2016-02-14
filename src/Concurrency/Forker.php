@@ -21,6 +21,8 @@ declare(ticks = 10);
  *
  * @package    StealThisTracker
  * @subpackage Concurrency
+ * @author     StealThisShow <info@stealthisshow.com>
+ * @licence    https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 abstract class Forker
 {

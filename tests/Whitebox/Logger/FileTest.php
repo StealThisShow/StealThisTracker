@@ -6,6 +6,8 @@ namespace StealThisShow\StealThisTracker\Logger;
  * Test class for File.
  *
  * @package StealThisTracker
+ * @author  StealThisShow <info@stealthisshow.com>
+ * @licence https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 class FileTest extends \PHPUnit_Framework_TestCase
 {

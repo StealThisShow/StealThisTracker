@@ -7,6 +7,8 @@ namespace StealThisShow\StealThisTracker\Bencode;
  *
  * @package    StealThisTracker
  * @subpackage Bencode
+ * @author     StealThisShow <info@stealthisshow.com>
+ * @licence    https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 class Parser
 {

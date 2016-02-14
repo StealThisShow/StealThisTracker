@@ -6,6 +6,8 @@ namespace StealThisShow\StealThisTracker\Bencode\Value;
  * Test class for StringTest.
  *
  * @package StealThisTracker
+ * @author  StealThisShow <info@stealthisshow.com>
+ * @licence https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 class StringValueTest extends \PHPUnit_Framework_TestCase
 {
