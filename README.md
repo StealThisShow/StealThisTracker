@@ -20,5 +20,5 @@ Tests can be run with PHPUnit, see phpunit.xml for bootstrap configuration.
 ## Bleeding Edge
 The current development version can be found in the dev branch.
 
-## Licence
-Licence is BSD 3 Clause. Please see the licence file for more information.
+## License
+License is BSD 3 Clause. Please see the license file for more information.

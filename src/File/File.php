@@ -8,7 +8,7 @@ namespace StealThisShow\StealThisTracker\File;
  * @package    StealThisTracker
  * @subpackage File
  * @author     StealThisShow <info@stealthisshow.com>
- * @licence    https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ * @license    https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 class File
 {

@@ -10,7 +10,7 @@ use StealThisShow\StealThisTracker\Seeder;
  * @package    StealThisTracker
  * @subpackage Seeder
  * @author     StealThisShow <info@stealthisshow.com>
- * @licence    https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ * @license    https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  */
 class Socket extends Seeder\Error
 {

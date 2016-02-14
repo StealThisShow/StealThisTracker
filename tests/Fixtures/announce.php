@@ -4,7 +4,7 @@
  * Being run with PHP's built-in web server (or Apache).
  * @package StealThisTracker
  * @author  StealThisShow <info@stealthisshow.com>
- * @licence https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ * @license https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
  * @see     SeedServerTest
  */
 // No tolerance for errors - it's a test.
