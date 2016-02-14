@@ -38,13 +38,13 @@ class Core
      * Initializing the object with persistence.
      *
      * @param Persistence\PersistenceInterface $persistence Persistence
-     * @param bool                             $ip          IP-address
+     * @param string                           $ip          IP-address
      * @param int                              $interval    Interval
      * 
      * @throws Error
      */
     public function __construct(
-        Persistence\PersistenceInterface $persistence, $ip = false, $interval = 60
+        Persistence\PersistenceInterface $persistence, $ip = null, $interval = 60
     ) {
         $this->persistence  = $persistence;
         $this->interval     = $interval;
