@@ -7,7 +7,7 @@ namespace StealThisShow\StealThisTracker\Logger;
  *
  * Feel free to implement your own logger with StealThisTracker_Logger_Interface.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Logger
  */
 interface LoggerInterface
@@ -15,14 +15,18 @@ interface LoggerInterface
     /**
      * Method to save non-error text message.
      *
-     * @param string $message
+     * @param string $message Message
+     *
+     * @return void
      */
-    public function logMessage( $message );
+    public function logMessage($message);
 
     /**
      * Method to save text message representing error.
      *
-     * @param string $message
+     * @param string $message Message
+     *
+     * @return void
      */
-    public function logError( $message );
+    public function logError($message);
 }

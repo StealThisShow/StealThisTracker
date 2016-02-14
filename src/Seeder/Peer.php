@@ -9,7 +9,7 @@ use StealThisShow\StealThisTracker\Logger;
 /**
  * Daemon seeding all active torrent files on this server.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Seeder
  */
 class Peer extends Concurrency\Forker
@@ -44,17 +44,22 @@ class Peer extends Concurrency\Forker
     protected $logger;
 
     /**
+     * External address
+     * 
      * @var string
      */
     protected $external_address;
 
     /**
+     * Internal address
+     * 
      * @var string
      */
     protected $internal_address;
 
     /**
-     * Number of connection accepting processes to fork to encure concurrent downloads.
+     * Number of connection accepting processes to fork 
+     * to ensure concurrent downloads.
      *
      * Default: 5
      *
@@ -102,16 +107,17 @@ class Peer extends Concurrency\Forker
     const STOP_AFTER_ITERATIONS = 20;
 
     /**
-     *
-     * @param Persistence\PersistenceInterface $persistence
-     * @param bool $logger
-     * @param string $internal_address
-     * @param string $external_address
-     * @param int $port
-     * @param int $peer_forks
-     * @param int $seeders_stop_seeding
+     * Peer constructor
+     * 
+     * @param Persistence\PersistenceInterface $persistence          Persistence
+     * @param bool                             $logger               Logger
+     * @param string                           $internal_address     Internal address
+     * @param string                           $external_address     External address
+     * @param int                              $port                 Port
+     * @param int                              $peer_forks           Forks
+     * @param int                              $seeders_stop_seeding Seeders stop
      */
-    public function  __construct(
+    public function __construct(
         Persistence\PersistenceInterface $persistence,
         $logger = false,
         $internal_address = self::DEFAULT_ADDRESS,
@@ -119,8 +125,7 @@ class Peer extends Concurrency\Forker
         $port = self::DEFAULT_PORT,
         $peer_forks = 5,
         $seeders_stop_seeding = 0
-    )
-    {
+    ) {
         $this->persistence          = $persistence;
         $this->external_address     = $external_address;
         $this->internal_address     = $internal_address;
@@ -129,13 +134,17 @@ class Peer extends Concurrency\Forker
         $this->seeders_stop_seeding = $seeders_stop_seeding;
         $this->peer_id              = $this->generatePeerId();
 
-        if ( !$logger )
+        if (!$logger) {
             $this->logger = new Logger\Blackhole();
+        }
     }
 
     /**
-     * Called before forking children, initializes the object and sets up listening socket.
-     * @return Number of forks to create. If negative, forks are recreated when exiting and absolute values is used.
+     * Called before forking children,
+     * initializes the object and sets up listening socket.
+     *
+     * @return Number of forks to create. If negative,
+     *         forks are recreated when exiting and absolute values is used.
      * @throws Error
      */
     public function startParentProcess()
@@ -143,31 +152,45 @@ class Peer extends Concurrency\Forker
         // Opening socket - file descriptor will be shared among the child processes.
         $this->startListening();
 
-        // We want this many forks for connections, permanently recreated when failing (-1).
+        // We want this many forks for connections,
+        // permanently recreated when failing (-1).
         $peer_forks = $this->peer_forks;
 
-        if ( $peer_forks < 1 )
-        {
-            throw new Error( "Invalid peer fork number: $peer_forks. The minimum fork number is 1." );
+        if ($peer_forks < 1) {
+            throw new Error(
+                "Invalid peer fork number: $peer_forks. " .
+                "The minimum fork number is 1."
+            );
         }
 
-        $this->logger->logMessage( "Seeder peer started to listen on {$this->internal_address}:{$this->port}. Forking $peer_forks children." );
+        $this->logger->logMessage(
+            "Seeder peer started to listen on " .
+            "{$this->internal_address}:{$this->port}. Forking $peer_forks children."
+        );
 
         return $peer_forks * -1;
     }
 
     /**
-     * Called on child processes after forking. Starts accepting incoming connections.
+     * Called on child processes after forking.
+     * Starts accepting incoming connections.
      *
-     * @param integer $slot The slot (numbered index) of the fork. Reused when recreating process.
+     * @param integer $slot The slot (numbered index) of the fork.
+     *                      Reused when recreating process.
+     *
+     * @return void
      */
-    public function startChildProcess( $slot )
+    public function startChildProcess($slot)
     {
-        // Some persistence providers (eg. MySQL) should create a new connection when the process is forked.
-        if ( $this->persistence instanceof Persistence\ResetWhenForking )
+        // Some persistence providers (eg. MySQL)
+        // should create a new connection when the process is forked.
+        if ($this->persistence instanceof Persistence\ResetWhenForking) {
             $this->persistence->resetAfterForking();
+        }
 
-        $this->logger->logMessage( "Forked process on slot $slot starts accepting connections." );
+        $this->logger->logMessage(
+            "Forked process on slot $slot starts accepting connections."
+        );
 
         // Waiting for incoming connections.
         $this->communicationLoop();
@@ -180,79 +203,93 @@ class Peer extends Concurrency\Forker
      */
     protected function generatePeerId()
     {
-        return '-PT0001-' . substr( sha1( $this->external_address . $this->port, true ), 0, 20 );
+        return '-PT0001-' . substr(
+            sha1($this->external_address . $this->port, true), 0, 20
+        );
     }
 
     /**
      * Setting up listening socket. Should be called before forking.
      *
      * @throws Error\Socket When error happens during creating, binding or listening.
+     * @return void
      */
     protected function startListening()
     {
-        if ( false === ( $socket = socket_create( AF_INET, SOCK_STREAM, SOL_TCP ) ) )
-        {
-            throw new Error\Socket( 'Failed to create socket: ' . socket_strerror( $socket ) );
+        if (false === ($socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP))) {
+            throw new Error\Socket(
+                'Failed to create socket: ' . socket_strerror($socket)
+            );
         }
 
         $this->listening_socket = $socket;
 
-        if ( false === ( $result = socket_bind( $this->listening_socket, $this->internal_address, $this->port ) ) )
-        {
-            throw new Error\Socket( 'Failed to bind socket: ' . socket_strerror( $result ) );
+        $result = socket_bind(
+            $this->listening_socket,
+            $this->internal_address, $this->port
+        );
+        if (false === $result) {
+            throw new Error\Socket(
+                'Failed to bind socket: ' . socket_strerror($result)
+            );
         }
 
         // We set backlog to 5 (ie. 5 connections can be queued) - to be adjusted.
-        if ( false === ( $result = socket_listen( $this->listening_socket, 5 ) ) )
-        {
-            throw new Error\Socket( 'Failed to listen to socket: ' . socket_strerror( $result ) );
+        if (false === ($result = socket_listen($this->listening_socket, 5))) {
+            throw new Error\Socket(
+                'Failed to listen to socket: ' . socket_strerror($result)
+            );
         }
     }
 
     /**
-     * Loop constantly accepting incoming connections and starting to communicate with them.
+     * Loop constantly accepting incoming connections
+     * and starting to communicate with them.
      *
      * Every incoming connection initializes a StealThisTracker_Seeder_Client object.
+     *
+     * @return void
      */
     protected function communicationLoop()
     {
         $iterations = 0;
 
-        do
-        {
-            $client = new Client( $this->listening_socket );
-            do
-            {
-                try
-                {
-                    if ( $client->getPeerId() == null )
-                    {
-                        $this->shakeHand( $client );
+        do {
+            $client = new Client($this->listening_socket);
+            do {
+                try {
+                    if ($client->getPeerId() == null) {
+                        $this->shakeHand($client);
 
                         // Telling the client that we have all pieces.
-                        $this->sendBitField( $client );
+                        $this->sendBitField($client);
 
                         // We are unchoking the client letting it send requests.
                         $client->unchoke();
-                    }
-                    else
-                    {
-                        $this->answer( $client );
+                    } else {
+                        $this->answer($client);
                     }
                 }
-                catch ( Error\CloseConnection $e )
-                {
-                    $this->logger->logMessage( "Closing connection with peer {$client->getPeerId()} with address {$client->getAddress()}:{$client->getPort()}, reason: \"{$e->getMessage()}\". Stats: " . $client->getStats() );
-                    unset( $client );
+                catch (Error\CloseConnection $e) {
+                    $this->logger->logMessage(
+                        "Closing connection with peer {$client->getPeerId()} with " .
+                        "address {$client->getAddress()}:{$client->getPort()}, " .
+                        "reason: \"{$e->getMessage()}\". Stats: " .
+                        $client->getStats()
+                    );
+                    unset($client);
 
                     // We might wait for another client.
                     break;
                 }
-            } while ( true );
-        } while ( ++$iterations < self::STOP_AFTER_ITERATIONS ); // Memory leak prevention, see self::STOP_AFTER_ITERATIONS.
+            } while (true);
+            // Memory leak prevention, see self::STOP_AFTER_ITERATIONS.
+        } while (++$iterations < self::STOP_AFTER_ITERATIONS);
 
-        $this->logger->logMessage( 'Seeder process fork restarts to prevent memory leaks.' );
-        exit( 0 );
+        $this->logger->logMessage(
+            'Seeder process fork restarts to prevent memory leaks.'
+        );
+        exit(0);
     }
 
     /**
@@ -262,81 +299,102 @@ class Peer extends Concurrency\Forker
      * we check if we have at least N seeders beyond ourselves for the requested
      * torrent and if so, stop seeding (to spare bandwidth).
      *
-     * @throws Error\CloseConnection In case when the request is invalid or we don't want or cannot serve the requested torrent.
-     * @param Client $client
+     * @param Client $client Client
+     *
+     * @throws Error\CloseConnection In case when the request is invalid
+     *                               or we don't want or cannot serve
+     *                               the requested torrent.
+     * @return void
      */
-    protected function shakeHand( Client $client )
+    protected function shakeHand(Client $client)
     {
-        $protocol_length = unpack( 'C', $client->socketRead( 1 ) );
-        $protocol_length = current( $protocol_length );
+        $protocol_length = unpack('C', $client->socketRead(1));
+        $protocol_length = current($protocol_length);
 
-        if ( ( $protocol = $client->socketRead( $protocol_length ) ) !== self::PROTOCOL_STRING )
-        {
-            $this->logger->logError( "Client tries to connect with unsupported protocol: " . substr( $protocol, 0, 100 ) . ". Closing connection." );
-            throw new Error\CloseConnection( 'Unsupported protocol.' );
+        $protocol = $client->socketRead($protocol_length);
+        if ($protocol !== self::PROTOCOL_STRING) {
+            $this->logger->logError(
+                "Client tries to connect with unsupported protocol: " .
+                substr($protocol, 0, 100) . ". Closing connection."
+            );
+            throw new Error\CloseConnection('Unsupported protocol.');
         }
 
         // 8 reserved void bytes.
-        $client->socketRead( 8 );
+        $client->socketRead(8);
 
-        $info_hash          = $client->socketRead( 20 );
-        $client->setPeerId( $client->socketRead( 20 ) );
+        $info_hash          = $client->socketRead(20);
+        $client->setPeerId($client->socketRead(20));
 
-        $info_hash_readable = unpack( 'H*', $info_hash );
-        $info_hash_readable = reset( $info_hash_readable );
+        $info_hash_readable = unpack('H*', $info_hash);
+        $info_hash_readable = reset($info_hash_readable);
 
-        $torrent = $this->persistence->getTorrent( $info_hash );
-        if ( !isset( $torrent ) )
-            throw new Error\CloseConnection( 'Unknown info hash.' );
+        $torrent = $this->persistence->getTorrent($info_hash);
+        if (!isset($torrent)) {
+            throw new Error\CloseConnection('Unknown info hash.');
+        }
 
-        $client->setTorrent( $torrent );
+        $client->setTorrent($torrent);
 
         // If we have X other seeders already, we stop seeding on our own.
-        if ( 0 < ( $seeders_stop_seeding = $this->seeders_stop_seeding ) )
-        {
-            $stats = $this->persistence->getPeerStats( $info_hash, $this->peer_id );
-            if ( $stats['complete'] >= $seeders_stop_seeding )
-            {
-                $this->logger->logMessage( "External seeder limit ($seeders_stop_seeding) reached for info hash $info_hash_readable, stopping seeding." );
-                throw new Error\CloseConnection( 'Stop seeding, we have others to seed.' );
+        if (0 < ($seeders_stop_seeding = $this->seeders_stop_seeding)) {
+            $stats = $this->persistence->getPeerStats($info_hash, $this->peer_id);
+            if ($stats['complete'] >= $seeders_stop_seeding) {
+                $this->logger->logMessage(
+                    "External seeder limit ($seeders_stop_seeding) reached " .
+                    "for info hash $info_hash_readable, stopping seeding."
+                );
+                throw new Error\CloseConnection(
+                    'Stop seeding, we have others to seed.'
+                );
             }
         }
 
         // Our handshake signal.
         $client->socketWrite(
-            pack( 'C', strlen( self::PROTOCOL_STRING ) ) .  // Length of protocol string.
-            self::PROTOCOL_STRING .                         // Protocol string.
-            pack( 'a8', '' ) .                              // 8 void bytes.
-            $info_hash .                                    // Echoing the info hash that the client requested.
-            pack( 'a20', $this->peer_id )                   // Our peer id.
-         );
+            // Length of protocol string.
+            pack('C', strlen(self::PROTOCOL_STRING)) .
+            // Protocol string.
+            self::PROTOCOL_STRING .
+            // 8 void bytes.
+            pack('a8', '') .
+            // Echoing the info hash that the client requested.
+            $info_hash .
+            // Our peer id.
+            pack('a20', $this->peer_id)
+        );
 
-        $this->logger->logMessage( "Handshake completed with peer {$client->getPeerId()} with address {$client->getAddress()}:{$client->getPort()}, info hash: $info_hash_readable." );
+        $this->logger->logMessage(
+            "Handshake completed with peer {$client->getPeerId()} " .
+            "with address {$client->getAddress()}:{$client->getPort()}, " .
+            "info hash: $info_hash_readable."
+        );
     }
 
     /**
      * Reading messages from the client and answering them.
      *
+     * @param Client $client Client
+     *
      * @throws Error\CloseConnection In case of protocol violation.
-     * @param Client $client
+     * @return void
      */
-    protected function answer( Client $client )
+    protected function answer(Client $client)
     {
-        $message_length = unpack( 'N', $client->socketRead( 4 ) );
-        $message_length = current( $message_length );
+        $message_length = unpack('N', $client->socketRead(4));
+        $message_length = current($message_length);
 
-        if ( 0 == $message_length )
-        {
+        if (0 == $message_length) {
             // Keep-alive.
             return;
         }
 
-        $message_type = unpack( 'C', $client->socketRead( 1 ) );
-        $message_type = current( $message_type );
+        $message_type = unpack('C', $client->socketRead(1));
+        $message_type = current($message_type);
 
         --$message_length; // The length of the payload.
 
-        switch ( $message_type )
+        switch ($message_type)
         {
             case 0:
                 // Choke.
@@ -357,102 +415,119 @@ class Peer extends Concurrency\Forker
             case 4:
                 // Have.
                 // We are only seeding, we can ignore this.
-                $client->socketRead( $message_length );
+                $client->socketRead($message_length);
                 break;
             case 5:
                 // Bitfield.
                 // We are only seeding, we can ignore this.
-                $client->socketRead( $message_length );
+                $client->socketRead($message_length);
                 break;
             case 6:
                 // Requesting one block of the file.
-                $payload = unpack( 'N*', $client->socketRead( $message_length ) );
-                $this->sendBlock( $client, /* Piece index */ $payload[1], /* First byte from the piece */ $payload[2], /* Length of the block */ $payload[3] );
+                $payload = unpack('N*', $client->socketRead($message_length));
+                $this->sendBlock(
+                    $client,
+                    $payload[1], /* Piece index */
+                    $payload[2], /* First byte from the piece */
+                    $payload[3]  /* Length of the block */
+                );
                 break;
             case 7:
                 // Piece.
                 // We are only seeding, we can ignore this.
-                $client->socketRead( $message_length );
+                $client->socketRead($message_length);
                 break;
             case 8:
                 // Cancel.
                 // We send blocks in one step, we can ignore this.
-                $client->socketRead( $message_length );
+                $client->socketRead($message_length);
                 break;
             default:
-                throw new Error\CloseConnection( 'Protocol violation, unsupported message.' );
+                throw new Error\CloseConnection(
+                    'Protocol violation, unsupported message.'
+                );
         }
     }
 
     /**
      * Sends one block of a file to the client.
      *
-     * @param Client $client
+     * @param Client  $client      Client
      * @param integer $piece_index Index of the piece containing the block.
-     * @param integer $block_begin Beginning of the block relative to the piece in byets.
-     * @param integer $length Length of the block in bytes.
+     * @param integer $block_begin Beginning of the block relative
+     *                             to the piece in bytes.
+     * @param integer $length      Length of the block in bytes.
+     *
+     * @return void
      */
-    protected function sendBlock( Client $client, $piece_index, $block_begin, $length )
+    protected function sendBlock(Client $client, $piece_index, $block_begin, $length)
     {
-        $message = pack( 'CNN', 7, $piece_index, $block_begin ) . $client->getTorrent()->readBlock( $piece_index, $block_begin, $length );
-        $client->socketWrite( pack( 'N', strlen( $message ) ) . $message );
+        $message = pack('CNN', 7, $piece_index, $block_begin) .
+            $client->getTorrent()->readBlock($piece_index, $block_begin, $length);
+        $client->socketWrite(pack('N', strlen($message)) . $message);
 
         // Saving statistics.
-        $client->addStatBytes( $length, Client::STAT_DATA_SENT );
+        $client->addStatBytes($length, Client::STAT_DATA_SENT);
     }
 
     /**
-     * Sending initial bitfield tot he clint letting it know that we have to entire file.
+     * Sending initial bitfield to the clint
+     * letting it know that we have to entire file.
      *
      * The bitfield looks like:
      * [11111111-11111111-11100000]
      * Meaning that we have all the 19 pieces (padding bits must be 0).
      *
-     * @param Client $client
+     * @param Client $client Client
+     *
+     * @return void
      */
-    protected function sendBitField( Client $client )
+    protected function sendBitField(Client $client)
     {
-        $n_pieces = ceil( $client->getTorrent()->length / $client->getTorrent()->size_piece );
+        $n_pieces = ceil(
+            $client->getTorrent()->length / $client->getTorrent()->size_piece
+        );
 
-        $message = pack( 'C', 5 );
+        $message = pack('C', 5);
 
-        while ( $n_pieces > 0 )
-        {
-            if ( $n_pieces >= 8 )
-            {
-                $message .= pack( 'C', 255 );
+        while ($n_pieces > 0) {
+            if ($n_pieces >= 8) {
+                $message .= pack('C', 255);
                 $n_pieces -= 8;
-            }
-            else
-            {
+            } else {
                 // Last byte of the bitfield, like 11100000.
-                $message .= pack( 'C', 256 - pow( 2, 8 - $n_pieces ) );
+                $message .= pack('C', 256 - pow(2, 8 - $n_pieces));
                 $n_pieces = 0;
             }
         }
 
-        $client->socketWrite( pack( 'N', strlen( $message ) ) . $message );
+        $client->socketWrite(pack('N', strlen($message)) . $message);
     }
 
     /**
-     * @param Logger\LoggerInterface $logger
+     * Set logger
+     *
+     * @param Logger\LoggerInterface $logger Logger
+     *
      * @return $this
      */
-    public function setLogger( Logger\LoggerInterface $logger )
+    public function setLogger(Logger\LoggerInterface $logger)
     {
         $this->logger = $logger;
         return $this;
     }
 
     /**
-     * Sets "public" IP address of the sverver that is sent to peers from the tracker.
+     * Sets "public" IP address of the server
+     * that is sent to peers from the tracker.
      *
      * Default: 127.0.0.1
      *
      * @param string $external_address Annotated IP address.
+     *
      * @return self For fluent interface.
      */
-    public function setExternalAddress( $external_address )
+    public function setExternalAddress($external_address)
     {
         $this->external_address = $external_address;
         return $this;
@@ -464,9 +539,10 @@ class Peer extends Concurrency\Forker
      * Default: 127.0.0.1
      *
      * @param string $internal_address Annotated IP address.
+     *
      * @return self For fluent interface.
      */
-    public function setInternalAddress( $internal_address )
+    public function setInternalAddress($internal_address)
     {
         $this->internal_address = $internal_address;
         return $this;
@@ -477,16 +553,19 @@ class Peer extends Concurrency\Forker
      *
      * Default: 6881
      *
-     * @param integer $port
+     * @param integer $port Port
+     *
      * @return self For fluent interface.
      */
-    public function setPort( $port )
+    public function setPort($port)
     {
         $this->port = $port;
         return $this;
     }
 
     /**
+     * Get port
+     *
      * @return int
      */
     public function getPort()
@@ -495,6 +574,8 @@ class Peer extends Concurrency\Forker
     }
 
     /**
+     * Get peer ID
+     *
      * @return string
      */
     public function getPeerId()
@@ -503,7 +584,10 @@ class Peer extends Concurrency\Forker
     }
 
     /**
-     * @param int $peer_forks
+     * Get peer forks
+     *
+     * @param int $peer_forks Forks
+     *
      * @return Peer
      */
     public function setPeerForks($peer_forks)
@@ -513,7 +597,10 @@ class Peer extends Concurrency\Forker
     }
 
     /**
-     * @param int $seeders_stop_seeding
+     * Set stop seeding
+     *
+     * @param int $seeders_stop_seeding Stop seeding
+     *
      * @return Peer
      */
     public function setSeedersStopSeeding($seeders_stop_seeding)
@@ -523,6 +610,8 @@ class Peer extends Concurrency\Forker
     }
 
     /**
+     * Set external address
+     *
      * @return string
      */
     public function getExternalAddress()
@@ -531,6 +620,8 @@ class Peer extends Concurrency\Forker
     }
 
     /**
+     * Set internal address
+     *
      * @return string
      */
     public function getInternalAddress()

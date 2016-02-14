@@ -7,7 +7,7 @@ use StealThisShow\StealThisTracker\File;
 /**
  * Exception thrown if a file cannot be read.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage File
  */
 class Unreadable extends File\Error

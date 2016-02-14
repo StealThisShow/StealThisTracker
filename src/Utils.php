@@ -2,20 +2,27 @@
 
 namespace StealThisShow\StealThisTracker;
 
+/**
+ * Utils. Functions used throughout the package.
+ *
+ * @package StealThisTracker
+ */
 class Utils
 {
     /**
      * Converts a list (array) to a lists of lists
      *
-     * @param array $array
+     * @param array $array Array
+     * 
      * @return array
      */
-    public static function listToListOfLists( array $array )
+    public static function listToListOfLists(array $array)
     {
-        foreach ( $array as &$item )
-        {
-            if ( is_array( $item ) ) continue;
-            $item = array( $item );
+        foreach ($array as &$item) {
+            if (is_array($item)) {
+                continue;
+            }
+            $item = array($item);
         }
         return $array;
     }
@@ -23,15 +30,16 @@ class Utils
     /**
      * Tells if a passed value (user input) is a non-negative integer.
      *
-     * @param $value
+     * @param int $value Value
+     *
      * @return bool
      */
-    public static function isNonNegativeInteger( $value )
+    public static function isNonNegativeInteger($value)
     {
         return
-            is_numeric( $value )
+            is_numeric($value)
             &&
-            is_int( $value = $value + 0 )
+            is_int($value = $value + 0)
             &&
             0 <= $value;
     }
@@ -39,17 +47,19 @@ class Utils
     /**
      * Applies filters to peers array
      *
-     * @param array $peers
-     * @param $compact
-     * @param $no_peer_id
+     * @param array $peers      Peers
+     * @param bool  $compact    Compact
+     * @param bool  $no_peer_id No peer ID
+     *
      * @return array|string
      */
-    public static function applyPeerFilters( array $peers, $compact, $no_peer_id )
+    public static function applyPeerFilters(array $peers, $compact, $no_peer_id)
     {
-        if ( $compact )
-            $peers = self::compactPeers( $peers );
-        else if ( $no_peer_id )
-            $peers = self::removePeerId( $peers );
+        if ($compact) {
+            $peers = self::compactPeers($peers);
+        } elseif ($no_peer_id) {
+            $peers = self::removePeerId($peers);
+        }
         return $peers;
     }
 
@@ -59,21 +69,23 @@ class Utils
      * Compacting means representing the IP in a big-endian long and the port
      * as a big-endian short and concatenating all of them in a string.
      *
-     * @see http://wiki.theory.org/BitTorrentSpecification#Tracker_Response
      * @param array $peers List of peers with their IP address and port.
+     *
+     * @see http://wiki.theory.org/BitTorrentSpecification#Tracker_Response
+     *
      * @return string
      */
-    protected static function compactPeers( array $peers )
+    protected static function compactPeers(array $peers)
     {
         $compact_peers = "";
-        foreach ( $peers as $peer )
-        {
+        foreach ($peers as $peer) {
             // Do not add IP-addressess if they are not IPv4 (e.g. IPv6)
-            if ( !filter_var( $peer['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) )
+            if (!filter_var($peer['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
                 continue;
+            }
             $compact_peers .=
-                pack( 'N', ip2long( $peer['ip'] ) ) .
-                pack( 'n', $peer['port'] );
+                pack('N', ip2long($peer['ip'])) .
+                pack('n', $peer['port']);
         }
         return $compact_peers;
     }
@@ -81,15 +93,16 @@ class Utils
     /**
      * As per request of the announcing client we might need to remove peer IDs.
      *
-     * @see http://wiki.theory.org/BitTorrentSpecification#Tracker_Response
      * @param array $peers List of peers with their IP address and port.
+     *
+     * @see http://wiki.theory.org/BitTorrentSpecification#Tracker_Response
+     *
      * @return string
      */
-    protected static function removePeerId( array $peers )
+    protected static function removePeerId(array $peers)
     {
-        foreach ( $peers as $peer_index => $peer )
-        {
-            unset( $peers[$peer_index]['peer id'] );
+        foreach ($peers as $peer_index => $peer) {
+            unset($peers[$peer_index]['peer id']);
         }
         return $peers;
     }

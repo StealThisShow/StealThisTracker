@@ -7,7 +7,7 @@ use StealThisShow\StealThisTracker\Persistence;
 /**
  * Exception thrown for config error
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Seeder
  */
 class Config extends Persistence\Error

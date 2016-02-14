@@ -6,67 +6,103 @@ use StealThisShow\StealThisTracker\File\File;
 use StealThisShow\StealThisTracker\Torrent;
 
 /**
- * Persistence class implementation using PDO and so supporting many database drivers.
+ * Persistence class implementation using PDO 
+ * and so supporting many database drivers.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Persistence
  */
 class Pdo implements PersistenceInterface, ResetWhenForking
 {
     /**
+     * The driver
+     * 
      * @var \PDO
      */
     protected $driver;
 
     /**
+     * DSN
+     * 
      * @var string
      */
     protected $dsn;
 
     /**
+     * Username
+     * 
      * @var string
      */
     protected $username;
 
     /**
+     * Password
+     * 
      * @var string
      */
     protected $password;
 
     /**
-     * @var string
+     * Options
+     * 
+     * @var array
      */
     protected $options;
 
     /**
      * Setting up object instance.
      *
-     * @param string $dsn
-     * @param null $username
-     * @param null $password
-     * @param array $options
+     * @param string $dsn      DSN
+     * @param string $username Username
+     * @param string $password Password
+     * @param array  $options  Options
      */
-    public function __construct( $dsn, $username = null, $password = null, array $options = array() )
-    {
+    public function __construct(
+        $dsn, 
+        $username = null, 
+        $password = null, 
+        array $options = array() 
+    ) {
         $this->dsn      = $dsn;
         $this->username = $username;
         $this->password = $password;
         $this->options  = $options;
     }
 
-    public function setUsername( $username )
+    /**
+     * Fluent setter for the username
+     *
+     * @param string $username Username
+     *
+     * @return $this
+     */
+    public function setUsername($username)
     {
         $this->username = $username;
         return $this;
     }
 
-    public function setPassword( $password )
+    /**
+     * Fluent setter for the password
+     *
+     * @param string $password Password
+     *
+     * @return $this
+     */
+    public function setPassword($password)
     {
         $this->password = $password;
         return $this;
     }
 
-    public function setOptions( array $options )
+    /**
+     * Fluent setter for the options
+     *
+     * @param array $options Options
+     *
+     * @return $this
+     */
+    public function setOptions(array $options)
     {
         $this->options = $options;
         return $this;
@@ -78,9 +114,11 @@ class Pdo implements PersistenceInterface, ResetWhenForking
      * Uses info_hash property as primary key and overwrite attributes when saved
      * multiple times with the same info hash.
      *
-     * @param Torrent $torrent
+     * @param Torrent $torrent Torrent
+     *
+     * @return void
      */
-    public function saveTorrent( Torrent $torrent )
+    public function saveTorrent(Torrent $torrent)
     {
 
         $sql = <<<SQL
@@ -91,10 +129,9 @@ FROM
 WHERE
     `info_hash` = :info_hash
 SQL;
-        $statement = $this->query( $sql, array( ':info_hash' => $torrent->info_hash ) );
+        $statement = $this->query($sql, array(':info_hash' => $torrent->info_hash));
 
-        if ( $statement->fetchColumn( 0 ) )
-        {
+        if ($statement->fetchColumn(0)) {
             $sql = <<<SQL
 UPDATE
     `stealthistracker_torrents`
@@ -112,9 +149,7 @@ SET
 WHERE
     `info_hash` = :info_hash
 SQL;
-        }
-        else
-        {
+        } else {
             $sql = <<<SQL
 INSERT INTO
     `stealthistracker_torrents`
@@ -146,18 +181,20 @@ VALUES
 SQL;
         }
 
-        $this->query( $sql, array(
-            ':info_hash'         => $torrent->info_hash,
-            ':length'            => $torrent->length,
-            ':pieces_length'     => $torrent->size_piece,
-            ':pieces'            => $torrent->pieces,
-            ':name'              => $torrent->name,
-            ':path'              => $torrent->file_path,
-            ':private'           => $torrent->private,
-            ':announce_list'     => serialize( $torrent->announce_list ),
-            ':nodes'             => serialize( $torrent->nodes ),
-            ':url_list'          => serialize( $torrent->url_list )
-        ) );
+        $this->query(
+            $sql, array(
+                ':info_hash'         => $torrent->info_hash,
+                ':length'            => $torrent->length,
+                ':pieces_length'     => $torrent->size_piece,
+                ':pieces'            => $torrent->pieces,
+                ':name'              => $torrent->name,
+                ':path'              => $torrent->file_path,
+                ':private'           => $torrent->private,
+                ':announce_list'     => serialize($torrent->announce_list),
+                ':nodes'             => serialize($torrent->nodes),
+                ':url_list'          => serialize($torrent->url_list)
+            )
+        );
     }
 
     /**
@@ -165,10 +202,11 @@ SQL;
      *
      * Must return null if the info hash is not found.
      *
-     * @param string $info_hash
+     * @param string $info_hash Info hash
+     *
      * @return Torrent
      */
-    public function getTorrent( $info_hash )
+    public function getTorrent($info_hash)
     {
         $sql = <<<SQL
 SELECT
@@ -190,27 +228,26 @@ WHERE
     `status` = 'active'
 SQL;
 
-        $statement = $this->query( $sql, array(
-            ':info_hash' => $info_hash,
-        ) );
+        $statement = $this->query(
+            $sql, array(
+                ':info_hash' => $info_hash,
+            )
+        );
 
         $row = $statement->fetch();
 
-        if ( $row )
-        {
-            $torrent = new Torrent( new File( $row['path'] ), $row['pieces_length'] );
-            $torrent
-                ->setFilePath( $row['path'] )
-                ->setName( $row['name'] )
-                ->setLength( $row['length'] )
-                ->setPieces( $row['pieces'] )
-                ->setPrivate( $row['private'] )
-                ->setAnnounceList( unserialize( $row['announce_list'] ) )
-                ->setNodes( unserialize( $row['nodes'] ) )
-                ->setUrlList( unserialize( $row['url_list'] ) )
-                ->setInfoHash( $row['info_hash'] );
-
-            return $torrent;
+        if ($row) {
+            $torrent = new Torrent(new File($row['path']), $row['pieces_length']);
+            return $torrent
+                ->setFilePath($row['path'])
+                ->setName($row['name'])
+                ->setLength($row['length'])
+                ->setPieces($row['pieces'])
+                ->setPrivate($row['private'])
+                ->setAnnounceList(unserialize($row['announce_list']))
+                ->setNodes(unserialize($row['nodes']))
+                ->setUrlList(unserialize($row['url_list']))
+                ->setInfoHash($row['info_hash']);
         }
         return null;
     }
@@ -220,18 +257,29 @@ SQL;
      *
      * Majority of the parameters of this method come from GET.
      *
-     * @param string $info_hash 20 bytes info hash of the announced torrent.
-     * @param string $peer_id 20 bytes peer ID of the announcing peer.
-     * @param string $ip Dotted IP address of the client.
-     * @param integer $port Port number of the client.
+     * @param string  $info_hash  20 bytes info hash of the announced torrent.
+     * @param string  $peer_id    20 bytes peer ID of the announcing peer.
+     * @param string  $ip         Dotted IP address of the client.
+     * @param integer $port       Port number of the client.
      * @param integer $downloaded Already downloaded bytes.
-     * @param integer $uploaded Already uploaded bytes.
-     * @param integer $left Bytes left to download.
-     * @param string $status Can be complete, incomplete or NULL. Incomplete is default for new rows. If once set to complete, NULL does not set it back on update.
-     * @param integer $ttl Time to live in seconds meaning the time after we should consider peer offline (if no more updates come).
+     * @param integer $uploaded   Already uploaded bytes.
+     * @param integer $left       Bytes left to download.
+     * @param string  $status     Can be complete, incomplete or NULL.
+     *                            Incomplete is default for new rows.
+     *                            If once set to complete,
+     *                            NULL does not set it back on update.
+     * @param integer $ttl        Time to live in seconds meaning the time after we
+     *                            should consider peer offline
+     *                            (if no more updates come).
+     *
+     * @return void
      */
-    public function saveAnnounce( $info_hash, $peer_id, $ip, $port, $downloaded, $uploaded, $left, $status, $ttl )
-    {
+    public function saveAnnounce(
+        $info_hash,
+        $peer_id, $ip, $port,
+        $downloaded, $uploaded,
+        $left, $status, $ttl
+    ) {
         $sql = <<<SQL
 SELECT
     1
@@ -243,13 +291,14 @@ WHERE
     `info_hash` = :info_hash
 SQL;
 
-        $statement = $this->query( $sql, array(
-            ':info_hash'    => $info_hash,
-            ':peer_id'      => $peer_id,
-        ) );
+        $statement = $this->query(
+            $sql, array(
+                ':info_hash'    => $info_hash,
+                ':peer_id'      => $peer_id,
+            )
+        );
 
-        if ( $statement->fetchColumn( 0 ) )
-        {
+        if ($statement->fetchColumn(0)) {
             $sql = <<<SQL
 UPDATE
     `stealthistracker_peers`
@@ -259,16 +308,14 @@ SET
     `bytes_downloaded`    = :downloaded,
     `bytes_uploaded`      = :uploaded,
     `bytes_left`          = :left,
-    `status`              = COALESCE( :status, `status` ),
+    `status`              = COALESCE(:status, `status`),
     `expires`             = :expires
 WHERE
     `peer_id` = :peer_id
     AND
     `info_hash` = :info_hash
 SQL;
-        }
-        else
-        {
+        } else {
             $sql = <<<SQL
 INSERT INTO
     `stealthistracker_peers`
@@ -292,36 +339,38 @@ VALUES
     :downloaded,
     :uploaded,
     :left,
-    COALESCE( :status, 'incomplete' ),
+    COALESCE(:status, 'incomplete'),
     :expires
 )
 SQL;
         }
 
-        if ( is_null( $ttl ) )
-        {
+        if (is_null($ttl)) {
             $ttl = 31536000; // One year.
         }
         $expires = new \DateTime();
-        $expires->add( new \DateInterval( 'PT' . $ttl . 'S' ) );
+        $expires->add(new \DateInterval('PT' . $ttl . 'S'));
 
-        $this->query( $sql, array(
-            ':info_hash'    => $info_hash,
-            ':peer_id'      => $peer_id,
-            ':ip'           => inet_pton( $ip ),
-            ':port'         => $port,
-            ':downloaded'   => $uploaded,
-            ':uploaded'     => $downloaded,
-            ':left'         => $left,
-            ':status'       => $status,
-            ':expires'      => $expires->format( 'Y-m-d H:i:s' ),
-        ) );
+        $this->query(
+            $sql, array(
+                ':info_hash'    => $info_hash,
+                ':peer_id'      => $peer_id,
+                ':ip'           => inet_pton($ip),
+                ':port'         => $port,
+                ':downloaded'   => $uploaded,
+                ':uploaded'     => $downloaded,
+                ':left'         => $left,
+                ':status'       => $status,
+                ':expires'      => $expires->format('Y-m-d H:i:s'),
+            )
+        );
     }
 
     /**
      * Returns all the info_hashes and lengths of the active torrents.
      *
-     * @return array An array of arrays having keys 'info_hash' and 'length' accordingly.
+     * @return array An array of arrays having keys
+     *               'info_hash' and 'length' accordingly.
      */
     public function getAllInfoHash()
     {
@@ -335,11 +384,10 @@ WHERE
     `status` = 'active'
 SQL;
 
-        $statement = $this->query( $sql );
+        $statement = $this->query($sql);
 
         $data = array();
-        while ( $row = $statement->fetch() )
-        {
+        while ($row = $statement->fetch()) {
             $data[] = $row;
         }
         return $data;
@@ -353,17 +401,19 @@ SQL;
      *
      * array(
      *  array(
-     *      'peer_id'   => ... // ID of the peer, if $no_peer_id is false.
+     *      'peer_id'   => ... // ID of the peer
      *      'ip'        => ... // Dotted IP address of the peer.
      *      'port'      => ... // Port number of the peer.
-     *  )
      * )
+     *)
      *
      * @param string $info_hash Info hash of the torrent.
-     * @param string $peer_id Peer ID to exclude (peer ID of the client announcing).
+     * @param string $peer_id   Peer ID to exclude
+     *                          (peer ID of the client announcing).
+     *
      * @return array
      */
-    public function getPeers( $info_hash, $peer_id )
+    public function getPeers($info_hash, $peer_id)
     {
         $sql = <<<SQL
 SELECT
@@ -381,24 +431,25 @@ WHERE
         `expires` IS NULL
         OR
         `expires` > :now
-    )
+   )
 SQL;
 
         $now = new \DateTime();
 
-        $statement = $this->query( $sql, array(
-            ':info_hash'    => $info_hash,
-            ':peer_id'      => $peer_id,
-            ':now'          => $now->format( 'Y-m-d H:i:s' ),
-        ));
+        $statement = $this->query(
+            $sql, array(
+                ':info_hash'    => $info_hash,
+                ':peer_id'      => $peer_id,
+                ':now'          => $now->format('Y-m-d H:i:s'),
+            )
+        );
 
         $peers = array();
-        while ( $row = $statement->fetch() )
-        {
+        while ($row = $statement->fetch()) {
             $peers[] = array(
                 'peer id'   => $row['peer_id'],
-                'ip'        => inet_ntop( $row['ip_address'] ),
-                'port'      => $row['port'],
+                'ip'        => inet_ntop($row['ip_address']),
+                'port'      => $row['port']
             );
         }
 
@@ -411,15 +462,18 @@ SQL;
      * Only considers peers which are not expired (see TTL).
      *
      * @param string $info_hash Info hash of the torrent.
-     * @param string $peer_id Peer ID to exclude (peer ID of the client announcing).
-     * @return array With keys 'complete' and 'incomplete' having counters for each group.
+     * @param string $peer_id   Peer ID to exclude
+     *                          (peer ID of the client announcing).
+     *
+     * @return array With keys 'complete' and 'incomplete'
+     *               having counters for each group.
      */
-    public function getPeerStats( $info_hash, $peer_id )
+    public function getPeerStats($info_hash, $peer_id)
     {
         $sql = <<<SQL
 SELECT
-    COALESCE( SUM( `status` = 'complete' ), 0 ) AS 'complete',
-    COALESCE( SUM( `status` != 'complete' ), 0 ) AS 'incomplete'
+    COALESCE(SUM(`status` = 'complete'), 0) AS 'complete',
+    COALESCE(SUM(`status` != 'complete'), 0) AS 'incomplete'
 FROM
     `stealthistracker_peers`
 WHERE
@@ -431,16 +485,18 @@ WHERE
         `expires` IS NULL
         OR
         `expires` > :now
-    )
+   )
 SQL;
 
         $now = new \DateTime();
 
-        $statement = $this->query( $sql, array(
-            ':info_hash'    => $info_hash,
-            ':peer_id'      => $peer_id,
-            ':now'          => $now->format( 'Y-m-d H:i:s' ),
-        ));
+        $statement = $this->query(
+            $sql, array(
+                ':info_hash'    => $info_hash,
+                ':peer_id'      => $peer_id,
+                ':now'          => $now->format('Y-m-d H:i:s'),
+            )
+        );
 
         $row = $statement->fetch();
 
@@ -448,11 +504,14 @@ SQL;
     }
 
     /**
-     * If the object is used in a forked child process, this method is called after forking.
+     * If the object is used in a forked child process,
+     * this method is called after forking.
      *
      * Re-establishes the connection for the fork.
      *
      * @see StealThisTracker\Persistence\ResetWhenForking
+     *
+     * @return void
      */
     public function resetAfterForking()
     {
@@ -461,6 +520,7 @@ SQL;
 
     /**
      * Reconnects to the database using PDO and returns the new PDO object
+     *
      * @return \PDO
      */
     protected function reconnect()
@@ -471,6 +531,7 @@ SQL;
 
     /**
      * Disconnects from the database
+     *
      * @return void
      */
     protected function disconnect()
@@ -479,7 +540,8 @@ SQL;
     }
 
     /**
-     * Retuns the existing PDO object, or a new one if we haven't got one yet
+     * Returns the existing PDO object, or a new one if we haven't got one yet
+     *
      * @return \PDO
      */
     protected function connection()
@@ -489,6 +551,7 @@ SQL;
 
     /**
      * Connects to the database using PDO and stores and returns the PDO object
+     *
      * @return \PDO
      */
     protected function connect()
@@ -499,7 +562,7 @@ SQL;
             $this->password,
             $this->options
         );
-        $this->driver->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
+        $this->driver->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
         return $this->driver;
     }
@@ -508,40 +571,49 @@ SQL;
      * Magic method, passes the call off to the PDO object. If the call throws a
      * PDOException that the server has gone away, and the reconnect flag is set to
      * true, reconnect and try to issue the call to the PDO object again.
-     * @param  string $function The function that was called
-     * @param  array  $args The arguments supplied
+     *
+     * @param string $function The function that was called
+     * @param array  $args     The arguments supplied
+     *
      * @return mixed Whatever PDO::$function($args) returns
      */
     public function __call($function, array $args = array())
     {
         try {
-            $result = call_user_func_array(array($this->connection(), $function), $args);
+            $result = call_user_func_array(
+                array($this->connection(), $function), $args
+            );
         } catch(\PDOException $e) {
-            if ($e->getCode() != 'HY000' || !stristr($e->getMessage(), 'server has gone away')) {
+            if ($e->getCode() != 'HY000'
+                || !stristr($e->getMessage(), 'server has gone away')
+            ) {
                 throw $e;
             }
             $this->reconnect();
-            $result = call_user_func_array(array($this->connection(), $function), $args);
+            $result = call_user_func_array(
+                array($this->connection(), $function), $args
+            );
         }
         return $result;
     }
 
     /**
-     * Helper method for preparing a PDO statement, binding parameters and executing it
-     * @param  string $sql
-     * @param  array  $params
-     * @param  array  $options
+     * Helper method for preparing a PDO statement,
+     * binding parameters and executing it
+     *
+     * @param string $sql     SQL
+     * @param array  $params  Params
+     * @param array  $options Options
+     *
      * @return \PDOStatement
      */
     protected function query($sql, array $params = array(), array $options = array())
     {
-        $stmt = $this->prepare( $sql );
-        if (!empty($params))
-        {
-            foreach ($params as $key => $value)
-            {
+        $stmt = $this->prepare($sql);
+        if (!empty($params)) {
+            foreach ($params as $key => $value) {
                 $param  = (is_int($key) ? ($key + 1) : $key);
-                $stmt->bindParam( $param, $params[$key] );
+                $stmt->bindParam($param, $params[$key]);
             }
         }
         $stmt->execute();

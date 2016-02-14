@@ -7,7 +7,7 @@ use StealThisShow\StealThisTracker\Error as BaseError;
 /**
  * Exception thrown when error happens in the File subpackage.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage File
  */
 class Error extends BaseError

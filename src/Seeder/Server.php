@@ -10,9 +10,9 @@ use StealThisShow\StealThisTracker\Persistence;
  * Starts seeding server.
  *
  * Creates 2 different forks from itself. The first starts the peer server
- * (creating its own forks), the second will make anounce the peer regularly.
+ * (creating its own forks), the second will make announce the peer regularly.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Seeder
  */
 class Server extends Concurrency\Forker
@@ -58,32 +58,40 @@ class Server extends Concurrency\Forker
     /**
      * Initializes the object
      *
-     * @param Peer $peer
-     * @param Persistence\PersistenceInterface $persistence
-     * @param Logger\LoggerInterface $logger
+     * @param Peer                             $peer        Peer
+     * @param Persistence\PersistenceInterface $persistence Persistence
+     * @param Logger\LoggerInterface           $logger      Logger
      */
-    public function  __construct( Peer $peer, Persistence\PersistenceInterface $persistence, Logger\LoggerInterface $logger = null)
-    {
-        // It's a daemon, right?
-        set_time_limit( 0 );
+    public function __construct(
+        Peer $peer,
+        Persistence\PersistenceInterface $persistence,
+        Logger\LoggerInterface $logger = null
+    ) {
+        // It's a daemon
+        set_time_limit(0);
 
         $this->peer         = $peer;
         $this->persistence  = $persistence;
+        $this->logger       = $logger;
 
-        if ( !$logger )
-            $logger = new Logger\Blackhole();
-
-        $this->logger = $logger;
+        if (!$logger) {
+            $this->logger = new Logger\Blackhole();
+        }
     }
 
     /**
-     * Called before forking children, initializes the object and sets up listening socket.
+     * Called before forking children,
+     * initializes the object and sets up listening socket.
      *
-     * @return Number of forks to create. If negative, forks are recreated when exiting and absolute values is used.
+     * @return Number of forks to create.
+     *         If negative, forks are recreated
+     *         when exiting and absolute values is used.
      */
     public function startParentProcess()
     {
-        return -2; // We need 2 processes to run permanently (minus means permanently recreated).
+        // We need 2 processes to run permanently
+        // (minus means permanently recreated).
+        return -2;
     }
 
     /**
@@ -92,16 +100,19 @@ class Server extends Concurrency\Forker
      * For slot 0: Starts seeding peer.
      * For slot 1: Starts announcing loop.
      *
-     * @param integer $slot The slot (numbered index) of the fork. Reused when recreating process.
+     * @param integer $slot The slot (numbered index) of the fork.
+     *                      Reused when recreating process.
+     *
      * @throws Error
+     * @return void
      */
-    public function startChildProcess( $slot )
+    public function startChildProcess($slot)
     {
-        if ( $this->persistence instanceof Persistence\ResetWhenForking )
+        if ($this->persistence instanceof Persistence\ResetWhenForking) {
             $this->persistence->resetAfterForking();
+        }
 
-        switch( $slot )
-        {
+        switch($slot) {
             case 0:
                 $this->peer->start();
                 break;
@@ -109,39 +120,62 @@ class Server extends Concurrency\Forker
                 $this->announce();
                 break;
             default:
-                throw new Error( 'Invalid process slot while running seeder server.' );
+                throw new Error('Invalid process slot while running seeder server.');
         }
     }
 
     /**
-     * Save announce for all the torrents in the database so clients know where to connect.
+     * Save announce for all the torrents in the database
+     * so clients know where to connect.
      *
-     * This method runs in infinite loop repeating announcing every self::ANNOUNCE_INTERVAL seconds.
+     * This method runs in infinite loop repeating
+     * announcing every self::ANNOUNCE_INTERVAL seconds.
+     *
+     * @return void
      */
     protected function announce()
     {
         $persistence    = $this->persistence;
         $iterations     = 0;
 
-        do
-        {
+        do {
             $all_torrents = $persistence->getAllInfoHash();
 
-            foreach ( $all_torrents as $torrent_info )
-                $persistence->saveAnnounce( $torrent_info['info_hash'], $this->peer->getPeerId(), $this->peer->getExternalAddress(), $this->peer->getPort(), $torrent_info['length'], 0, 0, 'complete', self::ANNOUNCE_INTERVAL );
+            foreach ($all_torrents as $torrent_info) {
+                $persistence->saveAnnounce(
+                    $torrent_info['info_hash'],
+                    $this->peer->getPeerId(),
+                    $this->peer->getExternalAddress(),
+                    $this->peer->getPort(),
+                    $torrent_info['length'], 0, 0, 'complete',
+                    self::ANNOUNCE_INTERVAL
+                );
+            }
 
-            $this->logger->logMessage( 'Seeder server announced itself for ' . count( $all_torrents ) . " torrents at address {$this->peer->getExternalAddress()}:{$this->peer->getPort()} (announces every " . self::ANNOUNCE_INTERVAL . 's).' );
+            $this->logger->logMessage(
+                'Seeder server announced itself for ' .
+                count($all_torrents) .
+                " torrents at address {$this->peer->getExternalAddress()}:" .
+                "{$this->peer->getPort()} (announces every " .
+                self::ANNOUNCE_INTERVAL . 's).'
+            );
 
-            sleep( self::ANNOUNCE_INTERVAL );
-        } while ( ++$iterations < self::STOP_AFTER_ITERATIONS ); // Memory leak prevention, see self::STOP_AFTER_ITERATIONS.
+            sleep(self::ANNOUNCE_INTERVAL);
+            // Memory leak prevention, see self::STOP_AFTER_ITERATIONS.
+        } while (++$iterations < self::STOP_AFTER_ITERATIONS);
 
-        $this->logger->logMessage( 'Announce process restarts to prevent memory leaks.' );
-        exit( 0 );
+        $this->logger->logMessage(
+            'Announce process restarts to prevent memory leaks.'
+        );
+        exit(0);
     }
 
     /**
-     * @param Logger\LoggerInterface $logger
-     * @return Server
+     * Set logger
+     *
+     * @param Logger\LoggerInterface $logger Logger
+     *
+     * @return $this
      */
     public function setLogger($logger)
     {

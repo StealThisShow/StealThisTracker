@@ -7,7 +7,7 @@ use StealThisShow\StealThisTracker\Bencode\Error;
 /**
  * Decoded bencode dictionary, consisting of key-value pairs.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Bencode
  */
 class Dictionary extends Container
@@ -15,36 +15,40 @@ class Dictionary extends Container
     /**
      * Adds an item to the dictionary.
      *
-     * @param AbstractValue $sub_value
-     * @param StringValue $key
+     * @param AbstractValue $sub_value SubValue
+     * @param StringValue   $key       Key
+     *
      * @throws Error\InvalidType
      * @throws Error\InvalidValue
+     *
+     * @return void
      */
     public function contain( AbstractValue $sub_value, StringValue $key = null )
     {
-        if ( !isset( $key ) )
-        {
-            throw new Error\InvalidType( "Invalid key value for dictionary: $sub_value" );
+        if (!isset($key)) {
+            throw new Error\InvalidType(
+                "Invalid key value for dictionary: $sub_value"
+            );
         }
-        if ( isset( $this->value[$key->value] ) )
-        {
-            throw new Error\InvalidValue( "Duplicate key in dictionary: $key->value" );
+        if (isset($this->value[$key->value])) {
+            throw new Error\InvalidValue("Duplicate key in dictionary: $key->value");
         }
         $this->value[$key->value] = $sub_value;
     }
 
     /**
      * Convert the object back to a bencoded string when used as string.
+     *
+     * @return string
      */
     public function __toString()
     {
         // All keys must be byte strings and must appear in lexicographical order.
-        ksort( $this->value );
+        ksort($this->value);
 
         $string_represent = "d";
-        foreach ( $this->value as $key => $sub_value )
-        {
-            $key = new StringValue( $key );
+        foreach ($this->value as $key => $sub_value) {
+            $key = new StringValue($key);
             $string_represent .=  $key . $sub_value;
         }
         return $string_represent . "e";

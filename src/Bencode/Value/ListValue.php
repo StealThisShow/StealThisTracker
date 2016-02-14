@@ -3,9 +3,9 @@
 namespace StealThisShow\StealThisTracker\Bencode\Value;
 
 /**
- * Decoded bencode list, consisting of mutiple values.
+ * Decoded bencode list, consisting of multiple values.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Bencode
  */
 class ListValue extends Container
@@ -13,8 +13,10 @@ class ListValue extends Container
     /**
      * Adds an item to the list.
      *
-     * @param AbstractValue $sub_value
-     * @param StringValue $key Not used here.
+     * @param AbstractValue $sub_value SubValue
+     * @param StringValue   $key       Not used here.
+     *
+     * @return void
      */
     public function contain( AbstractValue $sub_value, StringValue $key = null )
     {
@@ -23,12 +25,13 @@ class ListValue extends Container
 
     /**
      * Convert the object back to a bencoded string when used as string.
+     *
+     * @return string
      */
     public function __toString()
     {
         $string_represent = "l";
-        foreach ( $this->value as $sub_value )
-        {
+        foreach ($this->value as $sub_value) {
             $string_represent .= $sub_value;
         }
         return $string_represent . "e";

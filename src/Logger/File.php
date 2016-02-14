@@ -5,7 +5,7 @@ namespace StealThisShow\StealThisTracker\Logger;
 /**
  * Logger class appending messages to a file or files.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Logger
  */
 class File implements LoggerInterface
@@ -26,7 +26,8 @@ class File implements LoggerInterface
     protected $file_path_errors;
 
     /**
-     * Default log file path. If not specified, the same is used for messages and errors.
+     * Default log file path. If not specified, 
+     * the same is used for messages and errors.
      */
     const DEFAULT_LOG_PATH = '/var/log/stealthistracker.log';
 
@@ -36,65 +37,85 @@ class File implements LoggerInterface
      * File logging can use 'file_path_messages' and file_path_errors params,
      * or logs to self::DEFAULT_LOG_PATH by default (both errors and messages).
      *
-     * @param string $file_path_messages
-     * @param bool $file_path_errors
+     * @param string $file_path_messages File path
+     * @param bool   $file_path_errors   Error path
      */
-    public function  __construct( $file_path_messages = self::DEFAULT_LOG_PATH, $file_path_errors = false )
-    {
+    public function __construct(
+        $file_path_messages = self::DEFAULT_LOG_PATH, 
+        $file_path_errors = false
+    ) {
         $this->file_path_messages = $file_path_messages;
         $this->file_path_errors = $file_path_errors;
 
-        if ( !$file_path_errors )
+        if (!$file_path_errors) {
             $this->file_path_errors = $file_path_messages;
-
+        }
     }
 
     /**
      * Method to save non-error text message.
      *
-     * @param string $message
+     * @param string $message Message
+     *
+     * @return void
      */
-    public function logMessage( $message )
+    public function logMessage($message)
     {
-        $this->write( $message );
+        $this->write($message);
     }
 
     /**
-     * Method to save text message represening error.
+     * Method to save text message representing error.
      *
-     * @param string $message
+     * @param string $message Message
+     *
+     * @return void
      */
-    public function logError( $message )
+    public function logError($message)
     {
-        $this->write( $message, true );
+        $this->write($message, true);
     }
 
     /**
      * Writing operation to the log file.
      *
-     * @param string $message Log message to write.
-     * @param boolean $error If true, we are using the error log, if not, the normal.
+     * @param string  $message Log message to write.
+     * @param boolean $error   If true, we are using the error log,
+     *                         if not, the normal.
+     *
+     * @return void
      */
-    protected function write( $message, $error = false )
+    protected function write($message, $error = false)
     {
         $path = $error ? $this->file_path_errors : $this->file_path_messages;
-        file_put_contents( $path, $this->formatMessage( $message, $error ), FILE_APPEND );
+        file_put_contents(
+            $path,
+            $this->formatMessage($message, $error),
+            FILE_APPEND
+        );
     }
 
     /**
      * Formats log message adding timestamp and EOL, escaping new lines.
      *
-     * @param string $message Log message to format.
-     * @param boolean $error If true, [ERROR] prefix is added.
+     * @param string  $message Log message to format.
+     * @param boolean $error   If true, [ERROR] prefix is added.
+     *
      * @return string
      */
-    protected function formatMessage( $message, $error )
+    protected function formatMessage($message, $error)
     {
-        return date( "[Y-m-d H:i:s] " ) . ( $error ? '[ERROR] ' : '' ) . addcslashes( $message, "\n\r" ) . PHP_EOL;
+        return date("[Y-m-d H:i:s] ") .
+        ($error ? '[ERROR] ' : '') .
+        addcslashes($message, "\n\r") .
+        PHP_EOL;
     }
 
     /**
-     * @param string $file_path_messages
+     * Set file path
+     *
+     * @param string $file_path_messages File path
+     *
      * @return File
      */
     public function setFilePathMessages($file_path_messages)
@@ -104,7 +125,10 @@ class File implements LoggerInterface
     }
 
     /**
-     * @param string $file_path_errors
+     * Set error path
+     *
+     * @param string $file_path_errors Error path
+     *
      * @return File
      */
     public function setFilePathErrors($file_path_errors)

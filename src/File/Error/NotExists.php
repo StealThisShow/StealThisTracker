@@ -7,7 +7,7 @@ use StealThisShow\StealThisTracker\File;
 /**
  * Exception thrown if a file does no exist.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage File
  */
 class NotExists extends File\Error

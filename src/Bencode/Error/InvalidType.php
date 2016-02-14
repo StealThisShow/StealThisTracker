@@ -7,7 +7,7 @@ use StealThisShow\StealThisTracker\Bencode;
 /**
  * Exception thrown when a decoded Bencode value is initialized with an invalid type.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Bencode
  */
 class InvalidType extends Bencode\Error

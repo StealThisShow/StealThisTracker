@@ -5,9 +5,10 @@ namespace StealThisShow\StealThisTracker\Error;
 use StealThisShow\StealThisTracker\Error as BaseError;
 
 /**
- * Exception thrown when AnnounceNodes error.
+ * Exception thrown when error happens in the Concurrency subpackage.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
+ * @subpackage Error
  */
 class AnnounceNodes extends BaseError
 {

@@ -5,7 +5,7 @@ namespace StealThisShow\StealThisTracker\Logger;
 /**
  * Logger class to serve as stupid interface of logging - no data is saved.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Logger
  */
 class Blackhole implements LoggerInterface
@@ -14,7 +14,9 @@ class Blackhole implements LoggerInterface
     /**
      * Implementing message logging, doing nothing.
      *
-     * @param string $message
+     * @param string $message Message
+     *
+     * @return void
      */
     public function logMessage( $message )
     {
@@ -23,7 +25,9 @@ class Blackhole implements LoggerInterface
     /**
      * Implementing error logging, doing nothing.
      *
-     * @param string $message
+     * @param string $message Message
+     *
+     * @return void
      */
     public function logError( $message )
     {

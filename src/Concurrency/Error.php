@@ -7,7 +7,7 @@ use StealThisShow\StealThisTracker\Error as BaseError;
 /**
  * Exception thrown when error happens in the Concurrency subpackage.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Concurrency
  */
 class Error extends BaseError

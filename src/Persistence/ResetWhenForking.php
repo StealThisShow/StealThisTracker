@@ -7,13 +7,15 @@ namespace StealThisShow\StealThisTracker\Persistence;
  * interface, resetAfterForking will be called after the fork to, for example,
  * re-establish database connections.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Persistence
  */
 interface ResetWhenForking
 {
     /**
      * To be called after the child-process is forked.
+     *
+     * @return void
      */
     public function resetAfterForking();
 }

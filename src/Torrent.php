@@ -18,7 +18,8 @@ use StealThisShow\StealThisTracker\File\File;
 class Torrent
 {
     /**
-     * Piece size in bytes used to construct the torrent. Normally a power of 2 (eg. 512KB).
+     * Piece size in bytes used to construct the torrent. 
+     * Normally a power of 2 (eg. 512KB).
      *
      * @var integer
      */
@@ -95,19 +96,21 @@ class Torrent
     protected $url_list;
 
     /**
-     * Initializing object with the piece size and file object, optionally setting attributes from the database.
+     * Initializing object with the piece size and file object, 
+     * optionally setting attributes from the database.
      *
-     * @param File $file To initialize 'file' attribute.
-     * @param integer $size_piece To initialize 'size_piece' attribute.
-     * @param string $file_path Optional. To set 'file_path' attribute. If not set, will be loaded automatically.
-     * @param string $name Optional. To set 'name' attribute. If not set, will be loaded automatically.
-     * @param integer $length Optional. To set 'length' attribute. If not set, will be loaded automatically.
-     * @param string $pieces Optional. To set 'pieces' attribute. If not set, will be loaded automatically.
-     * @param string $info_hash Optional. To set 'info_hash' attribute. If not set, will be loaded automatically.
-     * @param bool $private Private flag.
-     * @param array $announce_list Announce-list.
-     * @param array $nodes DHT Nodes.
-     * @param array $url_list Url-list.
+     * @param File    $file          To initialize 'file' attribute.
+     * @param integer $size_piece    To initialize 'size_piece' attribute.
+     * @param string  $file_path     Optional. To set 'file_path' attribute.
+     * @param string  $name          Optional. To set 'name' attribute.
+     * @param integer $length        Optional. To set 'length' attribute.
+     * @param string  $pieces        Optional. To set 'pieces' attribute.
+     * @param string  $info_hash     Optional. To set 'info_hash' attribute.
+     * @param bool    $private       Private flag.
+     * @param array   $announce_list Announce-list.
+     * @param array   $nodes         DHT Nodes.
+     * @param array   $url_list      Url-list.
+     * 
      * @throws Error\InvalidPieceSize When the piece size is invalid.
      */
     public function __construct(
@@ -122,16 +125,16 @@ class Torrent
         array $announce_list = null,
         array $nodes = null,
         array $url_list = null
-    )
-    {
-        if ( 0 >= $size_piece = intval( $size_piece ) )
-            throw new Error\InvalidPieceSize( 'Invalid piece size: ' . $size_piece );
+    ) {
+        if (0 >= $size_piece = intval($size_piece)) {
+            throw new Error\InvalidPieceSize('Invalid piece size: ' . $size_piece);
+        }
 
         $this->file             = $file;
         $this->size_piece       = $size_piece;
 
         // Optional parameters.
-        $this->length           = is_null( $length ) ? null : (int) $length;
+        $this->length           = is_null($length) ? null : (int) $length;
         $this->name             = $name;
         $this->file_path        = $file_path;
         $this->pieces           = $pieces;
@@ -144,127 +147,154 @@ class Torrent
 
     /**
      * Set file_path.
-     * This fluent setter can be used instead of passing the argument through constructor. To be used once only.
+     * This fluent setter can be used instead of passing the argument
+     * through constructor. To be used once only.
      *
-     * @param $file_path
+     * @param string $file_path File path
+     *
      * @return $this
      */
-    public function setFilePath( $file_path )
+    public function setFilePath($file_path)
     {
-        if ( !isset( $this->file_path ) )
+        if (!isset($this->file_path)) {
             $this->file_path = (string) $file_path;
+        }
         return $this;
     }
 
     /**
      * Set name.
-     * This fluent setter can be used instead of passing the argument through the constructor. To be used once only.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
      *
-     * @param $name
+     * @param string $name Name
+     *
      * @return $this
      */
-    public function setName( $name )
+    public function setName($name)
     {
-        if ( !isset( $this->name ) )
+        if (!isset($this->name)) {
             $this->name = (string) $name;
+        }
         return $this;
     }
 
     /**
      * Set pieces.
-     * This fluent setter can be used instead of passing the argument through the constructor. To be used once only.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
      *
-     * @param $pieces
+     * @param string $pieces Pieces
+     *
      * @return $this
      */
-    public function setPieces( $pieces )
+    public function setPieces($pieces)
     {
-        if ( !isset( $this->pieces ) )
+        if (!isset($this->pieces)) {
             $this->pieces = (string) $pieces;
+        }
         return $this;
     }
 
     /**
      * Set info_hash.
-     * This fluent setter can be used instead of passing the argument through the constructor. To be used once only.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
      *
-     * @param $info_hash
+     * @param string $info_hash Info hash
+     *
      * @return $this
      */
-    public function setInfoHash( $info_hash )
+    public function setInfoHash($info_hash)
     {
-        if ( !isset( $this->info_hash ) )
+        if (!isset($this->info_hash)) {
             $this->info_hash = $info_hash;
+        }
         return $this;
     }
 
     /**
      * Set announce-list.
-     * This fluent setter can be used instead of passing the argument through the constructor. To be used once only.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
      *
-     * @param array $announce_list
+     * @param array $announce_list Announce-list
+     *
      * @return $this
      */
-    public function setAnnounceList(array $announce_list )
+    public function setAnnounceList(array $announce_list)
     {
-        if ( !isset( $this->announce_list ) )
+        if (!isset($this->announce_list)) {
             $this->announce_list = $announce_list;
+        }
         return $this;
     }
 
     /**
      * Set DHT nodes.
-     * This fluent setter can be used instead of passing the argument through the constructor. To be used once only.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
      *
-     * @param array $nodes
+     * @param array $nodes Nodes
+     *
      * @return $this
      */
-    public function setNodes(array $nodes )
+    public function setNodes(array $nodes)
     {
-        if ( !isset( $this->nodes ) )
+        if (!isset($this->nodes)) {
             $this->nodes = $nodes;
+        }
         return $this;
     }
 
     /**
      * Set url-list.
-     * This fluent setter can be used instead of passing the argument through the constructor. To be used once only.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
      *
-     * @param array $url_list
+     * @param array $url_list Url-list
+     *
      * @return $this
      */
-    public function setUrlList(array $url_list )
+    public function setUrlList(array $url_list)
     {
-        if ( !isset( $this->url_list ) )
+        if (!isset($this->url_list)) {
             $this->url_list = $url_list;
+        }
         return $this;
     }
 
     /**
      * Set length.
-     * This fluent setter can be used instead of passing the argument through the constructor. To be used once only.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
      *
-     * @param $length
+     * @param int $length Length
+     *
      * @return $this
      */
-    public function setLength( $length )
+    public function setLength($length)
     {
-        if ( !isset( $this->length ) )
-            $this->length = (int) $length;
+        if (!isset($this->length)) {
+            $this->length = (int)$length;
+        }
         return $this;
     }
 
     /**
      * Set private flag.
-     * This fluent setter can be used instead of passing the argument through the constructor. To be used once only.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
      *
-     * @param $private
+     * @param bool $private Private flag
+     *
      * @return $this
      */
-    public function setPrivate( $private )
+    public function setPrivate($private)
     {
-        if ( !isset( $this->private ) )
-            $this->private = (bool) $private;
+        if (!isset($this->private)) {
+            $this->private = (bool)$private;
+        }
         return $this;
     }
 
@@ -275,36 +305,46 @@ class Torrent
      * this magic method.
      *
      * @param string $attribute The name of the attribute to access.
-     * @throws Error\InvalidTorrentAttribute When trying to access non-existent attribute.
+     *
+     * @throws Error\InvalidTorrentAttribute
+     * When trying to access non-existent attribute.
+     *
      * @return mixed
      */
-    public function __get( $attribute )
+    public function __get($attribute)
     {
-        switch ( $attribute )
+        switch ($attribute)
         {
             case 'pieces':
-                if ( !isset( $this->pieces ) )
-                    $this->pieces = $this->file->getHashesForPieces( $this->size_piece );
+                if (!isset($this->pieces)) {
+                    $this->pieces = $this->file->getHashesForPieces(
+                        $this->size_piece
+                    );
+                }
                 return $this->pieces;
                 break;
             case 'length':
-                if ( !isset( $this->length ) )
+                if (!isset($this->length)) {
                     $this->length = $this->file->size();
+                }
                 return (int) $this->length;
                 break;
             case 'name':
-                if ( !isset( $this->name ) )
+                if (!isset($this->name)) {
                     $this->name = $this->file->basename();
+                }
                 return $this->name;
                 break;
             case 'file_path':
-                if ( !isset( $this->file_path ) )
-                    $this->file_path = (string) $this->file;
+                if (!isset($this->file_path)) {
+                    $this->file_path = (string)$this->file;
+                }
                 return $this->file_path;
                 break;
             case 'info_hash':
-                if ( !isset( $this->info_hash ) )
+                if (!isset($this->info_hash)) {
                     $this->info_hash = $this->calculateInfoHash();
+                }
                 return $this->info_hash;
                 break;
             case 'size_piece':
@@ -326,7 +366,9 @@ class Torrent
                 return (array) $this->url_list;
                 break;
             default:
-                throw new Error\InvalidTorrentAttribute( "Can't access attribute $attribute of " . __CLASS__ );
+                throw new Error\InvalidTorrentAttribute(
+                    "Can't access attribute $attribute of " . __CLASS__
+                );
         }
     }
 
@@ -335,13 +377,13 @@ class Torrent
      *
      * All properties accessible via __get should be added here and return true.
      *
-     * @param string $attribute The name of the attribute to accesss.
+     * @param string $attribute The name of the attribute to access.
+     *
      * @return bool
      */
-    public function __isset( $attribute )
+    public function __isset($attribute)
     {
-        switch( $attribute )
-        {
+        switch($attribute) {
             case 'pieces':
             case 'length':
             case 'name':
@@ -367,7 +409,7 @@ class Torrent
      */
     protected function calculateInfoHash()
     {
-        return sha1( Builder::build( $this->getInfo() ), true );
+        return sha1(Builder::build($this->getInfo()), true);
     }
 
     /**
@@ -380,9 +422,9 @@ class Torrent
         return array(
             'piece length'  => $this->size_piece,
             'private'       => (int) $this->private,
-            'pieces'        => $this->__get( 'pieces' ),
-            'name'          => $this->__get( 'name' ),
-            'length'        => $this->__get( 'length' )
+            'pieces'        => $this->__get('pieces'),
+            'name'          => $this->__get('name'),
+            'length'        => $this->__get('length')
         );
     }
 
@@ -404,52 +446,61 @@ class Torrent
         $torrent_data['info'] = $this->getInfo();
 
         // Announce-list
-        if ( !empty ($this->announce_list ) )
-        {
+        if (!empty($this->announce_list)) {
             // Announce-list is a list of lists of strings.
-            $announce_list = Utils::listToListOfLists( $this->announce_list );
+            $announce_list = Utils::listToListOfLists($this->announce_list);
             // Reset twice because list of lists
-            $first = reset( $announce_list );
-            $torrent_data['announce'] = reset( $first );
+            $first = reset($announce_list);
+            $torrent_data['announce'] = reset($first);
             $torrent_data['announce-list'] = $announce_list;
+        } elseif (!empty($this->nodes)) {
+            // DHT nodes
+            $torrent_data['nodes'] = $this->nodes;
         }
-        // DHT nodes
-        else if ( !empty ($this->nodes ) )
-            $torrent_data['nodes' ] = $this->nodes;
-
         // Url-list (Webseed(s))
-        if ( !empty( $this->url_list ) )
-            $torrent_data['url-list' ] = $this->url_list;
-
-        return Builder::build( $torrent_data );
+        if (!empty($this->url_list)) {
+            $torrent_data['url-list'] = $this->url_list;
+        }
+        return Builder::build($torrent_data);
     }
 
     /**
      * Returns a string that represents a magnet URI and can be
      * read by BitTorrent clients.
+     *
+     * @return string
      */
     public function createMagnetUri()
     {
         // TODO: Add additional data to magnet URI (trackers, webseeds etc.)
-        return 'magnet:?xt=urn:btih:' . (string) $this->__get( 'info_hash' );
+        return 'magnet:?xt=urn:btih:' . (string) $this->__get('info_hash');
     }
 
     /**
      * Reads a block of the physical file that the torrent represents.
      *
      * @param integer $piece_index Index of the piece containing the block.
-     * @param integer $block_begin Beginning of the block relative to the piece in bytes.
-     * @param integer $length Length of the block in bytes.
+     * @param integer $block_begin Beginning of the block relative
+     *                             to the piece in bytes.
+     * @param integer $length      Length of the block in bytes.
+     *
      * @return string
      * @throws Error\BlockRead
      */
-    public function readBlock( $piece_index, $block_begin, $length )
+    public function readBlock($piece_index, $block_begin, $length)
     {
-        if ( $piece_index > ceil( $this->__get( 'length' ) / $this->size_piece ) - 1 )
-            throw new Error\BlockRead( 'Invalid piece index: ' . $piece_index );
-        if ( $block_begin + $length > $this->size_piece )
-            throw new Error\BlockRead( 'Invalid block boundary: ' . $block_begin . ', ' . $length );
+        if ($piece_index > ceil($this->__get('length') / $this->size_piece) - 1) {
+            throw new Error\BlockRead('Invalid piece index: ' . $piece_index);
+        }
+        if ($block_begin + $length > $this->size_piece) {
+            throw new Error\BlockRead(
+                'Invalid block boundary: ' . $block_begin . ', ' . $length
+            );
+        }
 
-        return $this->file->readBlock( ( $piece_index * $this->size_piece ) + $block_begin , $length );
+        return $this->file->readBlock(
+            ($piece_index * $this->size_piece) + $block_begin,
+            $length
+        );
     }
 }

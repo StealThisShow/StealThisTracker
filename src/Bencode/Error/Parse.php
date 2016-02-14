@@ -7,7 +7,7 @@ use StealThisShow\StealThisTracker\Bencode;
 /**
  * Exception thrown when invalid format found while parsing a bencoded string.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
  * @subpackage Bencode
  */
 class Parse extends Bencode\Error

@@ -5,9 +5,10 @@ namespace StealThisShow\StealThisTracker\Error;
 use StealThisShow\StealThisTracker\Error as BaseError;
 
 /**
- * Exception thrown when InvalidPieceSize error.
+ * Exception thrown when error happens in the Concurrency subpackage.
  *
- * @package StealThisTracker
+ * @package    StealThisTracker
+ * @subpackage Error
  */
 class InvalidPieceSize extends BaseError
 {
