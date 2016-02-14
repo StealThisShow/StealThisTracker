@@ -1,7 +1,27 @@
 language: php
 php:
+  - 5.3
   - 5.4
   - 5.5
   - 5.6
-  - hhvm
-  - nightly
+  # Tests cannot run on HHVM and PHP nightly with current config
+  #- hhvm
+  #- nightly
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y ctorrent apache2 libapache2-mod-fastcgi
+before_script:
+  # PHP-FPM
+  - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+  - sudo a2enmod rewrite actions fastcgi alias
+  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+  # Apache virtual hosts
+  - sudo cp -f tests/Fixtures/travis-ci-apache /etc/apache2/sites-available/default
+  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)/tests/Fixtures/?g" --in-place /etc/apache2/sites-available/default
+  - sudo service apache2 restart
+  # Composer
+  - composer self-update
+  - composer install
+script:
+  - phpunit --configuration phpunit.xml
