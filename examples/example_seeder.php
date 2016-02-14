@@ -18,7 +18,7 @@ use \StealThisShow\StealThisTracker\Logger\File;
 // /usr/bin/php example_seeder.php
 
 // Composer autoloader
-require dirname(__FILE__).'/vendor/autoload.php';
+require dirname(__FILE__).'/../vendor/autoload.php';
 
 // Persistence object implementing PersistenceInterface.
 // We use Pdo here.
@@ -57,7 +57,7 @@ $server = new Server($peer, $persistence);
 $server->setLogger(new File());
 
 // Starting "detached" means that process
-// will unrelate from terminal and run as deamon.
+// will unrelate from terminal and run as daemon.
 // To run in terminal, you can use start().
 // Detached running requires php-posix.
 $server->startDetached();
