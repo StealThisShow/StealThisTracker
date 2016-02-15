@@ -116,7 +116,7 @@ class Core
             );
             $missing_keys = Utils::hasMissingKeys($mandatory_keys, $get);
             if (!empty($missing_keys)) {
-                return $this->announceFailure(
+                return $this->trackerFailure(
                     "Invalid get parameters; Missing: " .
                     implode(', ', $missing_keys)
                 );
@@ -129,29 +129,29 @@ class Core
             $no_peer_id = isset($get['no_peer_id']) ? $get['no_peer_id']: false;
 
             if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-                return $this->announceFailure("Invalid IP-address");
+                return $this->trackerFailure("Invalid IP-address");
             }
             if (20 != strlen($get['info_hash'])) {
-                return $this->announceFailure("Invalid length of info_hash.");
+                return $this->trackerFailure("Invalid length of info_hash.");
             }
             if (20 != strlen($get['peer_id'])) {
-                return $this->announceFailure("Invalid length of peer_id.");
+                return $this->trackerFailure("Invalid length of peer_id.");
             }
             if (!Utils::isNonNegativeInteger($get['port'])) {
-                return $this->announceFailure("Invalid port value.");
+                return $this->trackerFailure("Invalid port value.");
             }
             if (!Utils::isNonNegativeInteger($get['uploaded'])) {
-                return $this->announceFailure("Invalid uploaded value.");
+                return $this->trackerFailure("Invalid uploaded value.");
             }
             if (!Utils::isNonNegativeInteger($get['downloaded'])) {
-                return $this->announceFailure("Invalid downloaded value.");
+                return $this->trackerFailure("Invalid downloaded value.");
             }
             if (!Utils::isNonNegativeInteger($get['left'])) {
-                return $this->announceFailure("Invalid left value.");
+                return $this->trackerFailure("Invalid left value.");
             }
 
             if (!$this->persistence->hasTorrent($get['info_hash'])) {
-                return $this->announceFailure("Torrent does not exist.");
+                return $this->trackerFailure("Torrent does not exist.");
             }
 
             $this->persistence->saveAnnounce(
@@ -194,7 +194,7 @@ class Core
                 'Failure while announcing: ' . $e->getMessage(),
                 E_USER_WARNING
             );
-            return $this->announceFailure(
+            return $this->trackerFailure(
                 "Failed to announce because of internal server error."
             );
         }
@@ -217,10 +217,18 @@ class Core
             );
             $missing_keys = Utils::hasMissingKeys($mandatory_keys, $get);
             if (!empty($missing_keys)) {
-                return $this->announceFailure(
+                return $this->trackerFailure(
                     "Invalid get parameters; Missing: " .
                     implode(', ', $missing_keys)
                 );
+            }
+
+            if (20 != strlen($get['info_hash'])) {
+                return $this->trackerFailure("Invalid length of info_hash.");
+            }
+
+            if (!$this->persistence->hasTorrent($get['info_hash'])) {
+                return $this->trackerFailure("Torrent does not exist.");
             }
 
             $peer_id = isset($get['peer_id']) ? $get['peer_id']: '';
@@ -246,20 +254,20 @@ class Core
                 'Failure while scraping: ' . $e->getMessage(),
                 E_USER_WARNING
             );
-            return $this->announceFailure(
+            return $this->trackerFailure(
                 "Failed to scrape because of internal server error."
             );
         }
     }
 
     /**
-     * Creates a bencoded announce failure message.
+     * Creates a bencoded tracker failure message.
      *
      * @param string $message Public description of the failure.
      *
      * @return string
      */
-    protected function announceFailure($message)
+    protected function trackerFailure($message)
     {
         return Bencode\Builder::build(
             array(
