@@ -9,11 +9,15 @@
         {
             "name": "Steal This Show",
             "email": "info@stealthisshow.com",
-            "homepage": "https://github.com/StealThisShow"
+            "homepage": "https://github.com/StealThisShow",
+            "role": "Fork Developer"
         }
     ],
     "require": {
         "php": ">=5.3"
+    },
+    "require-dev": {
+        "phing/phing": "2.*"
     },
     "autoload": {
         "psr-4": { "StealThisShow\\StealThisTracker\\": "src/" }
