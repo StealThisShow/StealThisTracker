@@ -1,6 +1,6 @@
 <?php
 /**
- * Announce example
+ * Scrape example
  *
  * @package StealThisTracker
  * @author  StealThisShow <info@stealthisshow.com>
@@ -11,7 +11,7 @@ use \StealThisShow\StealThisTracker\Core;
 use \StealThisShow\StealThisTracker\Persistence\Pdo;
 
 // ---------------------------------------
-// This is how to set up an announce URL.
+// This is how to set up a scrape URL.
 // ---------------------------------------
 
 // Composer autoloader
@@ -21,13 +21,8 @@ require dirname(__FILE__).'/../vendor/autoload.php';
 // We use Pdo here.
 $persistence = new Pdo('sqlite:sqlite_example.db');
 
-// Core class managing the announcements.
+// Core class managing the scrapes.
 $core = new Core($persistence);
-$core
-    // Interval of the next announcement in seconds - sent back to the client.
-    ->setInterval(60)
-    // The IP-address of the connecting client.
-    ->setIp($_SERVER['REMOTE_ADDR']);
 
-// We simply send back the results of the announce method to the client.
-echo (string) $core->announce($_GET);
+// We simply send back the results of the scrape method to the client.
+echo (string) $core->scrape($_GET);
