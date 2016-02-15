@@ -5,3 +5,6 @@
   * Removed config and added fluent setters
   * Added webseeds, private flag and DHT nodes to Torrent
   * Added basic IPv6 support
+* 0.1.1-alpha
+  * Added scrape function
+  * Ignore announce for torrents the tracker doesn't manage
