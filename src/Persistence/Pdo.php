@@ -6,7 +6,7 @@ use StealThisShow\StealThisTracker\File\File;
 use StealThisShow\StealThisTracker\Torrent;
 
 /**
- * Persistence class implementation using PDO 
+ * Persistence class implementation using PDO
  * and so supporting many database drivers.
  *
  * @package    StealThisTracker
@@ -18,35 +18,35 @@ class Pdo implements PersistenceInterface, ResetWhenForking
 {
     /**
      * The driver
-     * 
+     *
      * @var \PDO
      */
     protected $driver;
 
     /**
      * DSN
-     * 
+     *
      * @var string
      */
     protected $dsn;
 
     /**
      * Username
-     * 
+     *
      * @var string
      */
     protected $username;
 
     /**
      * Password
-     * 
+     *
      * @var string
      */
     protected $password;
 
     /**
      * Options
-     * 
+     *
      * @var array
      */
     protected $options;
@@ -60,10 +60,10 @@ class Pdo implements PersistenceInterface, ResetWhenForking
      * @param array  $options  Options
      */
     public function __construct(
-        $dsn, 
-        $username = null, 
-        $password = null, 
-        array $options = array() 
+        $dsn,
+        $username = null,
+        $password = null,
+        array $options = array()
     ) {
         $this->dsn      = $dsn;
         $this->username = $username;
@@ -366,6 +366,28 @@ SQL;
                 ':expires'      => $expires->format('Y-m-d H:i:s'),
             )
         );
+    }
+
+    /**
+     * Checks whether a torrent exists or not
+     *
+     * @param string $info_hash The info hash
+     *
+     * @return bool
+     */
+    public function hasTorrent($info_hash)
+    {
+        $sql = <<<SQL
+SELECT
+    1
+FROM
+    `stealthistracker_torrents`
+WHERE
+    `info_hash` = :info_hash
+SQL;
+        $statement = $this->query($sql, array(':info_hash' => $info_hash));
+
+        return $statement->fetchColumn(0);
     }
 
     /**

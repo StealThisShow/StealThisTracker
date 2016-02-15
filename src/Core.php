@@ -150,6 +150,10 @@ class Core
                 return $this->announceFailure("Invalid left value.");
             }
 
+            if (!$this->persistence->hasTorrent($get['info_hash'])) {
+                return $this->announceFailure("Torrent does not exist.");
+            }
+
             $this->persistence->saveAnnounce(
                 $get['info_hash'],
                 $get['peer_id'],

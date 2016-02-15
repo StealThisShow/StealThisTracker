@@ -71,6 +71,15 @@ interface PersistenceInterface
     );
 
     /**
+     * Checks whether a torrent exists or not
+     *
+     * @param string $info_hash The info hash
+     *
+     * @return bool
+     */
+    public function hasTorrent($info_hash);
+
+    /**
      * Return all the inf_hashes and lengths of the active arrays.
      *
      * @return array An array of arrays having keys
