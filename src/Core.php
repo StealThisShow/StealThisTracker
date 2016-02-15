@@ -100,7 +100,7 @@ class Core
      *
      * @param array $get $_GET
      *
-     * @return string
+     * @return Bencode\Value\AbstractValue
      */
     public function announce(array $get)
     {
@@ -114,7 +114,7 @@ class Core
                 'downloaded',
                 'left'
             );
-            $missing_keys = array_diff($mandatory_keys, array_keys($get));
+            $missing_keys = Utils::hasMissingKeys($mandatory_keys, $get);
             if (!empty($missing_keys)) {
                 return $this->announceFailure(
                     "Invalid get parameters; Missing: " .
@@ -185,9 +185,7 @@ class Core
             );
 
             return Bencode\Builder::build($announce_response);
-        }
-        catch (Error $e)
-        {
+        } catch (Error $e) {
             trigger_error(
                 'Failure while announcing: ' . $e->getMessage(),
                 E_USER_WARNING
@@ -201,11 +199,53 @@ class Core
     /**
      * Scrape
      *
-     * @return string
+     * Currently info_hash is required
+     *
+     * @param array $get $_GET
+     *
+     * @return Bencode\Value\AbstractValue
      */
-    public function scrape()
+    public function scrape(array $get)
     {
-        // TODO: Implement scrape
+        try {
+            $mandatory_keys = array(
+                'info_hash',
+            );
+            $missing_keys = Utils::hasMissingKeys($mandatory_keys, $get);
+            if (!empty($missing_keys)) {
+                return $this->announceFailure(
+                    "Invalid get parameters; Missing: " .
+                    implode(', ', $missing_keys)
+                );
+            }
+
+            $peer_id = isset($get['peer_id']) ? $get['peer_id']: '';
+
+            $peer_stats = $this->persistence->getPeerStats(
+                $get['info_hash'],
+                $peer_id
+            );
+
+            $scrape_response = array(
+                'files' => array(
+                    $peer_stats['info_hash'] => array(
+                        'complete'      => intval($peer_stats['complete']),
+                        'incomplete'    => intval($peer_stats['incomplete']),
+                        'downloaded'    => intval($peer_stats['incomplete'])
+                    )
+                )
+            );
+
+            return Bencode\Builder::build($scrape_response);
+        } catch (Error $e) {
+            trigger_error(
+                'Failure while scraping: ' . $e->getMessage(),
+                E_USER_WARNING
+            );
+            return $this->announceFailure(
+                "Failed to scrape because of internal server error."
+            );
+        }
     }
 
     /**

@@ -98,7 +98,7 @@ interface PersistenceInterface
      *
      * @return mixed
      */
-    public function getPeers( $info_hash, $peer_id );
+    public function getPeers($info_hash, $peer_id);
 
     /**
      * Returns statistics of seeders and leechers of a torrent.
@@ -112,5 +112,5 @@ interface PersistenceInterface
      * @return array With keys 'complete' and 'incomplete'
      *               having counters for each group.
      */
-    public function getPeerStats( $info_hash, $peer_id );
+    public function getPeerStats($info_hash, $peer_id);
 }

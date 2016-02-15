@@ -467,15 +467,17 @@ SQL;
      * @param string $peer_id   Peer ID to exclude
      *                          (peer ID of the client announcing).
      *
-     * @return array With keys 'complete' and 'incomplete'
+     * @return array With keys 'complete', 'incomplete' and 'downloaded'
      *               having counters for each group.
      */
     public function getPeerStats($info_hash, $peer_id)
     {
         $sql = <<<SQL
 SELECT
-    COALESCE(SUM(`status` = 'complete'), 0) AS 'complete',
-    COALESCE(SUM(`status` != 'complete'), 0) AS 'incomplete'
+    `info_hash`,
+    COALESCE(SUM(`bytes_left` = 0), 0) AS 'complete',
+    COALESCE(SUM(`bytes_left` != 0), 0) AS 'incomplete',
+    COALESCE(SUM(`status` = 'complete'), 0) AS 'downloaded'
 FROM
     `stealthistracker_peers`
 WHERE

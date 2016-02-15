@@ -169,6 +169,49 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
             self::ANNOUNCE_INTERVAL,
             $parsed_response['interval']
         );
+
+    }
+
+    /**
+     * Test scrape
+     *
+     * @return void
+     */
+    public function testScrape()
+    {
+        $persistence = new Persistence\Pdo('sqlite:' . $this->db_path);
+
+        $core = new Core($persistence);
+        $core->setIp(self::CLIENT_IP);
+        $core->setInterval(self::ANNOUNCE_INTERVAL);
+
+        $this->announceOtherPeers($core);
+
+        $get = array(
+            'info_hash' => self::INFO_HASH
+        );
+
+        $response = $core->scrape($get);
+        $parsed_response = $this->parseResponse($response);
+
+        $first = reset($parsed_response['files']);
+
+        $this->assertEquals(
+            self::INFO_HASH,
+            key($parsed_response['files'])
+        );
+        $this->assertEquals(
+            1,
+            $first['complete']
+        );
+        $this->assertEquals(
+            1,
+            $first['incomplete']
+        );
+        $this->assertEquals(
+            1,
+            $first['downloaded']
+        );
     }
 
     /**
@@ -202,8 +245,8 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
                 'peer_id'       => self::SEED_PEER_ID,
                 'port'          => self::CLIENT_PORT,
                 'uploaded'      => 0,
-                'downloaded'    => 1024,
-                'left'          => 0,
+                'downloaded'    => 7168,
+                'left'          => 6144,
                 'ip'            => self::SEED_IP
             )
         );
@@ -214,8 +257,8 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
                 'peer_id'       => self::SEED_PEER_ID,
                 'port'          => self::CLIENT_PORT,
                 'uploaded'      => 0,
-                'downloaded'    => 7168,
-                'left'          => 6144,
+                'downloaded'    => 1024,
+                'left'          => 0,
                 'event'         => 'completed',
                 'ip'            => self::SEED_IP
             )
