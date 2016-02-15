@@ -1,4 +1,5 @@
 .gitignore
 .idea
+build
 vendor
 composer.lock
