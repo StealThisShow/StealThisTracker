@@ -4,13 +4,8 @@
     "description": "PHP library to generate .torrent files, set up Bittorrent tracker server, and seed server too.",
     "keywords": ["php","library","bittorrent","torrent","stealthisshow"],
     "homepage": "https://stealthisshow.com/",
-    "license": "BSD",
+    "license": "BSD-3-Clause",
     "authors": [
-        {
-            "name": "Zoltan Toth-Czifra",
-            "email": "phptracker@tcz.hu",
-            "homepage": "https://github.com/tcz"
-        },
         {
             "name": "Steal This Show",
             "email": "info@stealthisshow.com",
