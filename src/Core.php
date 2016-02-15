@@ -231,7 +231,7 @@ class Core
                     $peer_stats['info_hash'] => array(
                         'complete'      => intval($peer_stats['complete']),
                         'incomplete'    => intval($peer_stats['incomplete']),
-                        'downloaded'    => intval($peer_stats['incomplete'])
+                        'downloaded'    => intval($peer_stats['downloaded'])
                     )
                 )
             );
