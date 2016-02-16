@@ -30,15 +30,14 @@ $core = new Core($persistence);
 // The torrent file
 $file = new File('/path/to/file.ext');
 
-// The first parameters is the file,
-// the second is the piece size in bytes.
-$torrent = new Torrent($file, 524288);
-// List of public announce URLs on your server.
-$torrent->setAnnounceList(
-    array(
-        'http://announce'
-    )
-);
+// The first parameters is the file.
+$torrent = new Torrent($file);
+
+$torrent
+    // List of public announce URLs on your server.
+    ->setAnnounceList(array('http://announce'))
+    // Piece length (in bytes) can be set optionally (defaults to 256 kB)
+    ->setSizePiece(262144);
 
 // Setting appropriate HTTP header and sending back the .torrrent file.
 // This is VERY inefficient to do! SAVE the .torrent file on your server and
