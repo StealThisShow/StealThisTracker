@@ -4,7 +4,7 @@ namespace StealThisShow\StealThisTracker;
 
 /**
  * Public interface to access some BitTorrent actions 
- * like adding a torrent file and a announcing peer.
+ * like adding a torrent file, announcing or scraping.
  *
  * @package StealThisTracker
  * @author  StealThisShow <info@stealthisshow.com>
