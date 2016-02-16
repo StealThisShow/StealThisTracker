@@ -8,3 +8,7 @@
 * 0.1.1-alpha
   * Added scrape function
   * Ignore announce for torrents the tracker doesn't manage
+* 0.1.2-alpha
+  * Added 'created by' attribute to Torrent
+  * Added default piece length of 256 kB to Torrent
+  * Correction for proper 'downloaded' count in scrape response
