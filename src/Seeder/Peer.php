@@ -112,7 +112,7 @@ class Peer extends Concurrency\Forker
      * Peer constructor
      * 
      * @param Persistence\PersistenceInterface $persistence          Persistence
-     * @param bool                             $logger               Logger
+     * @param Logger\LoggerInterface           $logger               Logger
      * @param string                           $internal_address     Internal address
      * @param string                           $external_address     External address
      * @param int                              $port                 Port
@@ -121,7 +121,7 @@ class Peer extends Concurrency\Forker
      */
     public function __construct(
         Persistence\PersistenceInterface $persistence,
-        $logger = false,
+        $logger = null,
         $internal_address = self::DEFAULT_ADDRESS,
         $external_address = self::DEFAULT_ADDRESS,
         $port = self::DEFAULT_PORT,

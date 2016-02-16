@@ -4,7 +4,7 @@ namespace StealThisShow\StealThisTracker;
 
 /**
  * Public interface to access some BitTorrent actions 
- * like adding a torrent file and a announcing peer.
+ * like adding a torrent file, announcing or scraping.
  *
  * @package StealThisTracker
  * @author  StealThisShow <info@stealthisshow.com>
@@ -38,13 +38,13 @@ class Core
      * Initializing the object with persistence.
      *
      * @param Persistence\PersistenceInterface $persistence Persistence
-     * @param bool                             $ip          IP-address
+     * @param string                           $ip          IP-address
      * @param int                              $interval    Interval
      * 
      * @throws Error
      */
     public function __construct(
-        Persistence\PersistenceInterface $persistence, $ip = false, $interval = 60
+        Persistence\PersistenceInterface $persistence, $ip = null, $interval = 60
     ) {
         $this->persistence  = $persistence;
         $this->interval     = $interval;
@@ -100,7 +100,7 @@ class Core
      *
      * @param array $get $_GET
      *
-     * @return string
+     * @return Bencode\Value\AbstractValue
      */
     public function announce(array $get)
     {
@@ -114,9 +114,9 @@ class Core
                 'downloaded',
                 'left'
             );
-            $missing_keys = array_diff($mandatory_keys, array_keys($get));
+            $missing_keys = Utils::hasMissingKeys($mandatory_keys, $get);
             if (!empty($missing_keys)) {
-                return $this->announceFailure(
+                return $this->trackerFailure(
                     "Invalid get parameters; Missing: " .
                     implode(', ', $missing_keys)
                 );
@@ -129,25 +129,29 @@ class Core
             $no_peer_id = isset($get['no_peer_id']) ? $get['no_peer_id']: false;
 
             if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-                return $this->announceFailure("Invalid IP-address");
+                return $this->trackerFailure("Invalid IP-address");
             }
             if (20 != strlen($get['info_hash'])) {
-                return $this->announceFailure("Invalid length of info_hash.");
+                return $this->trackerFailure("Invalid length of info_hash.");
             }
             if (20 != strlen($get['peer_id'])) {
-                return $this->announceFailure("Invalid length of peer_id.");
+                return $this->trackerFailure("Invalid length of peer_id.");
             }
             if (!Utils::isNonNegativeInteger($get['port'])) {
-                return $this->announceFailure("Invalid port value.");
+                return $this->trackerFailure("Invalid port value.");
             }
             if (!Utils::isNonNegativeInteger($get['uploaded'])) {
-                return $this->announceFailure("Invalid uploaded value.");
+                return $this->trackerFailure("Invalid uploaded value.");
             }
             if (!Utils::isNonNegativeInteger($get['downloaded'])) {
-                return $this->announceFailure("Invalid downloaded value.");
+                return $this->trackerFailure("Invalid downloaded value.");
             }
             if (!Utils::isNonNegativeInteger($get['left'])) {
-                return $this->announceFailure("Invalid left value.");
+                return $this->trackerFailure("Invalid left value.");
+            }
+
+            if (!$this->persistence->hasTorrent($get['info_hash'])) {
+                return $this->trackerFailure("Torrent does not exist.");
             }
 
             $this->persistence->saveAnnounce(
@@ -185,14 +189,12 @@ class Core
             );
 
             return Bencode\Builder::build($announce_response);
-        }
-        catch (Error $e)
-        {
+        } catch (Error $e) {
             trigger_error(
                 'Failure while announcing: ' . $e->getMessage(),
                 E_USER_WARNING
             );
-            return $this->announceFailure(
+            return $this->trackerFailure(
                 "Failed to announce because of internal server error."
             );
         }
@@ -201,21 +203,71 @@ class Core
     /**
      * Scrape
      *
-     * @return string
+     * Currently info_hash is required
+     *
+     * @param array $get $_GET
+     *
+     * @return Bencode\Value\AbstractValue
      */
-    public function scrape()
+    public function scrape(array $get)
     {
-        // TODO: Implement scrape
+        try {
+            $mandatory_keys = array(
+                'info_hash',
+            );
+            $missing_keys = Utils::hasMissingKeys($mandatory_keys, $get);
+            if (!empty($missing_keys)) {
+                return $this->trackerFailure(
+                    "Invalid get parameters; Missing: " .
+                    implode(', ', $missing_keys)
+                );
+            }
+
+            if (20 != strlen($get['info_hash'])) {
+                return $this->trackerFailure("Invalid length of info_hash.");
+            }
+
+            if (!$this->persistence->hasTorrent($get['info_hash'])) {
+                return $this->trackerFailure("Torrent does not exist.");
+            }
+
+            $peer_id = isset($get['peer_id']) ? $get['peer_id']: '';
+
+            $peer_stats = $this->persistence->getPeerStats(
+                $get['info_hash'],
+                $peer_id
+            );
+
+            $scrape_response = array(
+                'files' => array(
+                    $peer_stats['info_hash'] => array(
+                        'complete'      => intval($peer_stats['complete']),
+                        'incomplete'    => intval($peer_stats['incomplete']),
+                        'downloaded'    => intval($peer_stats['downloaded'])
+                    )
+                )
+            );
+
+            return Bencode\Builder::build($scrape_response);
+        } catch (Error $e) {
+            trigger_error(
+                'Failure while scraping: ' . $e->getMessage(),
+                E_USER_WARNING
+            );
+            return $this->trackerFailure(
+                "Failed to scrape because of internal server error."
+            );
+        }
     }
 
     /**
-     * Creates a bencoded announce failure message.
+     * Creates a bencoded tracker failure message.
      *
      * @param string $message Public description of the failure.
      *
      * @return string
      */
-    protected function announceFailure($message)
+    protected function trackerFailure($message)
     {
         return Bencode\Builder::build(
             array(

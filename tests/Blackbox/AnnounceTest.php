@@ -29,6 +29,9 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
     const CLIENT_IP             = '123.123.123.123';
     const CLIENT_PORT           = '555';
     const ANNOUNCE_INTERVAL     = 60;
+    const ANNOUNCE_URL          = 'http://127.0.0.1:80/announce.php';
+    const FILE_TO_DOWNLOAD      = 'cookie_monster.gif';
+    const PIECE_LENGTH          = 524288;
     const INFO_HASH             = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
     const PEER_ID               = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1";
     const SEED_PEER_ID          = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2";
@@ -87,6 +90,23 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test create torrent
+     *
+     * @return Torrent
+     */
+    protected function getTorrent()
+    {
+        $file = new File\File(
+            dirname(__FILE__) . '/../Fixtures/' . self::FILE_TO_DOWNLOAD
+        );
+        $torrent = new Torrent($file, self::PIECE_LENGTH);
+        $torrent->setAnnounceList(array(self::ANNOUNCE_URL));
+        $torrent->setInfoHash(self::INFO_HASH);
+
+        return $torrent;
+    }
+
+    /**
      * Test first announce
      *
      * @return void
@@ -98,6 +118,9 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
         $core = new Core($persistence);
         $core->setIp(self::CLIENT_IP);
         $core->setInterval(self::ANNOUNCE_INTERVAL);
+
+        // Add torrent to persistence
+        $core->addTorrent($this->getTorrent());
 
         $get = array(
             'info_hash'     => self::INFO_HASH,
@@ -132,6 +155,9 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
         $core = new Core($persistence);
         $core->setIp(self::CLIENT_IP);
         $core->setInterval(self::ANNOUNCE_INTERVAL);
+
+        // Add torrent to persistence
+        $core->addTorrent($this->getTorrent());
 
         $this->announceOtherPeers($core);
 
@@ -169,6 +195,52 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
             self::ANNOUNCE_INTERVAL,
             $parsed_response['interval']
         );
+
+    }
+
+    /**
+     * Test scrape
+     *
+     * @return void
+     */
+    public function testScrape()
+    {
+        $persistence = new Persistence\Pdo('sqlite:' . $this->db_path);
+
+        $core = new Core($persistence);
+        $core->setIp(self::CLIENT_IP);
+        $core->setInterval(self::ANNOUNCE_INTERVAL);
+
+        // Add torrent to persistence
+        $core->addTorrent($this->getTorrent());
+
+        $this->announceOtherPeers($core);
+
+        $get = array(
+            'info_hash' => self::INFO_HASH
+        );
+
+        $response = $core->scrape($get);
+        $parsed_response = $this->parseResponse($response);
+
+        $first = reset($parsed_response['files']);
+
+        $this->assertEquals(
+            self::INFO_HASH,
+            key($parsed_response['files'])
+        );
+        $this->assertEquals(
+            1,
+            $first['complete']
+        );
+        $this->assertEquals(
+            1,
+            $first['incomplete']
+        );
+        $this->assertEquals(
+            1,
+            $first['downloaded']
+        );
     }
 
     /**
@@ -202,8 +274,8 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
                 'peer_id'       => self::SEED_PEER_ID,
                 'port'          => self::CLIENT_PORT,
                 'uploaded'      => 0,
-                'downloaded'    => 1024,
-                'left'          => 0,
+                'downloaded'    => 7168,
+                'left'          => 6144,
                 'ip'            => self::SEED_IP
             )
         );
@@ -214,8 +286,8 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
                 'peer_id'       => self::SEED_PEER_ID,
                 'port'          => self::CLIENT_PORT,
                 'uploaded'      => 0,
-                'downloaded'    => 7168,
-                'left'          => 6144,
+                'downloaded'    => 1024,
+                'left'          => 0,
                 'event'         => 'completed',
                 'ip'            => self::SEED_IP
             )

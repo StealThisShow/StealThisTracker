@@ -47,4 +47,4 @@ header('Content-Type: application/x-bittorrent');
 header('Content-Disposition: attachment; filename="test.torrent"');
 
 // Outputs torrent content
-echo $core->addTorrent($torrent);
+echo (string) $core->addTorrent($torrent);

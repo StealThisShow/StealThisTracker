@@ -71,6 +71,15 @@ interface PersistenceInterface
     );
 
     /**
+     * Checks whether a torrent exists or not
+     *
+     * @param string $info_hash The info hash
+     *
+     * @return bool
+     */
+    public function hasTorrent($info_hash);
+
+    /**
      * Return all the inf_hashes and lengths of the active arrays.
      *
      * @return array An array of arrays having keys
@@ -98,7 +107,7 @@ interface PersistenceInterface
      *
      * @return mixed
      */
-    public function getPeers( $info_hash, $peer_id );
+    public function getPeers($info_hash, $peer_id);
 
     /**
      * Returns statistics of seeders and leechers of a torrent.
@@ -112,5 +121,5 @@ interface PersistenceInterface
      * @return array With keys 'complete' and 'incomplete'
      *               having counters for each group.
      */
-    public function getPeerStats( $info_hash, $peer_id );
+    public function getPeerStats($info_hash, $peer_id);
 }

@@ -108,4 +108,18 @@ class Utils
         }
         return $peers;
     }
+
+    /**
+     * Return if an array is missing mandatory keys
+     *
+     * @param array $mandatory_keys Mandatory keys
+     * @param array $array          Array to check
+     *
+     * @return array
+     */
+    public static function hasMissingKeys(array $mandatory_keys, array $array)
+    {
+        $missing_keys = array_diff($mandatory_keys, array_keys($array));
+        return $missing_keys;
+    }
 }

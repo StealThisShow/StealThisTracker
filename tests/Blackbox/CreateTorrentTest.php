@@ -13,6 +13,8 @@ namespace StealThisShow\StealThisTracker;
 class CreateTorrentTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * The PDO object
+     *
      * @var Persistence\Pdo
      */
     protected $persistence;
