@@ -497,8 +497,8 @@ SQL;
         $sql = <<<SQL
 SELECT
     `info_hash`,
-    COALESCE(SUM(`bytes_left` = 0), 0) AS 'complete',
-    COALESCE(SUM(`bytes_left` != 0), 0) AS 'incomplete',
+    COALESCE(SUM(`bytes_left` = 0 AND (`expires` IS NULL OR `expires` > :now)), 0) AS 'complete',
+    COALESCE(SUM(`bytes_left` != 0 AND (`expires` IS NULL OR `expires` > :now)), 0) AS 'incomplete',
     COALESCE(SUM(`status` = 'complete'), 0) AS 'downloaded'
 FROM
     `stealthistracker_peers`
@@ -506,12 +506,6 @@ WHERE
     `info_hash`           = :info_hash
     AND
     `peer_id`             != :peer_id
-    AND
-    (
-        `expires` IS NULL
-        OR
-        `expires` > :now
-   )
 SQL;
 
         $now = new \DateTime();
