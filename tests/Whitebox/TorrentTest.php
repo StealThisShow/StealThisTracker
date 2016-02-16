@@ -76,6 +76,7 @@ class TorrentTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($this->object->announce_list));
         $this->assertTrue(isset($this->object->nodes));
         $this->assertTrue(isset($this->object->url_list));
+        $this->assertTrue(isset($this->object->created_by));
 
         $this->assertEquals(
             $this->createPiecesHash(self::TEST_DATA, 2), $this->object->pieces
