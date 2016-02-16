@@ -21,7 +21,7 @@ class Torrent
 {
     /**
      * Piece size in bytes used to construct the torrent. 
-     * Normally a power of 2 (eg. 512KB).
+     * Normally a power of 2 (eg. 256kB).
      *
      * @var integer
      */
@@ -98,11 +98,19 @@ class Torrent
     protected $url_list;
 
     /**
-     * Initializing object with the piece size and file object, 
+     * Created by
+     *
+     * @var string
+     */
+    protected $created_by;
+
+    /**
+     * Initializing object with the piece size and file object,
      * optionally setting attributes from the database.
      *
      * @param File    $file          To initialize 'file' attribute.
-     * @param integer $size_piece    To initialize 'size_piece' attribute.
+     * @param integer $size_piece    Optional. To set 'size_piece' attribute.
+     *                               Defaults to 262144 bytes (256 kB)
      * @param string  $file_path     Optional. To set 'file_path' attribute.
      * @param string  $name          Optional. To set 'name' attribute.
      * @param integer $length        Optional. To set 'length' attribute.
@@ -112,12 +120,13 @@ class Torrent
      * @param array   $announce_list Announce-list.
      * @param array   $nodes         DHT Nodes.
      * @param array   $url_list      Url-list.
-     * 
+     * @param string  $created_by    Created by. Defaults to 'StealThisTracker'
+     *
      * @throws Error\InvalidPieceSize When the piece size is invalid.
      */
     public function __construct(
         File $file,
-        $size_piece,
+        $size_piece = 262144,
         $file_path = null,
         $name = null,
         $length = null,
@@ -126,16 +135,17 @@ class Torrent
         $private = null,
         array $announce_list = null,
         array $nodes = null,
-        array $url_list = null
+        array $url_list = null,
+        $created_by = 'StealThisTracker'
     ) {
         if (0 >= $size_piece = intval($size_piece)) {
             throw new Error\InvalidPieceSize('Invalid piece size: ' . $size_piece);
         }
 
         $this->file             = $file;
-        $this->size_piece       = $size_piece;
 
         // Optional parameters.
+        $this->size_piece       = $size_piece;
         $this->length           = is_null($length) ? null : (int) $length;
         $this->name             = $name;
         $this->file_path        = $file_path;
@@ -145,6 +155,7 @@ class Torrent
         $this->announce_list    = $announce_list;
         $this->nodes            = $nodes;
         $this->url_list         = $url_list;
+        $this->created_by       = $created_by;
     }
 
     /**
@@ -267,6 +278,40 @@ class Torrent
     }
 
     /**
+     * Set created by.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
+     *
+     * @param string $created_by Created by
+     *
+     * @return $this
+     */
+    public function setCreatedBy($created_by)
+    {
+        $this->created_by = $created_by;
+        return $this;
+    }
+
+    /**
+     * Set created by.
+     * This fluent setter can be used instead of passing the argument
+     * through the constructor. To be used once only.
+     *
+     * @param int $size_piece Size piece
+     *
+     * @return $this
+     * @throws Error\InvalidPieceSize
+     */
+    public function setSizePiece($size_piece)
+    {
+        if (0 >= $size_piece = intval($size_piece)) {
+            throw new Error\InvalidPieceSize('Invalid piece size: ' . $size_piece);
+        }
+        $this->size_piece = (int) $size_piece;
+        return $this;
+    }
+
+    /**
      * Set length.
      * This fluent setter can be used instead of passing the argument
      * through the constructor. To be used once only.
@@ -367,6 +412,9 @@ class Torrent
             case 'url_list':
                 return (array) $this->url_list;
                 break;
+            case 'created_by':
+                return $this->created_by;
+                break;
             default:
                 throw new Error\InvalidTorrentAttribute(
                     "Can't access attribute $attribute of " . __CLASS__
@@ -397,6 +445,7 @@ class Torrent
             case 'announce_list':
             case 'announce':
             case 'url_list':
+            case 'created_by':
                 return true;
                 break;
         }
@@ -463,6 +512,10 @@ class Torrent
         if (!empty($this->url_list)) {
             $torrent_data['url-list'] = $this->url_list;
         }
+        // Created by
+        if (!empty($this->created_by)) {
+            $torrent_data['created by'] = $this->created_by;
+        }
         return Builder::build($torrent_data);
     }
 
@@ -505,4 +558,5 @@ class Torrent
             $length
         );
     }
+
 }
