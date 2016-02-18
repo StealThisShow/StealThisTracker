@@ -62,7 +62,7 @@ abstract class Forker
 
         // If children are negative, they are automatically recreated when terminate.
         $permanent = $this->wanted_children < 0;
-        $this->wanted_children = abs($this->wanted_children);
+        $this->wanted_children = (int) abs($this->wanted_children);
 
         $this->forkChildren($this->wanted_children, $permanent);
     }
@@ -160,6 +160,8 @@ abstract class Forker
      */
     public function forkChildren($n_children, $permanent)
     {
+        $status = null;
+
         if (0 >= $n_children) {
             return false;
         }
@@ -183,6 +185,7 @@ abstract class Forker
             while (!$permanent && pcntl_wait($status)) {
                 // If we don't need to recreate child processes on exit
                 // we just wait for them to die to avoid zombies.
+                continue;
             }
 
             $pid_exit = pcntl_wait($status); // Check the status?

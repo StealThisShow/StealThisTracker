@@ -507,7 +507,7 @@ class Torrent
             // DHT nodes
             $torrent_data['nodes'] = $this->nodes;
         }
-        // Url-list (Webseed(s))
+        // Url-list
         if (!empty($this->url_list)) {
             $torrent_data['url-list'] = $this->url_list;
         }

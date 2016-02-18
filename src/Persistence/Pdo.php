@@ -629,13 +629,12 @@ SQL;
      * Helper method for preparing a PDO statement,
      * binding parameters and executing it
      *
-     * @param string $sql     SQL
-     * @param array  $params  Params
-     * @param array  $options Options
+     * @param string $sql    SQL
+     * @param array  $params Params
      *
      * @return \PDOStatement
      */
-    protected function query($sql, array $params = array(), array $options = array())
+    protected function query($sql, array $params = array())
     {
         $stmt = $this->prepare($sql);
         if (!empty($params)) {

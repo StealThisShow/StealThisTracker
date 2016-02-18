@@ -49,7 +49,7 @@ class File implements LoggerInterface
         $this->file_path_messages = $file_path_messages;
         $this->file_path_errors = $file_path_errors;
 
-        if ($file_path_errors == null) {
+        if ($file_path_errors === null) {
             $this->file_path_errors = $file_path_messages;
         }
     }

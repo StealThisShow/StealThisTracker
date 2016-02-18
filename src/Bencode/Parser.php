@@ -34,6 +34,7 @@ class Parser
      */
     public function parse()
     {
+        $value = null;
         $this->pointer = 0;
         $this->container_stack = array();
 
