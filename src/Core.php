@@ -185,29 +185,21 @@ class Core
         if ($failure = $this->isMissingKeys(self::$announce_mandatory_keys, $get)
         ) {
             return $failure;
-        }
-        if (!filter_var($get['ip'], FILTER_VALIDATE_IP)) {
+        } elseif (!filter_var($get['ip'], FILTER_VALIDATE_IP)) {
             return $this->trackerFailure("Invalid IP-address");
-        }
-        if (20 != strlen($get['info_hash'])) {
+        } elseif (20 != strlen($get['info_hash'])) {
             return $this->trackerFailure("Invalid length of info_hash.");
-        }
-        if (20 != strlen($get['peer_id'])) {
+        } elseif (20 != strlen($get['peer_id'])) {
             return $this->trackerFailure("Invalid length of peer_id.");
-        }
-        if (!Utils::isNonNegativeInteger($get['port'])) {
+        } elseif (!Utils::isNonNegativeInteger($get['port'])) {
             return $this->trackerFailure("Invalid port value.");
-        }
-        if (!Utils::isNonNegativeInteger($get['uploaded'])) {
+        } elseif (!Utils::isNonNegativeInteger($get['uploaded'])) {
             return $this->trackerFailure("Invalid uploaded value.");
-        }
-        if (!Utils::isNonNegativeInteger($get['downloaded'])) {
+        } elseif (!Utils::isNonNegativeInteger($get['downloaded'])) {
             return $this->trackerFailure("Invalid downloaded value.");
-        }
-        if (!Utils::isNonNegativeInteger($get['left'])) {
+        } elseif (!Utils::isNonNegativeInteger($get['left'])) {
             return $this->trackerFailure("Invalid left value.");
-        }
-        if (!$this->persistence->hasTorrent($get['info_hash'])) {
+        } elseif (!$this->persistence->hasTorrent($get['info_hash'])) {
             return $this->trackerFailure("Torrent does not exist.");
         }
 
@@ -320,17 +312,14 @@ class Core
         if ($failure = $this->isMissingKeys(self::$scrape_mandatory_keys, $get)
         ) {
             return $failure;
-        }
-        if (20 != strlen($get['info_hash'])) {
+        } elseif (20 != strlen($get['info_hash'])) {
             return $this->trackerFailure("Invalid length of info_hash.");
-        }
-        if (isset($get['peer_id'])
+        } elseif (isset($get['peer_id'])
             && $get['peer_id'] !== ''
             && 20 != strlen($get['peer_id'])
         ) {
             return $this->trackerFailure("Invalid length of peer_id.");
-        }
-        if (!$this->persistence->hasTorrent($get['info_hash'])) {
+        } elseif (!$this->persistence->hasTorrent($get['info_hash'])) {
             return $this->trackerFailure("Torrent does not exist.");
         }
 

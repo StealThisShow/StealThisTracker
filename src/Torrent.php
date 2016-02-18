@@ -173,7 +173,7 @@ class Torrent
     /**
      * Set file_path.
      * This fluent setter can be used instead of passing the argument
-     * through constructor. To be used once only.
+     * through constructor.
      *
      * @param string $file_path File path
      *
@@ -181,16 +181,14 @@ class Torrent
      */
     public function setFilePath($file_path)
     {
-        if (!isset($this->file_path)) {
-            $this->file_path = (string) $file_path;
-        }
+        $this->file_path = (string) $file_path;
         return $this;
     }
 
     /**
      * Set name.
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param string $name Name
      *
@@ -198,16 +196,14 @@ class Torrent
      */
     public function setName($name)
     {
-        if (!isset($this->name)) {
-            $this->name = (string) $name;
-        }
+        $this->name = (string) $name;
         return $this;
     }
 
     /**
      * Set pieces.
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param string $pieces Pieces
      *
@@ -215,16 +211,14 @@ class Torrent
      */
     public function setPieces($pieces)
     {
-        if (!isset($this->pieces)) {
-            $this->pieces = (string) $pieces;
-        }
+        $this->pieces = (string) $pieces;
         return $this;
     }
 
     /**
      * Set info_hash.
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param string $info_hash Info hash
      *
@@ -232,16 +226,14 @@ class Torrent
      */
     public function setInfoHash($info_hash)
     {
-        if (!isset($this->info_hash)) {
-            $this->info_hash = $info_hash;
-        }
+        $this->info_hash = $info_hash;
         return $this;
     }
 
     /**
      * Set announce-list.
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param array $announce_list Announce-list
      *
@@ -249,16 +241,14 @@ class Torrent
      */
     public function setAnnounceList(array $announce_list)
     {
-        if (empty($this->announce_list)) {
-            $this->announce_list = $announce_list;
-        }
+        $this->announce_list = $announce_list;
         return $this;
     }
 
     /**
      * Set DHT nodes.
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param array $nodes Nodes
      *
@@ -266,16 +256,14 @@ class Torrent
      */
     public function setNodes(array $nodes)
     {
-        if (empty($this->nodes)) {
-            $this->nodes = $nodes;
-        }
+        $this->nodes = $nodes;
         return $this;
     }
 
     /**
      * Set url-list.
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param array $url_list Url-list
      *
@@ -283,16 +271,14 @@ class Torrent
      */
     public function setUrlList(array $url_list)
     {
-        if (empty($this->url_list)) {
-            $this->url_list = $url_list;
-        }
+        $this->url_list = $url_list;
         return $this;
     }
 
     /**
      * Set created by.
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param string $created_by Created by
      *
@@ -305,9 +291,9 @@ class Torrent
     }
 
     /**
-     * Set created by.
+     * Set piece size
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param int $size_piece Size piece
      *
@@ -326,7 +312,7 @@ class Torrent
     /**
      * Set length.
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param int $length Length
      *
@@ -334,16 +320,14 @@ class Torrent
      */
     public function setLength($length)
     {
-        if (!isset($this->length)) {
-            $this->length = (int) $length;
-        }
+        $this->length = (int) $length;
         return $this;
     }
 
     /**
      * Set private flag.
      * This fluent setter can be used instead of passing the argument
-     * through the constructor. To be used once only.
+     * through the constructor.
      *
      * @param bool $private Private flag
      *
@@ -351,9 +335,7 @@ class Torrent
      */
     public function setPrivate($private)
     {
-        if (!isset($this->private)) {
-            $this->private = (bool) $private;
-        }
+        $this->private = (bool) $private;
         return $this;
     }
 
@@ -545,8 +527,7 @@ class Torrent
     {
         if ($piece_index > ceil($this->__get('length') / $this->size_piece) - 1) {
             throw new Error\BlockRead('Invalid piece index: ' . $piece_index);
-        }
-        if ($block_begin + $length > $this->size_piece) {
+        } elseif ($block_begin + $length > $this->size_piece) {
             throw new Error\BlockRead(
                 'Invalid block boundary: ' . $block_begin . ', ' . $length
             );
