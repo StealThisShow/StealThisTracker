@@ -18,7 +18,7 @@ abstract class AbstractValue
      *
      * @var mixed
      */
-    protected $value;
+    public $value;
 
     /**
      * Convert the object back to a bencoded string when used as string.

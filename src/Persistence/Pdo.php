@@ -13,6 +13,8 @@ use StealThisShow\StealThisTracker\Torrent;
  * @subpackage Persistence
  * @author     StealThisShow <info@stealthisshow.com>
  * @license    https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ *
+ * @method \PDOStatement prepare(string $sql) PDO prepare
  */
 class Pdo implements PersistenceInterface, ResetWhenForking
 {
@@ -393,7 +395,7 @@ WHERE
 SQL;
         $statement = $this->query($sql, array(':info_hash' => $info_hash));
 
-        return $statement->fetchColumn(0);
+        return $statement->fetchColumn(0) ? true:false;
     }
 
     /**

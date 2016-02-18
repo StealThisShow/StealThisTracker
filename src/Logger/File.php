@@ -40,16 +40,16 @@ class File implements LoggerInterface
      * or logs to self::DEFAULT_LOG_PATH by default (both errors and messages).
      *
      * @param string $file_path_messages File path
-     * @param bool   $file_path_errors   Error path
+     * @param string $file_path_errors   Error path
      */
     public function __construct(
         $file_path_messages = self::DEFAULT_LOG_PATH, 
-        $file_path_errors = false
+        $file_path_errors = null
     ) {
         $this->file_path_messages = $file_path_messages;
         $this->file_path_errors = $file_path_errors;
 
-        if (!$file_path_errors) {
+        if ($file_path_errors == null) {
             $this->file_path_errors = $file_path_messages;
         }
     }

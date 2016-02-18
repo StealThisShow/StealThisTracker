@@ -16,6 +16,18 @@ use StealThisShow\StealThisTracker\File\File;
  * @package StealThisTracker
  * @author  StealThisShow <info@stealthisshow.com>
  * @license https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ *
+ * @property-read string $pieces        Pieces
+ * @property-read string $info_hash     Info hash
+ * @property-read int    $length        Length
+ * @property-read int    $size_piece    Size piece
+ * @property-read string $name          Name
+ * @property-read string $file_path     File path
+ * @property-read bool   $private       Private
+ * @property-read string $created_by    Created by
+ * @property-read array  $announce_list Announce-list
+ * @property-read array  $nodes         Nodes
+ * @property-read array  $url_list      URL-list
  */
 class Torrent
 {
@@ -133,9 +145,9 @@ class Torrent
         $pieces = null,
         $info_hash = null,
         $private = null,
-        array $announce_list = null,
-        array $nodes = null,
-        array $url_list = null,
+        array $announce_list = array(),
+        array $nodes = array(),
+        array $url_list = array(),
         $created_by = 'StealThisTracker'
     ) {
         if (0 >= $size_piece = intval($size_piece)) {
@@ -237,7 +249,7 @@ class Torrent
      */
     public function setAnnounceList(array $announce_list)
     {
-        if (!isset($this->announce_list)) {
+        if (empty($this->announce_list)) {
             $this->announce_list = $announce_list;
         }
         return $this;
@@ -254,7 +266,7 @@ class Torrent
      */
     public function setNodes(array $nodes)
     {
-        if (!isset($this->nodes)) {
+        if (empty($this->nodes)) {
             $this->nodes = $nodes;
         }
         return $this;
@@ -271,7 +283,7 @@ class Torrent
      */
     public function setUrlList(array $url_list)
     {
-        if (!isset($this->url_list)) {
+        if (empty($this->url_list)) {
             $this->url_list = $url_list;
         }
         return $this;
@@ -369,52 +381,40 @@ class Torrent
                     );
                 }
                 return $this->pieces;
-                break;
             case 'length':
                 if (!isset($this->length)) {
                     $this->length = $this->file->size();
                 }
                 return (int) $this->length;
-                break;
             case 'name':
                 if (!isset($this->name)) {
                     $this->name = $this->file->basename();
                 }
                 return $this->name;
-                break;
             case 'file_path':
                 if (!isset($this->file_path)) {
                     $this->file_path = (string)$this->file;
                 }
                 return $this->file_path;
-                break;
             case 'info_hash':
                 if (!isset($this->info_hash)) {
                     $this->info_hash = $this->calculateInfoHash();
                 }
                 return $this->info_hash;
-                break;
             case 'size_piece':
                 return (int) $this->size_piece;
-                break;
             case 'private':
                 return (bool) $this->private;
-                break;
             case 'announce_list':
                 return (array) $this->announce_list;
-                break;
             case 'nodes':
                 return (array) $this->nodes;
-                break;
             case 'announce':
                 return reset($this->announce_list);
-                break;
             case 'url_list':
                 return (array) $this->url_list;
-                break;
             case 'created_by':
                 return $this->created_by;
-                break;
             default:
                 throw new Error\InvalidTorrentAttribute(
                     "Can't access attribute $attribute of " . __CLASS__
@@ -447,7 +447,6 @@ class Torrent
             case 'url_list':
             case 'created_by':
                 return true;
-                break;
         }
 
         return false;

@@ -49,10 +49,6 @@ class Core
         $this->persistence  = $persistence;
         $this->interval     = $interval;
         $this->ip           = $ip;
-
-        if (!$ip && isset($_SERVER['REMOTE_ADDR'])) {
-            $this->ip = $_SERVER['REMOTE_ADDR'];
-        }
     }
 
     /**
@@ -127,6 +123,10 @@ class Core
             $event      = isset($get['event'])      ? $get['event']     : '';
             $compact    = isset($get['compact'])    ? $get['compact']   : false;
             $no_peer_id = isset($get['no_peer_id']) ? $get['no_peer_id']: false;
+
+            if (empty($ip) && isset($_SERVER['REMOTE_ADDR'])) {
+                $ip = $_SERVER['REMOTE_ADDR'];
+            }
 
             if (!filter_var($ip, FILTER_VALIDATE_IP)) {
                 return $this->trackerFailure("Invalid IP-address");
