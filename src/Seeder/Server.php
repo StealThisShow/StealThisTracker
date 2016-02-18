@@ -46,7 +46,7 @@ class Server extends Concurrency\Forker
      *
      * Be careful with the timeout of DB connections!
      */
-    const ANNOUNCE_INTERVAL     = 30;
+    const ANNOUNCE_INTERVAL = 30;
 
     /**
      * To prevent possible memory leaks, every fork terminates after X iterations.
@@ -114,7 +114,7 @@ class Server extends Concurrency\Forker
             $this->persistence->resetAfterForking();
         }
 
-        switch($slot) {
+        switch ($slot) {
             case 0:
                 $this->peer->start();
                 break;

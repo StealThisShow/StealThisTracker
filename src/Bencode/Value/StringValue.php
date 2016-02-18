@@ -21,7 +21,7 @@ class StringValue extends AbstractValue
      *
      * @throws Error\InvalidType In the value is not a string.
      */
-    public function __construct( $value )
+    public function __construct($value)
     {
         if (!is_string($value)) {
             throw new Error\InvalidType(

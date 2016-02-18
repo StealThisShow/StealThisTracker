@@ -86,7 +86,7 @@ abstract class Forker
         // session/process group, the IDs will collide.
         $pid = $this->fork();
         if ($pid > 0) {
-             // We are in the parent, so we terminate.
+            // We are in the parent, so we terminate.
             exit(0);
         }
 
@@ -105,7 +105,7 @@ abstract class Forker
         // to "accidentally" open a controlling terminal for itself (System V OSs).
         $pid = $this->fork();
         if ($pid > 0) {
-             // We are in the parent, so we terminate.
+            // We are in the parent, so we terminate.
             exit(0);
         }
 

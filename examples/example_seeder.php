@@ -20,7 +20,7 @@ use \StealThisShow\StealThisTracker\Logger\File;
 // /usr/bin/php example_seeder.php
 
 // Composer autoloader
-require dirname(__FILE__).'/../vendor/autoload.php';
+require dirname(__FILE__) . '/../vendor/autoload.php';
 
 // Persistence object implementing PersistenceInterface.
 // We use Pdo here.

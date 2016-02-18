@@ -18,7 +18,7 @@ use \StealThisShow\StealThisTracker\File\File;
 // -----------------------------------------------------------
 
 // Composer autoloader
-require dirname(__FILE__).'/../vendor/autoload.php';
+require dirname(__FILE__) . '/../vendor/autoload.php';
 
 // Persistence object implementing PersistenceInterface.
 // We use Pdo here.
