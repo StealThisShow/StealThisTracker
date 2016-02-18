@@ -31,6 +31,7 @@ CREATE TABLE `stealthistracker_torrents` (
   `url_list` BLOB NOT NULL, -- URL list of the torrent (BEP 19).
   `announce_list` BLOB NOT NULL, -- Announce list of the torrent (BEP 12).
   `nodes` BLOB NOT NULL, -- DHT nodes of the torrent (BEP 5).
+  `created_by` TEXT, -- Created by.
   `status` NOT NULL DEFAULT 'active', -- Activity status of the torrent.
   PRIMARY KEY (`info_hash`)
 );

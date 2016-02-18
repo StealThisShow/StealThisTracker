@@ -147,7 +147,8 @@ SET
     `private`       = :private,
     `announce_list` = :announce_list,
     `nodes`         = :nodes,
-    `url_list`      = :url_list
+    `url_list`      = :url_list,
+    `created_by`    = :created_by
 WHERE
     `info_hash` = :info_hash
 SQL;
@@ -165,7 +166,8 @@ INSERT INTO
     `private`,
     `announce_list`,
     `nodes`,
-    `url_list`
+    `url_list`,
+    `created_by`
 )
 VALUES
 (
@@ -178,7 +180,8 @@ VALUES
     :private,
     :announce_list,
     :nodes,
-    :url_list
+    :url_list,
+    :created_by
 )
 SQL;
         }
@@ -192,6 +195,7 @@ SQL;
                 ':name'              => $torrent->name,
                 ':path'              => $torrent->file_path,
                 ':private'           => $torrent->private,
+                ':created_by'        => $torrent->created_by,
                 ':announce_list'     => serialize($torrent->announce_list),
                 ':nodes'             => serialize($torrent->nodes),
                 ':url_list'          => serialize($torrent->url_list)
@@ -221,7 +225,8 @@ SELECT
     `private`,
     `announce_list`,
     `nodes`,
-    `url_list`
+    `url_list`,
+    `created_by`
 FROM
     `stealthistracker_torrents`
 WHERE
@@ -249,6 +254,7 @@ SQL;
                 ->setAnnounceList(unserialize($row['announce_list']))
                 ->setNodes(unserialize($row['nodes']))
                 ->setUrlList(unserialize($row['url_list']))
+                ->setCreatedBy($row['created_by'])
                 ->setInfoHash($row['info_hash']);
         }
         return null;
