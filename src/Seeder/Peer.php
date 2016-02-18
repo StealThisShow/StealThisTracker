@@ -93,12 +93,12 @@ class Peer extends Concurrency\Forker
     /**
      * Default address to bind the listening socket to.
      */
-    const DEFAULT_ADDRESS       = '127.0.0.1';
+    const DEFAULT_ADDRESS = '127.0.0.1';
 
     /**
      * Default port to bind the listening socket to.
      */
-    const DEFAULT_PORT          = 6881;
+    const DEFAULT_PORT = 6881;
 
     /**
      * To prevent possible memory leaks, every fork terminates after X iterations.
@@ -271,8 +271,7 @@ class Peer extends Concurrency\Forker
                     } else {
                         $this->answer($client);
                     }
-                }
-                catch (Error\CloseConnection $e) {
+                } catch (Error\CloseConnection $e) {
                     $this->logger->logMessage(
                         "Closing connection with peer {$client->getPeerId()} with " .
                         "address {$client->getAddress()}:{$client->getPort()}, " .

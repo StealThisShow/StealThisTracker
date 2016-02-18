@@ -119,10 +119,10 @@ class Core
             }
 
             // IP address might come from $_GET.
-            $ip         = isset($get['ip'])         ? $get['ip']        : $this->ip;
-            $event      = isset($get['event'])      ? $get['event']     : '';
-            $compact    = isset($get['compact'])    ? $get['compact']   : false;
-            $no_peer_id = isset($get['no_peer_id']) ? $get['no_peer_id']: false;
+            $ip         = isset($get['ip']) ? $get['ip'] : $this->ip;
+            $event      = isset($get['event']) ? $get['event'] : '';
+            $compact    = isset($get['compact']) ? $get['compact'] : false;
+            $no_peer_id = isset($get['no_peer_id']) ? $get['no_peer_id'] : false;
 
             if (empty($ip) && isset($_SERVER['REMOTE_ADDR'])) {
                 $ip = $_SERVER['REMOTE_ADDR'];
@@ -231,7 +231,7 @@ class Core
                 return $this->trackerFailure("Torrent does not exist.");
             }
 
-            $peer_id = isset($get['peer_id']) ? $get['peer_id']: '';
+            $peer_id = isset($get['peer_id']) ? $get['peer_id'] : '';
 
             $peer_stats = $this->persistence->getPeerStats(
                 $get['info_hash'],

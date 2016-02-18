@@ -335,7 +335,7 @@ class Torrent
     public function setLength($length)
     {
         if (!isset($this->length)) {
-            $this->length = (int)$length;
+            $this->length = (int) $length;
         }
         return $this;
     }
@@ -352,7 +352,7 @@ class Torrent
     public function setPrivate($private)
     {
         if (!isset($this->private)) {
-            $this->private = (bool)$private;
+            $this->private = (bool) $private;
         }
         return $this;
     }
@@ -393,7 +393,7 @@ class Torrent
                 return $this->name;
             case 'file_path':
                 if (!isset($this->file_path)) {
-                    $this->file_path = (string)$this->file;
+                    $this->file_path = (string) $this->file;
                 }
                 return $this->file_path;
             case 'info_hash':
@@ -433,7 +433,7 @@ class Torrent
      */
     public function __isset($attribute)
     {
-        switch($attribute) {
+        switch ($attribute) {
             case 'pieces':
             case 'length':
             case 'name':
