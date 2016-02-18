@@ -90,17 +90,17 @@ class Client
     /**
      * Used in self::addStatBytes $type argument.
      */
-    const STAT_BYTES_SENT       = 1;
+    const STAT_BYTES_SENT = 1;
 
     /**
      * Used in self::addStatBytes $type argument.
      */
-    const STAT_BYTES_RECEIVED   = 2;
+    const STAT_BYTES_RECEIVED = 2;
 
     /**
      * Used in self::addStatBytes $type argument.
      */
-    const STAT_DATA_SENT        = 3;
+    const STAT_DATA_SENT = 3;
 
     /**
      * Start accepting incoming connections on the listening socket.

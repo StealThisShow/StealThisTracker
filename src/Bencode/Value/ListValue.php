@@ -20,7 +20,7 @@ class ListValue extends Container
      *
      * @return void
      */
-    public function contain( AbstractValue $sub_value, StringValue $key = null )
+    public function contain(AbstractValue $sub_value, StringValue $key = null)
     {
         $this->value[] = $sub_value;
     }

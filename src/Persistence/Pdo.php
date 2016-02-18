@@ -395,7 +395,7 @@ WHERE
 SQL;
         $statement = $this->query($sql, array(':info_hash' => $info_hash));
 
-        return $statement->fetchColumn(0) ? true:false;
+        return $statement->fetchColumn(0) ? true : false;
     }
 
     /**
@@ -611,7 +611,7 @@ SQL;
             $result = call_user_func_array(
                 array($this->connection(), $function), $args
             );
-        } catch(\PDOException $e) {
+        } catch (\PDOException $e) {
             if ($e->getCode() != 'HY000'
                 || !stristr($e->getMessage(), 'server has gone away')
             ) {
@@ -639,7 +639,7 @@ SQL;
         $stmt = $this->prepare($sql);
         if (!empty($params)) {
             foreach ($params as $key => $value) {
-                $param  = (is_int($key) ? ($key + 1) : $key);
+                $param = (is_int($key) ? ($key + 1) : $key);
                 $stmt->bindParam($param, $params[$key]);
             }
         }

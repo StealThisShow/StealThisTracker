@@ -25,7 +25,7 @@ class Dictionary extends Container
      *
      * @return void
      */
-    public function contain( AbstractValue $sub_value, StringValue $key = null )
+    public function contain(AbstractValue $sub_value, StringValue $key = null)
     {
         if (!isset($key)) {
             throw new Error\InvalidType(
@@ -51,7 +51,7 @@ class Dictionary extends Container
         $string_represent = "d";
         foreach ($this->value as $key => $sub_value) {
             $key = new StringValue($key);
-            $string_represent .=  $key . $sub_value;
+            $string_represent .= $key . $sub_value;
         }
         return $string_represent . "e";
     }
