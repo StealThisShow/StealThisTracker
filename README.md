@@ -1,4 +1,4 @@
-# StealThisTracker 0.1.2-alpha
+# StealThisTracker 0.1.3-alpha
 [![Build Status](https://api.travis-ci.org/StealThisShow/StealThisTracker.svg?branch=dev)](https://travis-ci.org/StealThisShow/StealThisTracker)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/StealThisShow/StealThisTracker/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/StealThisShow/StealThisTracker/?branch=dev)
 [![Code Coverage](https://scrutinizer-ci.com/g/StealThisShow/StealThisTracker/badges/coverage.png?b=dev)](https://scrutinizer-ci.com/g/StealThisShow/StealThisTracker/?branch=dev)
