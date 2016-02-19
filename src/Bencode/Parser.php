@@ -95,9 +95,9 @@ class Parser
      * @return void
      */
     protected function setValue(
-        &$possible_key,
-        Value\AbstractValue &$last_container = null,
-        Value\AbstractValue &$value = null
+        & $possible_key,
+        Value\AbstractValue & $last_container = null,
+        Value\AbstractValue & $value = null
     ) {
         switch ($this->string[$this->pointer]) {
             case 'i':
