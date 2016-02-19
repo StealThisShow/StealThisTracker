@@ -84,7 +84,7 @@ abstract class Forker
         // It is because session group and process group has the same ID as their
         // leader process. Now if you assign the leader process to another
         // session/process group, the IDs will collide.
-        $pid = $this->fork(true);
+        $this->fork(true);
 
         // Becoming leader of a new session/process group - detaching from shell.
         $sid = posix_setsid();
@@ -99,7 +99,7 @@ abstract class Forker
         // Forking again for not being session/process group leaders
         // will disallow the process
         // to "accidentally" open a controlling terminal for itself (System V OSs).
-        $pid = $this->fork(true);
+        $this->fork(true);
 
         // Releasing current directory and closing open
         // file descriptors (standard IO).
