@@ -525,26 +525,43 @@ class Torrent
     {
         $torrent_data = array();
         // Info
-        $torrent_data['info'] = $this->getInfo();
-        // Announce-list
-        if (!empty($this->announce_list)) {
-            $torrent_data['announce-list'] = Utils::listToListOfLists(
-                $this->announce_list
+        self::addDataToTorrentFile($torrent_data, 'info', $this->getInfo());
+        // Announce-list/Nodes
+        if (self::addDataToTorrentFile(
+            $torrent_data, 'announce-list',
+            Utils::listToListOfLists($this->announce_list)
+        )) {
+            self::addDataToTorrentFile(
+                $torrent_data, 'announce',
+                reset($this->announce_list)
             );
-            $torrent_data['announce'] = reset($this->announce_list);
-        } elseif (!empty($this->nodes)) {
-            // DHT nodes
-            $torrent_data['nodes'] = $this->nodes;
+        } else {
+            self::addDataToTorrentFile($torrent_data, 'nodes', $this->nodes);
         }
         // Url-list
-        if (!empty($this->url_list)) {
-            $torrent_data['url-list'] = $this->url_list;
-        }
+        self::addDataToTorrentFile($torrent_data, 'url-list', $this->url_list);
         // Created by
-        if (!empty($this->created_by)) {
-            $torrent_data['created by'] = $this->created_by;
-        }
+        self::addDataToTorrentFile($torrent_data, 'created-by', $this->created_by);
         return Builder::build($torrent_data);
+    }
+
+    /**
+     * Add data to torrent file
+     *
+     * @param array  $torrent_data  Torrent data
+     * @param string $attribute_key Attribute key
+     * @param mixed  $attribute     Attribute
+     *
+     * @return bool
+     */
+    protected static function addDataToTorrentFile(
+        array &$torrent_data, $attribute_key, $attribute
+    ) {
+        if (!empty($attribute)) {
+            $torrent_data[$attribute_key] = $attribute;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -556,18 +573,39 @@ class Torrent
     public function createMagnetUri()
     {
         $magnet = 'magnet:?xt=urn:btih:'
-        . (string) $this->__get('info_hash');
+        . (string) $this->getInfoHashReadable();
         // Add trackers
-        if (!empty($this->announce_list)) {
-            $magnet .= '&tr='
-                . implode('&tr=', array_map('urlencode', $this->announce_list));
-        }
+        $magnet.= $this->arrayToUri($this->announce_list, 'tr');
         // Add webseeds
-        if (!empty($this->url_list)) {
-            $magnet .= '&ws='
-                . implode('&ws=', array_map('urlencode', $this->url_list));
-        }
+        $magnet.= $this->arrayToUri($this->url_list, 'ws');
         return $magnet;
+    }
+
+    /**
+     * Get the info hash in human readable format
+     *
+     * @return string
+     */
+    protected function getInfoHashReadable()
+    {
+        $info_hash_readable = unpack('H*', $this->__get('info_hash'));
+        return current($info_hash_readable);
+    }
+
+    /**
+     * Adds an array to the URI
+     *
+     * @param array  $array The array
+     * @param string $key   The key
+     *
+     * @return string
+     */
+    protected function arrayToUri(array $array, $key)
+    {
+        if (!empty($array)) {
+            return "&$key=" . implode("&$key=", array_map('urlencode', $array));
+        }
+        return '';
     }
 
     /**
