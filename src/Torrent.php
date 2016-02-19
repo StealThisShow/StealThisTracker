@@ -575,9 +575,9 @@ class Torrent
         $magnet = 'magnet:?xt=urn:btih:'
         . (string) $this->getInfoHashReadable();
         // Add trackers
-        $magnet.= $this->arrayToUri($this->announce_list, 'tr');
+        $magnet .= $this->arrayToUri($this->announce_list, 'tr');
         // Add webseeds
-        $magnet.= $this->arrayToUri($this->url_list, 'ws');
+        $magnet .= $this->arrayToUri($this->url_list, 'ws');
         return $magnet;
     }
 

@@ -46,49 +46,7 @@ class Parser
                 );
             }
 
-            switch ($this->string[$this->pointer]) {
-                case 'i':
-                    $value = $this->parseValueInteger();
-                    break;
-                case 'l':
-                    $value = $this->parseValueList();
-                    break;
-                case 'd':
-                    $value = $this->parseValueDictionary();
-                    break;
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    $value = $this->parseValueString();
-                    break;
-                case 'e':
-                    if (0 == count($this->container_stack)) {
-                        $this->throwParseErrorAtPointer("Unexpected ending.");
-                    }
-                    if (isset($possible_key)) {
-                        // If we have a saved possible key,
-                        // it means that the number of values in
-                        // a dictionary is odd, that is, there is no value for a key.
-                        $this->throwParseErrorAtPointer("Incomplete dictionary.");
-                    }
-
-                    // We remove the deepest container from the stack.
-                    // This might be the final value.
-                    $last_container = array_pop($this->container_stack);
-                    $value = null;
-                    ++$this->pointer;
-
-                    break;
-                default:
-                    $this->throwParseErrorAtPointer("Invalid value.");
-            }
+            $this->setValue($possible_key, $last_container, $value);
 
             // We store the current value in the current
             // deepest container (list/dictionary).
@@ -124,6 +82,66 @@ class Parser
 
         // If the whole string is a scalar (int/string), it's OK.
         return isset($last_container) ? $last_container : $value;
+    }
+
+    /**
+     * Set the value
+     *
+     * @param string              $possible_key   Possible key
+     * @param Value\AbstractValue $last_container Container
+     * @param Value\AbstractValue $value          Value
+     *
+     * @throws Error\Parse
+     * @return void
+     */
+    protected function setValue(
+        &$possible_key,
+        Value\AbstractValue &$last_container,
+        Value\AbstractValue &$value
+    ) {
+        switch ($this->string[$this->pointer]) {
+            case 'i':
+                $value = $this->parseValueInteger();
+                break;
+            case 'l':
+                $value = $this->parseValueList();
+                break;
+            case 'd':
+                $value = $this->parseValueDictionary();
+                break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                $value = $this->parseValueString();
+                break;
+            case 'e':
+                if (0 == count($this->container_stack)) {
+                    $this->throwParseErrorAtPointer("Unexpected ending.");
+                }
+                if (isset($possible_key)) {
+                    // If we have a saved possible key,
+                    // it means that the number of values in
+                    // a dictionary is odd, that is, there is no value for a key.
+                    $this->throwParseErrorAtPointer("Incomplete dictionary.");
+                }
+
+                // We remove the deepest container from the stack.
+                // This might be the final value.
+                $last_container = array_pop($this->container_stack);
+                $value = null;
+                ++$this->pointer;
+
+                break;
+            default:
+                $this->throwParseErrorAtPointer("Invalid value.");
+        }
     }
 
     /**
