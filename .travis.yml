@@ -4,9 +4,9 @@ php:
   - 5.4
   - 5.5
   - 5.6
-  - 7
-  # Tests cannot run on HHVM and PHP nightly with current config
+  # Tests cannot run on HHVM and PHP 7 and nightly with current config
   #- hhvm
+  #- 7
   #- nightly
 before_install:
   - sudo apt-get -qq update
