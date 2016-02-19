@@ -121,5 +121,5 @@ interface PersistenceInterface
      * @return array With keys 'complete' and 'incomplete'
      *               having counters for each group.
      */
-    public function getPeerStats($info_hash, $peer_id);
+    public function getPeerStats($info_hash, $peer_id = '');
 }

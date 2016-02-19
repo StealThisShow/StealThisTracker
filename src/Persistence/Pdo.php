@@ -500,7 +500,7 @@ SQL;
      * @return array With keys 'complete', 'incomplete' and 'downloaded'
      *               having counters for each group.
      */
-    public function getPeerStats($info_hash, $peer_id)
+    public function getPeerStats($info_hash, $peer_id = '')
     {
         $sql = <<<SQL
 SELECT
