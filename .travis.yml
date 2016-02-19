@@ -4,6 +4,7 @@ php:
   - 5.4
   - 5.5
   - 5.6
+  - 7
   # Tests cannot run on HHVM and PHP nightly with current config
   #- hhvm
   #- nightly
@@ -24,4 +25,7 @@ before_script:
   - composer self-update
   - composer install
 script:
-  - phpunit --configuration phpunit.xml
+  - phpunit --configuration phpunit.xml --coverage-clover=coverage.clover
+after_script:
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
