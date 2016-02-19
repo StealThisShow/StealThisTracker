@@ -357,32 +357,15 @@ class Torrent
         switch ($attribute)
         {
             case 'pieces':
-                if (!isset($this->pieces)) {
-                    $this->pieces = $this->file->getHashesForPieces(
-                        $this->size_piece
-                    );
-                }
-                return $this->pieces;
+                return $this->getPieces();
             case 'length':
-                if (!isset($this->length)) {
-                    $this->length = $this->file->size();
-                }
-                return (int) $this->length;
+                return $this->getLength();
             case 'name':
-                if (!isset($this->name)) {
-                    $this->name = $this->file->basename();
-                }
-                return $this->name;
+                return $this->getName();
             case 'file_path':
-                if (!isset($this->file_path)) {
-                    $this->file_path = (string) $this->file;
-                }
-                return $this->file_path;
+                return $this->getFilePath();
             case 'info_hash':
-                if (!isset($this->info_hash)) {
-                    $this->info_hash = $this->calculateInfoHash();
-                }
-                return $this->info_hash;
+                return $this->getInfoHash();
             case 'size_piece':
                 return (int) $this->size_piece;
             case 'private':
@@ -402,6 +385,74 @@ class Torrent
                     "Can't access attribute $attribute of " . __CLASS__
                 );
         }
+    }
+
+    /**
+     * Returns pieces
+     *
+     * @return string
+     */
+    protected function getPieces()
+    {
+        if (!isset($this->pieces)) {
+            $this->pieces = $this->file->getHashesForPieces(
+                $this->size_piece
+            );
+        }
+        return $this->pieces;
+    }
+
+    /**
+     * Returns length
+     *
+     * @return int
+     * @throws File\Error\Unreadable
+     */
+    protected function getLength()
+    {
+        if (!isset($this->length)) {
+            $this->length = $this->file->size();
+        }
+        return (int) $this->length;
+    }
+
+    /**
+     * Returns name
+     *
+     * @return string
+     */
+    protected function getName()
+    {
+        if (!isset($this->name)) {
+            $this->name = $this->file->basename();
+        }
+        return $this->name;
+    }
+
+    /**
+     * Returns file path
+     *
+     * @return string
+     */
+    protected function getFilePath()
+    {
+        if (!isset($this->file_path)) {
+            $this->file_path = (string) $this->file;
+        }
+        return $this->file_path;
+    }
+
+    /**
+     * Returns info hash
+     *
+     * @return string
+     */
+    protected function getInfoHash()
+    {
+        if (!isset($this->info_hash)) {
+            $this->info_hash = $this->calculateInfoHash();
+        }
+        return $this->info_hash;
     }
 
     /**
@@ -473,18 +524,14 @@ class Torrent
     public function createTorrentFile()
     {
         $torrent_data = array();
-
         // Info
         $torrent_data['info'] = $this->getInfo();
-
         // Announce-list
         if (!empty($this->announce_list)) {
-            // Announce-list is a list of lists of strings.
-            $announce_list = Utils::listToListOfLists($this->announce_list);
-            // Reset twice because list of lists
-            $first = reset($announce_list);
-            $torrent_data['announce'] = reset($first);
-            $torrent_data['announce-list'] = $announce_list;
+            $torrent_data['announce-list'] = Utils::listToListOfLists(
+                $this->announce_list
+            );
+            $torrent_data['announce'] = reset($this->announce_list);
         } elseif (!empty($this->nodes)) {
             // DHT nodes
             $torrent_data['nodes'] = $this->nodes;
@@ -508,8 +555,19 @@ class Torrent
      */
     public function createMagnetUri()
     {
-        // TODO: Add additional data to magnet URI (trackers, webseeds etc.)
-        return 'magnet:?xt=urn:btih:' . (string) $this->__get('info_hash');
+        $magnet = 'magnet:?xt=urn:btih:'
+        . (string) $this->__get('info_hash');
+        // Add trackers
+        if (!empty($this->announce_list)) {
+            $magnet .= '&tr='
+                . implode('&tr=', array_map('urlencode', $this->announce_list));
+        }
+        // Add webseeds
+        if (!empty($this->url_list)) {
+            $magnet .= '&ws='
+                . implode('&ws=', array_map('urlencode', $this->url_list));
+        }
+        return $magnet;
     }
 
     /**
@@ -532,7 +590,6 @@ class Torrent
                 'Invalid block boundary: ' . $block_begin . ', ' . $length
             );
         }
-
         return $this->file->readBlock(
             ($piece_index * $this->size_piece) + $block_begin,
             $length

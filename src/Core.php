@@ -130,9 +130,7 @@ class Core
             if ($failure = $this->isInvalidAnnounceRequest($get)) {
                 return $failure;
             }
-
             $response = $this->addAnnounce($get);
-
             return Bencode\Builder::build($response);
         } catch (Error $e) {
             trigger_error(
@@ -192,7 +190,6 @@ class Core
         } elseif (!$this->persistence->hasTorrent($get['info_hash'])) {
             return $this->trackerFailure("Torrent does not exist.");
         }
-
         return false;
     }
 
@@ -208,7 +205,6 @@ class Core
         $event      = isset($get['event']) ? $get['event'] : '';
         $compact    = isset($get['compact']) ? $get['compact'] : false;
         $no_peer_id = isset($get['no_peer_id']) ? $get['no_peer_id'] : false;
-
         $this->persistence->saveAnnounce(
             $get['info_hash'],
             $get['peer_id'],
@@ -223,7 +219,6 @@ class Core
             // double-interval otherwise.
             ('stopped' == $event) ? 0 : $this->interval * 2
         );
-
         return $this->getAnnounceResponse($get, $compact, $no_peer_id);
     }
 
@@ -249,7 +244,6 @@ class Core
             $get['info_hash'],
             $get['peer_id']
         );
-
         return array(
             'interval'      => $this->interval,
             'complete'      => intval($peer_stats['complete']),
@@ -273,9 +267,7 @@ class Core
             if ($failure = $this->isInvalidScrapeRequest($get)) {
                 return $failure;
             }
-
             $response = $this->getScrapeResponse($get);
-
             return Bencode\Builder::build($response);
         } catch (Error $e) {
             trigger_error(
@@ -305,7 +297,6 @@ class Core
         } elseif (!$this->persistence->hasTorrent($get['info_hash'])) {
             return $this->trackerFailure("Torrent does not exist.");
         }
-
         return false;
     }
 
@@ -321,7 +312,6 @@ class Core
         $peer_stats = $this->persistence->getPeerStats(
             $get['info_hash']
         );
-
         return array(
             'files' => array(
                 $peer_stats['info_hash'] => array(
