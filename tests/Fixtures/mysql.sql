@@ -24,6 +24,16 @@ CREATE TABLE IF NOT EXISTS `stealthistracker_peers` (
   KEY `Index 3` (`bytes_left`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Current peers for torrents.';
 
+# Dumping structure for table stealthistracker_stats
+CREATE TABLE IF NOT EXISTS `stealthistracker_stats` (
+  `info_hash` binary(20) NOT NULL COMMENT 'Info hash.',
+  `complete` int(10) unsigned DEFAULT NULL COMMENT 'Number of seeders.',
+  `incomplete` int(10) unsigned DEFAULT NULL COMMENT 'Number of leechers.',
+  `downloaded` int(10) unsigned DEFAULT NULL COMMENT 'Number of downloads.',
+  `timestamp` timestamp NULL DEFAULT NULL COMMENT 'Timestamp.',
+  PRIMARY KEY (`info_hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Stats for torrents.';
+
 # Dumping structure for table stealthistracker_torrents
 CREATE TABLE IF NOT EXISTS `stealthistracker_torrents` (
   `info_hash` binary(20) NOT NULL COMMENT 'Info hash.',
