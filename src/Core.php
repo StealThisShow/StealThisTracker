@@ -307,7 +307,7 @@ class Core
      */
     protected function getScrapeResponse(array $get)
     {
-        $peer_stats = $this->persistence->getPeerStats($get['info_hash']);
+        $peer_stats = $this->persistence->getPeerStats($get['info_hash'], true);
         return array(
             'files' => array(
                 $peer_stats['info_hash'] => array(

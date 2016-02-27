@@ -496,11 +496,12 @@ SQL;
      * Only considers peers which are not expired (see TTL).
      *
      * @param string $info_hash Info hash of the torrent.
+     * @param bool   $downloads Whether to include downloads
      *
      * @return array With keys 'complete', 'incomplete' and 'downloaded'
      *               having counters for each group.
      */
-    public function getPeerStats($info_hash)
+    public function getPeerStats($info_hash, $downloads = false)
     {
         $sql = <<<SQL
 SELECT
@@ -530,7 +531,10 @@ SQL;
         $row = $statement->fetch();
 
         $row['info_hash'] = $info_hash;
-        $row['downloaded'] = $this->getDownloads($info_hash);
+
+        if ($downloads) {
+            $row['downloaded'] = $this->getDownloads($info_hash);
+        }
 
         return $row;
     }
