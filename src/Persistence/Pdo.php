@@ -550,11 +550,13 @@ SQL;
     {
         $sql = <<<SQL
 SELECT
-    COALESCE(SUM(`status` = 'complete'), 0) AS 'downloaded'
+    COUNT(*) AS 'downloaded'
 FROM
     `stealthistracker_peers`
 WHERE
     `info_hash`           = :info_hash
+    AND
+    `status`              = 'complete'
 SQL;
 
         $statement = $this->query(
