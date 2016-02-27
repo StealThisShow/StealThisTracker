@@ -240,10 +240,8 @@ class Core
             ),
             $compact, $no_peer_id
         );
-        $peer_stats = $this->persistence->getPeerStats(
-            $get['info_hash'],
-            $get['peer_id']
-        );
+        $peer_stats = $this->persistence->getPeerStats($get['info_hash']);
+
         return array(
             'interval'      => $this->interval,
             'complete'      => intval($peer_stats['complete']),
@@ -309,9 +307,7 @@ class Core
      */
     protected function getScrapeResponse(array $get)
     {
-        $peer_stats = $this->persistence->getPeerStats(
-            $get['info_hash']
-        );
+        $peer_stats = $this->persistence->getPeerStats($get['info_hash']);
         return array(
             'files' => array(
                 $peer_stats['info_hash'] => array(

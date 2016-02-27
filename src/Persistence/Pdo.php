@@ -496,13 +496,11 @@ SQL;
      * Only considers peers which are not expired (see TTL).
      *
      * @param string $info_hash Info hash of the torrent.
-     * @param string $peer_id   Peer ID to exclude
-     *                          (peer ID of the client announcing).
      *
      * @return array With keys 'complete', 'incomplete' and 'downloaded'
      *               having counters for each group.
      */
-    public function getPeerStats($info_hash, $peer_id = '')
+    public function getPeerStats($info_hash)
     {
         $sql = <<<SQL
 SELECT
@@ -513,8 +511,6 @@ FROM
     `stealthistracker_peers`
 WHERE
     `info_hash`           = :info_hash
-    AND
-    `peer_id`             != :peer_id
 SQL;
 
         $now = new \DateTime();
@@ -522,7 +518,6 @@ SQL;
         $statement = $this->query(
             $sql, array(
                 ':info_hash'    => $info_hash,
-                ':peer_id'      => $peer_id,
                 ':now'          => $now->format('Y-m-d H:i:s'),
             )
         );

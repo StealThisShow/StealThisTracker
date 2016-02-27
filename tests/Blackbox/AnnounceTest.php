@@ -135,7 +135,7 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
         $parsed_response = $this->parseResponse($response);
 
         $this->assertEquals(0, $parsed_response['complete']);
-        $this->assertEquals(0, $parsed_response['incomplete']);
+        $this->assertEquals(1, $parsed_response['incomplete']);
         $this->assertEquals(array(), $parsed_response['peers']);
         $this->assertEquals(
             self::ANNOUNCE_INTERVAL,
