@@ -17,7 +17,6 @@ CREATE TABLE `stealthistracker_peers` (
 CREATE INDEX `index_info_hash` ON `stealthistracker_peers` (`info_hash`);
 CREATE INDEX `index_bytes_left` ON `stealthistracker_peers` (`bytes_left`);
 CREATE INDEX `index_expires` ON `stealthistracker_peers` (`expires`);
-CREATE INDEX `index_status` ON `stealthistracker_peers` (`status`);
 
 DROP TABLE IF EXISTS `stealthistracker_torrents`;
 

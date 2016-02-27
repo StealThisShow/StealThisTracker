@@ -15,4 +15,4 @@
 * 0.1.3-alpha
   * Added 'created by' attribute to persistence
   * Code optimizations
-  * Added index to 'expires' and 'status' columns of peers table to improve performance for large tables
+  * Added index to 'expires' column of peers table to improve performance for large tables
