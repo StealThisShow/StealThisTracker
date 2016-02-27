@@ -16,19 +16,7 @@ CREATE TABLE `stealthistracker_peers` (
 
 CREATE INDEX `index_info_hash` ON `stealthistracker_peers` (`info_hash`);
 CREATE INDEX `index_bytes_left` ON `stealthistracker_peers` (`bytes_left`);
-
-
-DROP TABLE IF EXISTS `stealthistracker_stats`;
-
-CREATE TABLE `stealthistracker_stats` (
-  -- Table to store torrent stats.
-  `info_hash` TEXT NOT NULL, -- Info hash.
-  `complete` UNSIGNED INT NOT NULL, -- Number of seeders.
-  `incomplete` UNSIGNED INT NOT NULL, -- Number of leechers.
-  `downloaded` UNSIGNED INT NOT NULL, -- Number of downloads.
-  `timestamp` TIMESTAMP DEFAULT NULL, -- Timestamp.
-  PRIMARY KEY (`info_hash`)
-);
+CREATE INDEX `index_expires` ON `stealthistracker_peers` (`expires`);
 
 DROP TABLE IF EXISTS `stealthistracker_torrents`;
 

@@ -21,18 +21,9 @@ CREATE TABLE IF NOT EXISTS `stealthistracker_peers` (
   `expires` timestamp NULL DEFAULT NULL COMMENT 'Timestamp when peer is considered as expired.',
   PRIMARY KEY (`peer_id`,`info_hash`),
   KEY `Index 2` (`info_hash`),
-  KEY `Index 3` (`bytes_left`)
+  KEY `Index 3` (`bytes_left`),
+  KEY `Index 4` (`expires`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Current peers for torrents.';
-
-# Dumping structure for table stealthistracker_stats
-CREATE TABLE IF NOT EXISTS `stealthistracker_stats` (
-  `info_hash` binary(20) NOT NULL COMMENT 'Info hash.',
-  `complete` int(10) unsigned DEFAULT NULL COMMENT 'Number of seeders.',
-  `incomplete` int(10) unsigned DEFAULT NULL COMMENT 'Number of leechers.',
-  `downloaded` int(10) unsigned DEFAULT NULL COMMENT 'Number of downloads.',
-  `timestamp` timestamp NULL DEFAULT NULL COMMENT 'Timestamp.',
-  PRIMARY KEY (`info_hash`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Stats for torrents.';
 
 # Dumping structure for table stealthistracker_torrents
 CREATE TABLE IF NOT EXISTS `stealthistracker_torrents` (

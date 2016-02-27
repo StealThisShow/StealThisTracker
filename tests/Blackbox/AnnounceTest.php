@@ -229,7 +229,7 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
             self::INFO_HASH,
             key($parsed_response['files'])
         );
-        /*$this->assertEquals(
+        $this->assertEquals(
             1,
             $first['complete']
         );
@@ -240,7 +240,7 @@ class AnnounceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             1,
             $first['downloaded']
-        );*/
+        );
     }
 
     /**

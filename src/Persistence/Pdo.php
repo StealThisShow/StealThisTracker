@@ -56,10 +56,10 @@ class Pdo implements PersistenceInterface, ResetWhenForking
     /**
      * Setting up object instance.
      *
-     * @param string $dsn      DSN
-     * @param string $username Username
-     * @param string $password Password
-     * @param array  $options  Options
+     * @param string $dsn             DSN
+     * @param string $username        Username
+     * @param string $password        Password
+     * @param array  $options         Options
      */
     public function __construct(
         $dsn,
@@ -67,11 +67,13 @@ class Pdo implements PersistenceInterface, ResetWhenForking
         $password = null,
         array $options = array()
     ) {
-        $this->dsn      = $dsn;
-        $this->username = $username;
-        $this->password = $password;
-        $this->options  = $options;
+        $this->dsn             = $dsn;
+        $this->username        = $username;
+        $this->password        = $password;
+        $this->options         = $options;
     }
+
+
 
     /**
      * Fluent setter for the username
@@ -502,10 +504,6 @@ SQL;
      */
     public function getPeerStats($info_hash, $peer_id = '')
     {
-        if ($cache = $this->getPeerStatsFromCache($info_hash)) {
-            return $cache;
-        }
-
         $sql = <<<SQL
 SELECT
     COALESCE(SUM(`bytes_left` = 0 AND (`expires` IS NULL OR `expires` > :now)), 0) AS 'complete',
@@ -531,126 +529,7 @@ SQL;
 
         $row = $statement->fetch();
 
-        $this->savePeerStats(
-            $info_hash,
-            $row['complete'],
-            $row['incomplete'],
-            $row['downloaded']
-        );
-
         $row['info_hash'] = $info_hash;
-
-        return $row;
-    }
-
-    /**
-     * Stores peer stats
-     *
-     * @param string $info_hash  Info hash
-     * @param int    $complete   Complete
-     * @param int    $incomplete Incomplete
-     * @param int    $downloaded Downloaded
-     *
-     * @return void
-     */
-    protected function savePeerStats($info_hash, $complete, $incomplete, $downloaded)
-    {
-        $sql = <<<SQL
-SELECT
-    1
-FROM
-    `stealthistracker_stats`
-WHERE
-    `info_hash` = :info_hash
-SQL;
-
-        $statement = $this->query(
-            $sql, array(
-                ':info_hash'    => $info_hash,
-            )
-        );
-
-        if ($statement->fetchColumn(0)) {
-            $sql = <<<SQL
-UPDATE
-    `stealthistracker_stats`
-SET
-    `complete`            = :complete,
-    `incomplete`          = :incomplete,
-    `downloaded`          = :downloaded,
-    `timestamp`           = :timestamp
-WHERE
-    `info_hash` = :info_hash
-SQL;
-        } else {
-            $sql = <<<SQL
-INSERT INTO
-    `stealthistracker_stats`
-(
-    `info_hash`,
-    `complete`,
-    `incomplete`,
-    `downloaded`,
-    `timestamp`
-)
-VALUES
-(
-    :info_hash,
-    :complete,
-    :incomplete,
-    :downloaded,
-    :timestamp
-)
-SQL;
-        }
-        $timestamp = new \DateTime();
-
-        $this->query(
-            $sql, array(
-                ':info_hash'  => $info_hash,
-                ':complete'   => $complete,
-                ':incomplete' => $incomplete,
-                ':downloaded' => $downloaded,
-                ':timestamp'  => $timestamp->format('Y-m-d H:i:s'),
-            )
-        );
-    }
-
-    /**
-     * Get the peer stats from cache
-     *
-     * @param string $info_hash The info hash
-     *
-     * @return mixed
-     */
-    protected function getPeerStatsFromCache($info_hash)
-    {
-        $sql = <<<SQL
-SELECT
-    `info_hash`,
-    `complete`,
-    `incomplete`,
-    `downloaded`
-FROM
-    `stealthistracker_stats`
-WHERE
-    `info_hash`           = :info_hash
-    AND
-    `timestamp`           >= :timestamp
-SQL;
-
-        $timestamp = new \DateTime();
-        // Minus 60 seconds
-        $timestamp->sub(new \DateInterval('PT60S'));
-
-        $statement = $this->query(
-            $sql, array(
-                ':info_hash'    => $info_hash,
-                ':timestamp'    => $timestamp->format('Y-m-d H:i:s'),
-            )
-        );
-
-        $row = $statement->fetch();
 
         return $row;
     }
