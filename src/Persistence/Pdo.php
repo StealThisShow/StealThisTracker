@@ -504,13 +504,18 @@ SQL;
     {
         $sql = <<<SQL
 SELECT
-    COALESCE(SUM(`bytes_left` = 0 AND (`expires` IS NULL OR `expires` > :now)), 0) AS 'complete',
-    COALESCE(SUM(`bytes_left` != 0 AND (`expires` IS NULL OR `expires` > :now)), 0) AS 'incomplete',
-    COALESCE(SUM(`status` = 'complete'), 0) AS 'downloaded'
+    COALESCE(SUM(`bytes_left` = 0), 0) AS 'complete',
+    COALESCE(SUM(`bytes_left` != 0), 0) AS 'incomplete'
 FROM
     `stealthistracker_peers`
 WHERE
     `info_hash`           = :info_hash
+    AND
+    (
+        `expires` IS NULL
+        OR
+        `expires` > :now
+   )
 SQL;
 
         $now = new \DateTime();
@@ -525,8 +530,38 @@ SQL;
         $row = $statement->fetch();
 
         $row['info_hash'] = $info_hash;
+        $row['downloaded'] = $this->getDownloads($info_hash);
 
         return $row;
+    }
+
+    /**
+     * Get download count
+     *
+     * @param string $info_hash Info hash
+     *
+     * @return int
+     */
+    public function getDownloads($info_hash)
+    {
+        $sql = <<<SQL
+SELECT
+    COALESCE(SUM(`status` = 'complete'), 0) AS 'downloaded'
+FROM
+    `stealthistracker_peers`
+WHERE
+    `info_hash`           = :info_hash
+SQL;
+
+        $statement = $this->query(
+            $sql, array(
+                ':info_hash'    => $info_hash
+            )
+        );
+
+        $row = $statement->fetch();
+
+        return $row['downloaded'];
     }
 
     /**

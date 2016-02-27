@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS `stealthistracker_peers` (
   PRIMARY KEY (`peer_id`,`info_hash`),
   KEY `Index 2` (`info_hash`),
   KEY `Index 3` (`bytes_left`),
-  KEY `Index 4` (`expires`)
+  KEY `Index 4` (`expires`),
+  KEY `Index 5` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Current peers for torrents.';
 
 # Dumping structure for table stealthistracker_torrents
