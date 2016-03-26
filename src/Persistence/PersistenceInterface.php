@@ -115,11 +115,9 @@ interface PersistenceInterface
      * Only considers peers which are not expired (see TTL).
      *
      * @param string $info_hash Info hash of the torrent.
-     * @param string $peer_id   Peer ID to exclude
-     *                          (peer ID of the client announcing).
      *
      * @return array With keys 'complete' and 'incomplete'
      *               having counters for each group.
      */
-    public function getPeerStats($info_hash, $peer_id);
+    public function getPeerStats($info_hash);
 }

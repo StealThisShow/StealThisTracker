@@ -21,7 +21,7 @@ class Integer extends AbstractValue
      *
      * @throws Error\InvalidType In the value is not an integer.
      */
-    public function __construct( $value )
+    public function __construct($value)
     {
         if (!(is_numeric($value) && is_int(($value + 0)))) {
             throw new Error\InvalidType("Invalid integer value: $value");

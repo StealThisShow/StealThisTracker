@@ -23,7 +23,7 @@ class Builder
      * @throws Error\Build
      * @return Value\AbstractValue
      */
-    static public function build($input)
+    public static function build($input)
     {
         if (is_int($input)) {
             return new Value\Integer($input);
@@ -57,7 +57,7 @@ class Builder
      *
      * @return boolean True if the array looks like associative.
      */
-    static public function isDictionary(array $array)
+    public static function isDictionary(array $array)
     {
         // Checking if the keys are ordered numbers starting from 0.
         return array_keys($array) !== range(0, (count($array) - 1));

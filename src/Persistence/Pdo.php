@@ -13,6 +13,8 @@ use StealThisShow\StealThisTracker\Torrent;
  * @subpackage Persistence
  * @author     StealThisShow <info@stealthisshow.com>
  * @license    https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ *
+ * @method \PDOStatement prepare(string $sql) PDO prepare
  */
 class Pdo implements PersistenceInterface, ResetWhenForking
 {
@@ -54,10 +56,10 @@ class Pdo implements PersistenceInterface, ResetWhenForking
     /**
      * Setting up object instance.
      *
-     * @param string $dsn      DSN
-     * @param string $username Username
-     * @param string $password Password
-     * @param array  $options  Options
+     * @param string $dsn             DSN
+     * @param string $username        Username
+     * @param string $password        Password
+     * @param array  $options         Options
      */
     public function __construct(
         $dsn,
@@ -65,11 +67,13 @@ class Pdo implements PersistenceInterface, ResetWhenForking
         $password = null,
         array $options = array()
     ) {
-        $this->dsn      = $dsn;
-        $this->username = $username;
-        $this->password = $password;
-        $this->options  = $options;
+        $this->dsn             = $dsn;
+        $this->username        = $username;
+        $this->password        = $password;
+        $this->options         = $options;
     }
+
+
 
     /**
      * Fluent setter for the username
@@ -147,7 +151,8 @@ SET
     `private`       = :private,
     `announce_list` = :announce_list,
     `nodes`         = :nodes,
-    `url_list`      = :url_list
+    `url_list`      = :url_list,
+    `created_by`    = :created_by
 WHERE
     `info_hash` = :info_hash
 SQL;
@@ -165,7 +170,8 @@ INSERT INTO
     `private`,
     `announce_list`,
     `nodes`,
-    `url_list`
+    `url_list`,
+    `created_by`
 )
 VALUES
 (
@@ -178,7 +184,8 @@ VALUES
     :private,
     :announce_list,
     :nodes,
-    :url_list
+    :url_list,
+    :created_by
 )
 SQL;
         }
@@ -192,6 +199,7 @@ SQL;
                 ':name'              => $torrent->name,
                 ':path'              => $torrent->file_path,
                 ':private'           => $torrent->private,
+                ':created_by'        => $torrent->created_by,
                 ':announce_list'     => serialize($torrent->announce_list),
                 ':nodes'             => serialize($torrent->nodes),
                 ':url_list'          => serialize($torrent->url_list)
@@ -221,7 +229,8 @@ SELECT
     `private`,
     `announce_list`,
     `nodes`,
-    `url_list`
+    `url_list`,
+    `created_by`
 FROM
     `stealthistracker_torrents`
 WHERE
@@ -249,6 +258,7 @@ SQL;
                 ->setAnnounceList(unserialize($row['announce_list']))
                 ->setNodes(unserialize($row['nodes']))
                 ->setUrlList(unserialize($row['url_list']))
+                ->setCreatedBy($row['created_by'])
                 ->setInfoHash($row['info_hash']);
         }
         return null;
@@ -387,7 +397,7 @@ WHERE
 SQL;
         $statement = $this->query($sql, array(':info_hash' => $info_hash));
 
-        return $statement->fetchColumn(0);
+        return $statement->fetchColumn(0) ? true : false;
     }
 
     /**
@@ -486,26 +496,27 @@ SQL;
      * Only considers peers which are not expired (see TTL).
      *
      * @param string $info_hash Info hash of the torrent.
-     * @param string $peer_id   Peer ID to exclude
-     *                          (peer ID of the client announcing).
+     * @param bool   $downloads Whether to include downloads
      *
      * @return array With keys 'complete', 'incomplete' and 'downloaded'
      *               having counters for each group.
      */
-    public function getPeerStats($info_hash, $peer_id)
+    public function getPeerStats($info_hash, $downloads = false)
     {
         $sql = <<<SQL
 SELECT
-    `info_hash`,
-    COALESCE(SUM(`bytes_left` = 0 AND (`expires` IS NULL OR `expires` > :now)), 0) AS 'complete',
-    COALESCE(SUM(`bytes_left` != 0 AND (`expires` IS NULL OR `expires` > :now)), 0) AS 'incomplete',
-    COALESCE(SUM(`status` = 'complete'), 0) AS 'downloaded'
+    COALESCE(SUM(`bytes_left` = 0), 0) AS 'complete',
+    COALESCE(SUM(`bytes_left` != 0), 0) AS 'incomplete'
 FROM
     `stealthistracker_peers`
 WHERE
     `info_hash`           = :info_hash
     AND
-    `peer_id`             != :peer_id
+    (
+        `expires` IS NULL
+        OR
+        `expires` > :now
+   )
 SQL;
 
         $now = new \DateTime();
@@ -513,14 +524,50 @@ SQL;
         $statement = $this->query(
             $sql, array(
                 ':info_hash'    => $info_hash,
-                ':peer_id'      => $peer_id,
                 ':now'          => $now->format('Y-m-d H:i:s'),
             )
         );
 
         $row = $statement->fetch();
 
+        $row['info_hash'] = $info_hash;
+
+        if ($downloads) {
+            $row['downloaded'] = $this->getDownloads($info_hash);
+        }
+
         return $row;
+    }
+
+    /**
+     * Get download count
+     *
+     * @param string $info_hash Info hash
+     *
+     * @return int
+     */
+    public function getDownloads($info_hash)
+    {
+        $sql = <<<SQL
+SELECT
+    COUNT(*) AS 'downloaded'
+FROM
+    `stealthistracker_peers`
+WHERE
+    `info_hash`           = :info_hash
+    AND
+    `status`              = 'complete'
+SQL;
+
+        $statement = $this->query(
+            $sql, array(
+                ':info_hash'    => $info_hash
+            )
+        );
+
+        $row = $statement->fetch();
+
+        return $row['downloaded'];
     }
 
     /**
@@ -603,7 +650,7 @@ SQL;
             $result = call_user_func_array(
                 array($this->connection(), $function), $args
             );
-        } catch(\PDOException $e) {
+        } catch (\PDOException $e) {
             if ($e->getCode() != 'HY000'
                 || !stristr($e->getMessage(), 'server has gone away')
             ) {
@@ -621,18 +668,17 @@ SQL;
      * Helper method for preparing a PDO statement,
      * binding parameters and executing it
      *
-     * @param string $sql     SQL
-     * @param array  $params  Params
-     * @param array  $options Options
+     * @param string $sql    SQL
+     * @param array  $params Params
      *
      * @return \PDOStatement
      */
-    protected function query($sql, array $params = array(), array $options = array())
+    protected function query($sql, array $params = array())
     {
         $stmt = $this->prepare($sql);
         if (!empty($params)) {
             foreach ($params as $key => $value) {
-                $param  = (is_int($key) ? ($key + 1) : $key);
+                $param = (is_int($key) ? ($key + 1) : $key);
                 $stmt->bindParam($param, $params[$key]);
             }
         }

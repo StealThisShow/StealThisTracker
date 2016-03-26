@@ -35,6 +35,29 @@ class Core
     protected $interval;
 
     /**
+     * Required $_GET keys for announce
+     *
+     * @var array
+     */
+    protected static $announce_mandatory_keys = array(
+        'info_hash',
+        'peer_id',
+        'port',
+        'uploaded',
+        'downloaded',
+        'left'
+    );
+
+    /**
+     * Required $_GET keys for scrape
+     *
+     * @var array
+     */
+    protected static $scrape_mandatory_keys = array(
+        'info_hash'
+    );
+
+    /**
      * Initializing the object with persistence.
      *
      * @param Persistence\PersistenceInterface $persistence Persistence
@@ -49,10 +72,6 @@ class Core
         $this->persistence  = $persistence;
         $this->interval     = $interval;
         $this->ip           = $ip;
-
-        if (!$ip && isset($_SERVER['REMOTE_ADDR'])) {
-            $this->ip = $_SERVER['REMOTE_ADDR'];
-        }
     }
 
     /**
@@ -106,89 +125,13 @@ class Core
     {
         try
         {
-            $mandatory_keys = array(
-                'info_hash',
-                'peer_id',
-                'port',
-                'uploaded',
-                'downloaded',
-                'left'
-            );
-            $missing_keys = Utils::hasMissingKeys($mandatory_keys, $get);
-            if (!empty($missing_keys)) {
-                return $this->trackerFailure(
-                    "Invalid get parameters; Missing: " .
-                    implode(', ', $missing_keys)
-                );
-            }
+            $get['ip'] = $this->getAnnounceIp($get);
 
-            // IP address might come from $_GET.
-            $ip         = isset($get['ip'])         ? $get['ip']        : $this->ip;
-            $event      = isset($get['event'])      ? $get['event']     : '';
-            $compact    = isset($get['compact'])    ? $get['compact']   : false;
-            $no_peer_id = isset($get['no_peer_id']) ? $get['no_peer_id']: false;
-
-            if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-                return $this->trackerFailure("Invalid IP-address");
+            if ($failure = $this->isInvalidAnnounceRequest($get)) {
+                return $failure;
             }
-            if (20 != strlen($get['info_hash'])) {
-                return $this->trackerFailure("Invalid length of info_hash.");
-            }
-            if (20 != strlen($get['peer_id'])) {
-                return $this->trackerFailure("Invalid length of peer_id.");
-            }
-            if (!Utils::isNonNegativeInteger($get['port'])) {
-                return $this->trackerFailure("Invalid port value.");
-            }
-            if (!Utils::isNonNegativeInteger($get['uploaded'])) {
-                return $this->trackerFailure("Invalid uploaded value.");
-            }
-            if (!Utils::isNonNegativeInteger($get['downloaded'])) {
-                return $this->trackerFailure("Invalid downloaded value.");
-            }
-            if (!Utils::isNonNegativeInteger($get['left'])) {
-                return $this->trackerFailure("Invalid left value.");
-            }
-
-            if (!$this->persistence->hasTorrent($get['info_hash'])) {
-                return $this->trackerFailure("Torrent does not exist.");
-            }
-
-            $this->persistence->saveAnnounce(
-                $get['info_hash'],
-                $get['peer_id'],
-                $ip,
-                $get['port'],
-                $get['downloaded'],
-                $get['uploaded'],
-                $get['left'],
-                // Only set to complete if client said so.
-                ('completed' == $event) ? 'complete' : null,
-                // If the client gracefully exists, we set its ttl to 0,
-                // double-interval otherwise.
-                ('stopped' == $event) ? 0 : $this->interval * 2
-            );
-
-            $peers = Utils::applyPeerFilters(
-                $this->persistence->getPeers(
-                    $get['info_hash'],
-                    $get['peer_id']
-                ),
-                $compact, $no_peer_id
-            );
-            $peer_stats = $this->persistence->getPeerStats(
-                $get['info_hash'],
-                $get['peer_id']
-            );
-
-            $announce_response = array(
-                'interval'      => $this->interval,
-                'complete'      => intval($peer_stats['complete']),
-                'incomplete'    => intval($peer_stats['incomplete']),
-                'peers'         => $peers,
-            );
-
-            return Bencode\Builder::build($announce_response);
+            $response = $this->addAnnounce($get);
+            return Bencode\Builder::build($response);
         } catch (Error $e) {
             trigger_error(
                 'Failure while announcing: ' . $e->getMessage(),
@@ -198,6 +141,113 @@ class Core
                 "Failed to announce because of internal server error."
             );
         }
+    }
+
+    /**
+     * Get IP-address
+     *
+     * @param array $get $_GET
+     *
+     * @return string
+     */
+    protected function getAnnounceIp(array $get)
+    {
+        if (isset($get['ip'])) {
+            return $get['ip'];
+        } elseif (empty($this->ip)) {
+            return $_SERVER['REMOTE_ADDR'];
+        }
+        return $this->ip;
+
+    }
+
+    /**
+     * Checks announce request parameters
+     *
+     * @param array $get $_GET
+     *
+     * @return bool|Bencode\Value\AbstractValue
+     */
+    protected function isInvalidAnnounceRequest(array $get)
+    {
+        if ($failure = $this->isMissingKeys(self::$announce_mandatory_keys, $get)
+        ) {
+            return $failure;
+        } elseif (!filter_var($get['ip'], FILTER_VALIDATE_IP)) {
+            return $this->trackerFailure("Invalid IP-address");
+        } elseif (20 != strlen($get['info_hash'])) {
+            return $this->trackerFailure("Invalid length of info_hash.");
+        } elseif (20 != strlen($get['peer_id'])) {
+            return $this->trackerFailure("Invalid length of peer_id.");
+        } elseif (!Utils::isNonNegativeInteger($get['port'])) {
+            return $this->trackerFailure("Invalid port value.");
+        } elseif (!Utils::isNonNegativeInteger($get['uploaded'])) {
+            return $this->trackerFailure("Invalid uploaded value.");
+        } elseif (!Utils::isNonNegativeInteger($get['downloaded'])) {
+            return $this->trackerFailure("Invalid downloaded value.");
+        } elseif (!Utils::isNonNegativeInteger($get['left'])) {
+            return $this->trackerFailure("Invalid left value.");
+        } elseif (!$this->persistence->hasTorrent($get['info_hash'])) {
+            return $this->trackerFailure("Torrent does not exist.");
+        }
+        return false;
+    }
+
+    /**
+     * Stores the announce in persistence
+     *
+     * @param array $get $_GET
+     *
+     * @return array
+     */
+    protected function addAnnounce(array $get)
+    {
+        $event      = isset($get['event']) ? $get['event'] : '';
+        $compact    = isset($get['compact']) ? $get['compact'] : false;
+        $no_peer_id = isset($get['no_peer_id']) ? $get['no_peer_id'] : false;
+        $this->persistence->saveAnnounce(
+            $get['info_hash'],
+            $get['peer_id'],
+            $get['ip'],
+            $get['port'],
+            $get['downloaded'],
+            $get['uploaded'],
+            $get['left'],
+            // Only set to complete if client said so.
+            ('completed' == $event) ? 'complete' : null,
+            // If the client gracefully exists, we set its ttl to 0,
+            // double-interval otherwise.
+            ('stopped' == $event) ? 0 : $this->interval * 2
+        );
+        return $this->getAnnounceResponse($get, $compact, $no_peer_id);
+    }
+
+    /**
+     * Get announce response
+     *
+     * @param array $get        $_GET
+     * @param bool  $compact    Compact
+     * @param bool  $no_peer_id No peer ID
+     *
+     * @return array
+     */
+    protected function getAnnounceResponse(array $get, $compact, $no_peer_id)
+    {
+        $peers = Utils::applyPeerFilters(
+            $this->persistence->getPeers(
+                $get['info_hash'],
+                $get['peer_id']
+            ),
+            $compact, $no_peer_id
+        );
+        $peer_stats = $this->persistence->getPeerStats($get['info_hash']);
+
+        return array(
+            'interval'      => $this->interval,
+            'complete'      => intval($peer_stats['complete']),
+            'incomplete'    => intval($peer_stats['incomplete']),
+            'peers'         => $peers,
+        );
     }
 
     /**
@@ -212,43 +262,11 @@ class Core
     public function scrape(array $get)
     {
         try {
-            $mandatory_keys = array(
-                'info_hash',
-            );
-            $missing_keys = Utils::hasMissingKeys($mandatory_keys, $get);
-            if (!empty($missing_keys)) {
-                return $this->trackerFailure(
-                    "Invalid get parameters; Missing: " .
-                    implode(', ', $missing_keys)
-                );
+            if ($failure = $this->isInvalidScrapeRequest($get)) {
+                return $failure;
             }
-
-            if (20 != strlen($get['info_hash'])) {
-                return $this->trackerFailure("Invalid length of info_hash.");
-            }
-
-            if (!$this->persistence->hasTorrent($get['info_hash'])) {
-                return $this->trackerFailure("Torrent does not exist.");
-            }
-
-            $peer_id = isset($get['peer_id']) ? $get['peer_id']: '';
-
-            $peer_stats = $this->persistence->getPeerStats(
-                $get['info_hash'],
-                $peer_id
-            );
-
-            $scrape_response = array(
-                'files' => array(
-                    $peer_stats['info_hash'] => array(
-                        'complete'      => intval($peer_stats['complete']),
-                        'incomplete'    => intval($peer_stats['incomplete']),
-                        'downloaded'    => intval($peer_stats['downloaded'])
-                    )
-                )
-            );
-
-            return Bencode\Builder::build($scrape_response);
+            $response = $this->getScrapeResponse($get);
+            return Bencode\Builder::build($response);
         } catch (Error $e) {
             trigger_error(
                 'Failure while scraping: ' . $e->getMessage(),
@@ -261,11 +279,52 @@ class Core
     }
 
     /**
+     * Checks scrape request parameters
+     *
+     * @param array $get $_GET
+     *
+     * @return bool|Bencode\Value\AbstractValue
+     */
+    protected function isInvalidScrapeRequest(array $get)
+    {
+        if ($failure = $this->isMissingKeys(self::$scrape_mandatory_keys, $get)
+        ) {
+            return $failure;
+        } elseif (20 != strlen($get['info_hash'])) {
+            return $this->trackerFailure("Invalid length of info_hash.");
+        } elseif (!$this->persistence->hasTorrent($get['info_hash'])) {
+            return $this->trackerFailure("Torrent does not exist.");
+        }
+        return false;
+    }
+
+    /**
+     * Get scrape response
+     *
+     * @param array $get $_GET
+     *
+     * @return array
+     */
+    protected function getScrapeResponse(array $get)
+    {
+        $peer_stats = $this->persistence->getPeerStats($get['info_hash'], true);
+        return array(
+            'files' => array(
+                $peer_stats['info_hash'] => array(
+                    'complete'      => intval($peer_stats['complete']),
+                    'incomplete'    => intval($peer_stats['incomplete']),
+                    'downloaded'    => intval($peer_stats['downloaded'])
+                )
+            )
+        );
+    }
+
+    /**
      * Creates a bencoded tracker failure message.
      *
      * @param string $message Public description of the failure.
      *
-     * @return string
+     * @return Bencode\Value\AbstractValue
      */
     protected function trackerFailure($message)
     {
@@ -274,5 +333,25 @@ class Core
                 'failure reason' => $message
             )
         );
+    }
+
+    /**
+     * Checks missing keys
+     *
+     * @param array $mandatory Mandatory keys
+     * @param array $get       The $_GET request
+     *
+     * @return bool|Bencode\Value\AbstractValue
+     */
+    protected function isMissingKeys(array $mandatory, array $get)
+    {
+        $missing_keys = array_diff($mandatory, array_keys($get));
+        if (!empty($missing_keys)) {
+            return $this->trackerFailure(
+                "Invalid get parameters; Missing: " .
+                implode(', ', $missing_keys)
+            );
+        }
+        return false;
     }
 }

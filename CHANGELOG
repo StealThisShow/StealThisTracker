@@ -12,3 +12,7 @@
   * Added 'created by' attribute to Torrent
   * Added default piece length of 256 kB to Torrent
   * Correction for proper 'downloaded' count in scrape response
+* 0.1.3-alpha
+  * Added 'created by' attribute to persistence
+  * Code optimizations
+  * Added index to 'expires' column of peers table to improve performance for large tables

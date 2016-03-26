@@ -20,7 +20,7 @@ class Blackhole implements LoggerInterface
      *
      * @return void
      */
-    public function logMessage( $message )
+    public function logMessage($message)
     {
     }
 
@@ -31,7 +31,7 @@ class Blackhole implements LoggerInterface
      *
      * @return void
      */
-    public function logError( $message )
+    public function logError($message)
     {
     }
 }

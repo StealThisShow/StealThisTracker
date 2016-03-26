@@ -62,7 +62,7 @@ abstract class Forker
 
         // If children are negative, they are automatically recreated when terminate.
         $permanent = $this->wanted_children < 0;
-        $this->wanted_children = abs($this->wanted_children);
+        $this->wanted_children = (int) abs($this->wanted_children);
 
         $this->forkChildren($this->wanted_children, $permanent);
     }
@@ -84,11 +84,7 @@ abstract class Forker
         // It is because session group and process group has the same ID as their
         // leader process. Now if you assign the leader process to another
         // session/process group, the IDs will collide.
-        $pid = $this->fork();
-        if ($pid > 0) {
-             // We are in the parent, so we terminate.
-            exit(0);
-        }
+        $this->fork(true);
 
         // Becoming leader of a new session/process group - detaching from shell.
         $sid = posix_setsid();
@@ -103,11 +99,7 @@ abstract class Forker
         // Forking again for not being session/process group leaders
         // will disallow the process
         // to "accidentally" open a controlling terminal for itself (System V OSs).
-        $pid = $this->fork();
-        if ($pid > 0) {
-             // We are in the parent, so we terminate.
-            exit(0);
-        }
+        $this->fork(true);
 
         // Releasing current directory and closing open
         // file descriptors (standard IO).
@@ -160,6 +152,8 @@ abstract class Forker
      */
     public function forkChildren($n_children, $permanent)
     {
+        $status = null;
+
         if (0 >= $n_children) {
             return false;
         }
@@ -183,6 +177,7 @@ abstract class Forker
             while (!$permanent && pcntl_wait($status)) {
                 // If we don't need to recreate child processes on exit
                 // we just wait for them to die to avoid zombies.
+                continue;
             }
 
             $pid_exit = pcntl_wait($status); // Check the status?
@@ -198,15 +193,20 @@ abstract class Forker
     /**
      * Forks the currently running process.
      *
+     * @param bool $exit_parent Exit if parent process
+     *
+     * @return int Forked process ID or 0 if you are in the child already.
      * @throws Error if the forking is unsuccessful.
-     * @return integer Forked process ID or 0 if you are in the child already.
      */
-    protected function fork()
+    protected function fork($exit_parent = false)
     {
         $pid = pcntl_fork();
 
         if (-1 == $pid) {
             throw new Error('Unable to fork.');
+        } elseif ($exit_parent && $pid > 0) {
+            // We are in the parent, so we terminate.
+            exit(0);
         }
 
         return $pid;
