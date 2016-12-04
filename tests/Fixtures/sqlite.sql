@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS `stealthistracker_peers`;
 
 CREATE TABLE `stealthistracker_peers` (
   -- Current peers for torrents.
-  `id` UNSIGNED INT PRIMARY KEY NOT NULL,  -- ID
+  `id` INTEGER PRIMARY KEY,  -- ID
   `peer_id` TEXT NOT NULL,  -- Peer unique ID.
   `ip_address` BLOB NOT NULL, -- IP address of the client.
   `port` UNSIGNED INT NOT NULL, -- Listening port of the peer.
@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS `stealthistracker_torrents`;
 
 CREATE TABLE `stealthistracker_torrents` (
   -- Table to store basic torrent file information upon creation.
-  `id` UNSIGNED INT PRIMARY KEY NOT NULL,  -- ID
+  `id` INTEGER PRIMARY KEY,  -- ID
   `info_hash` TEXT NOT NULL, -- Info hash.
   `length` UNSIGNED INT NOT NULL, -- Size of the contained file in bytes.
   `pieces_length` UNSIGNED INT NOT NULL, -- Size of one piece in bytes.
