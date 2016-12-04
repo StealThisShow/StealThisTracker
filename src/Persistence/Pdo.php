@@ -294,18 +294,34 @@ SQL;
     ) {
         $sql = <<<SQL
 SELECT
+    `id`
+FROM
+    `stealthistracker_torrents`
+WHERE
+    `info_hash` = :info_hash
+SQL;
+        $statement = $this->query(
+            $sql, array(
+                ':info_hash'    => $info_hash,
+            )
+        );
+
+        $info_hash_id = $statement->fetchColumn(0);
+
+        $sql = <<<SQL
+SELECT
     1
 FROM
     `stealthistracker_peers`
 WHERE
     `peer_id`   = :peer_id
     AND
-    `info_hash` = :info_hash
+    `info_hash_id` = :info_hash_id
 SQL;
 
         $statement = $this->query(
             $sql, array(
-                ':info_hash'    => $info_hash,
+                ':info_hash_id'    => $info_hash_id,
                 ':peer_id'      => $peer_id,
             )
         );
@@ -325,14 +341,14 @@ SET
 WHERE
     `peer_id` = :peer_id
     AND
-    `info_hash` = :info_hash
+    `info_hash_id` = :info_hash_id
 SQL;
         } else {
             $sql = <<<SQL
 INSERT INTO
     `stealthistracker_peers`
 (
-    `info_hash`,
+    `info_hash_id`,
     `peer_id`,
     `ip_address`,
     `port`,
@@ -344,7 +360,7 @@ INSERT INTO
 )
 VALUES
 (
-    :info_hash,
+    :info_hash_id,
     :peer_id,
     :ip,
     :port,
@@ -365,7 +381,7 @@ SQL;
 
         $this->query(
             $sql, array(
-                ':info_hash'    => $info_hash,
+                ':info_hash_id' => $info_hash_id,
                 ':peer_id'      => $peer_id,
                 ':ip'           => inet_pton($ip),
                 ':port'         => $port,
@@ -449,22 +465,28 @@ SQL;
      */
     public function getPeers($info_hash, $peer_id)
     {
+        $peers = array();
+
         $sql = <<<SQL
 SELECT
-    `peer_id`,
-    `ip_address`,
-    `port`
+    peers.`peer_id` as 'peer_id',
+    peers.`ip_address` as 'ip_address',
+    peers.`port` as 'port'
 FROM
-    `stealthistracker_peers`
+    `stealthistracker_peers` peers
+INNER JOIN
+    `stealthistracker_torrents` torrents
+ON
+    peers.`info_hash_id` = torrents.`id`
 WHERE
-    `info_hash`           = :info_hash
+    torrents.`info_hash`   = :info_hash
     AND
-    `peer_id`             != :peer_id
+    peers.`peer_id`       != :peer_id
     AND
     (
-        `expires` IS NULL
+        peers.`expires` IS NULL
         OR
-        `expires` > :now
+        peers.`expires` > :now
    )
 SQL;
 
@@ -478,7 +500,6 @@ SQL;
             )
         );
 
-        $peers = array();
         while ($row = $statement->fetch()) {
             $peers[] = array(
                 'peer id'   => $row['peer_id'],
@@ -505,17 +526,21 @@ SQL;
     {
         $sql = <<<SQL
 SELECT
-    COALESCE(SUM(`bytes_left` = 0), 0) AS 'complete',
-    COALESCE(SUM(`bytes_left` != 0), 0) AS 'incomplete'
+    COALESCE(SUM(peers.`bytes_left` = 0), 0) AS 'complete',
+    COALESCE(SUM(peers.`bytes_left` != 0), 0) AS 'incomplete'
 FROM
-    `stealthistracker_peers`
+    `stealthistracker_peers` peers
+INNER JOIN
+    `stealthistracker_torrents` torrents
+ON
+    peers.`info_hash_id` = torrents.`id`
 WHERE
-    `info_hash`           = :info_hash
+    torrents.`info_hash` = :info_hash
     AND
     (
-        `expires` IS NULL
+        peers.`expires` IS NULL
         OR
-        `expires` > :now
+        peers.`expires` > :now
    )
 SQL;
 
@@ -552,11 +577,15 @@ SQL;
 SELECT
     COUNT(*) AS 'downloaded'
 FROM
-    `stealthistracker_peers`
+    `stealthistracker_peers` peers
+INNER JOIN
+    `stealthistracker_torrents` torrents
+ON
+    peers.`info_hash_id` = torrents.`id`
 WHERE
-    `info_hash`           = :info_hash
+    torrents.`info_hash`  = :info_hash
     AND
-    `status`              = 'complete'
+    peers.`status`        = 'complete'
 SQL;
 
         $statement = $this->query(
